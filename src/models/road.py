@@ -1,9 +1,13 @@
-import queue
-from pygame import Rect
 from typing import List, Tuple
 
 
-class Road(Rect):
+class Road:
+    def __init__(self, start:Tuple[int,int], end: Tuple[int,int]):
+        self.start = start
+        self.end = end
 
-    def __init_subclass__(cls) -> None:
-        return super().__init_subclass__()
+    @property
+    def get_rect(self):
+        x0,y0 = self.start
+        x1,_ = self.end
+        return (x0, y0, x1-x0, 10)
