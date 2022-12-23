@@ -1,6 +1,7 @@
 import pygame
 from pygame import gfxdraw
 from pygame.locals import *
+from pyparsing import python_style_comment
 
 from models.road import Road
 from models.vehicle import Vehicle
@@ -31,12 +32,24 @@ def createRoads(pair_point_list):
     return roads
     
 
+pos_x, pos_y, end_y, start_x, curv = 700, 400, 900, 0, 40
+
 road_locations = [
-    ((0,400),(700,400)),
-    ((710,410),(710,900)),
+    ((start_x, pos_y),(pos_x, pos_y)),
+    ((pos_x + curv, pos_y + curv), (pos_x + curv, end_y)),
     # Road((700,400),(1400,400))
-    *Road.get_curve_road((700,400), (710,410), (710, 400))
+    *Road.get_curve_road    ((pos_x, pos_y), (pos_x + curv, pos_y + curv),  ( pos_x + curv, pos_y))
 ]
+
+# road_locations = [
+#     ((0,400),(700,400)),
+#     ((710,410),(710,900)),
+#     ((pos_x,start_y),(pos_x, pos_y)),
+#     ((pos_x + curv, pos_y + curv), (end_x, pos_y + curv)),
+#     # Road((700,400),(1400,400))
+#     *Road.get_curve_road((700,400), (710,410), (710, 400))
+#     *Road.get_curve_road((pos_x + curv, pos_y + curv), (pos_x, pos_y), ( pos_x + curv, pos_y))
+# ]
 
 roads = [Road(x,y) for x,y in road_locations]
 
