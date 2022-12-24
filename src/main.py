@@ -111,6 +111,7 @@ vehicles2 = [
     Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
 ]
 
+toDelete = []
 running = True
 count = 0
 while running:
@@ -139,17 +140,17 @@ while running:
         
         if car2.x > roads[car2.path[car2.current_road]].length:
             car2.current_road+=1
+            if car2.current_road == len(car2.path):
+                toDelete.append(car2)
             car2.x = 0
             
+    for car2 in toDelete:
+        vehicles.remove(car2)
+    toDelete = []
+    
+    for i in range(0, len(vehicles)):
+        car2 = vehicles[i]
         draw_vehicle(screen, car2, BLUE)
-    
-    
-    #     gfxdraw.box(screen, vehicles[i].get_rect, BLUE)
-    
-    
-    # for i in range
-    
-    
     
     pygame.display.update()
 
