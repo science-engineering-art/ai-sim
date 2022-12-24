@@ -3,6 +3,7 @@ from pygame import gfxdraw
 from pygame.locals import *
 from pyparsing import python_style_comment
 
+from models.corner import corner
 from models.road import Road
 from models.vehicle import Vehicle
 
@@ -50,13 +51,27 @@ def createRoads(pair_point_list):
     return roads
     
 
-pos_x, pos_y, end_y, start_x, curv = 700, 400, 900, 0, 40
+pos_x, pos_y, end_y, start_x, curv = 700, 400, 900, 0, 5
 
 road_locations = [
     ((start_x, pos_y),(pos_x, pos_y)),
     ((pos_x + curv, pos_y + curv), (pos_x + curv, end_y)),
-    *Road.get_curve_road((pos_x, pos_y), (pos_x + curv, pos_y + curv),  ( pos_x + curv, pos_y))
+    *Road.get_curve_road((pos_x, pos_y), (pos_x + curv, pos_y + curv),  ( pos_x + curv, pos_y)),
+    
 ]
+
+pos_x, pos_y, end_y, start_x, curv = 710, 400, 0, 900, -5
+road_locations.extend([
+    ((start_x, pos_y),(pos_x, pos_y)),
+    ((pos_x + curv, pos_y + curv), (pos_x + curv, end_y)),
+    *Road.get_curve_road((pos_x, pos_y), (pos_x + curv, pos_y + curv),  ( pos_x + curv, pos_y)),
+])
+
+corner = corner(light_controled=True)
+corner.addIncomingRoads([0,17])
+corner.addOutgoingRoads([1,18])
+corner.addFollow(0,1)
+corner.addFollow(17,18)
 
 # road_locations = [
 #     ((0,400),(700,400)),
@@ -71,16 +86,30 @@ road_locations = [
 roads = [Road(x,y) for x,y in road_locations]
 
 car = Vehicle(100, 401, 14,7, [0, *range(2,17), 1])
-car2 = Vehicle(0, 401, 14,7, [0, *range(2,17), 1])
-car2.v = 20
-car2.a = 100
+# car2 = Vehicle(0, 401, 14,7, [0, *range(2,17), 1])
+# car2.v = 20
+# car2.a = 100
 
 # car.stopped = True
-# vehicles = [
-#     car,
-#     Vehicle(0,401,14,7),
-#     Vehicle(0,401,14,7)
-# ]
+vehicles = [
+    car,
+    Vehicle(0,401,14,7,[0, *range(2,17), 1]),
+    Vehicle(0,401,14,7, [0, *range(2,17), 1]),
+    Vehicle(0,401,14,7, [0, *range(2,17), 1]),
+    Vehicle(0,401,14,7, [0, *range(2,17), 1]),
+    Vehicle(0,401,14,7, [0, *range(2,17), 1]),
+    Vehicle(0,401,14,7, [0, *range(2,17), 1])
+]
+
+vehicles2 = [
+    Vehicle(0,401,14,7,[0, *range(17, 18), 1]),
+    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
+    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
+    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
+    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
+    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
+    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
+]
 
 running = True
 count = 0
@@ -99,24 +128,28 @@ while running:
         draw_road(screen,road, GRAY)
     
     
-    car.update()
-    car2.update(lead=car)
-    
-    if car.x > roads[car.path[car.current_road]].length:
-        car.current_road+=1
-        car.x = 0
-        
-    if car2.x > roads[car2.path[car2.current_road]].length:
-        car2.current_road+=1
-        car2.x = 0
-        
-    draw_vehicle(screen, car, BLUE)
-    draw_vehicle(screen, car2, BLUE)
-    
     # gfxdraw.box(screen, vehicles[0].get_rect, BLUE)
-    # for i in range(1, len(vehicles)):
-    #     vehicles[i].update(1/60, vehicles[i-1])
+    for i in range(0, len(vehicles)):
+        car2 = vehicles[i]
+        
+        if i != 0: 
+            car2.update(lead=vehicles[i-1])
+        else:
+            car2.update()
+        
+        if car2.x > roads[car2.path[car2.current_road]].length:
+            car2.current_road+=1
+            car2.x = 0
+            
+        draw_vehicle(screen, car2, BLUE)
+    
+    
     #     gfxdraw.box(screen, vehicles[i].get_rect, BLUE)
+    
+    
+    # for i in range
+    
+    
     
     pygame.display.update()
 

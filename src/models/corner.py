@@ -7,12 +7,12 @@ from models.road import Road
 
 class corner():
     
-
-    
     def __init__(self, light_controled = False):
         
         self.current_turn = -1
         self.numberOfTurns = 0
+        self.time_tick = 0
+        self.intermediate_time = 5
         self.turns = []
         self.times = []
         self.myturn = {}
@@ -20,6 +20,21 @@ class corner():
         self.IncomingRoads = []
         self.OutgoingRoads = []
         self.follow = {}
+    
+    def tick(self, t = 1):
+        self.time_tick += t
+        if self.current_turn < 0 and self.current_turn == self.intermediate_time:
+            self.time_tick = 0
+            self.current_turn  = -self.current_turn
+        elif self.tiems[self.current_turn] == self.time_tick:
+            self.time_tick = 0
+            self.current_turn += 1
+            if self.current_turn == self.numberOfTurns:
+                self.current_turn = -1
+            else:
+                self.current_turn = -self.current_turn
+            
+            
     
     def addIncomingRoads(self, roads):
         self.IncomingRoads.extend(roads)
@@ -48,8 +63,7 @@ class corner():
                 self.myturn[(in_road, out_road)] = order
                         
             else:
-                self.times[self.numberOfTurns] = self.default_time
-                self.times[self.numberOfTurns] = time
+                self.times.append(time)
                 self.numberOfTurns+=1
                 self.turns.append([(in_road, out_road)])
                 self.myturn[(in_road, out_road)] = self.numberOfTurns - 1
