@@ -26,8 +26,8 @@ def draw_road(screen, road : Road, color):
 
     gfxdraw.filled_polygon(screen, vertices, color)
 
-def draw_vehicle(scree, vehicle : Vehicle, color):
-    l = vehicle.length
+def draw_vehicle(screen, vehicle : Vehicle, color):
+    l = -vehicle.length
     h = vehicle.width
     road : Road = roads[vehicle.path[vehicle.current_road]]
     road_x, road_y = road.start
@@ -55,7 +55,7 @@ pos_x, pos_y, end_y, start_x, curv = 700, 400, 900, 0, 40
 road_locations = [
     ((start_x, pos_y),(pos_x, pos_y)),
     ((pos_x + curv, pos_y + curv), (pos_x + curv, end_y)),
-    *Road.get_curve_road    ((pos_x, pos_y), (pos_x + curv, pos_y + curv),  ( pos_x + curv, pos_y))
+    *Road.get_curve_road((pos_x, pos_y), (pos_x + curv, pos_y + curv),  ( pos_x + curv, pos_y))
 ]
 
 # road_locations = [
@@ -70,7 +70,10 @@ road_locations = [
 
 roads = [Road(x,y) for x,y in road_locations]
 
-car = Vehicle(0, 401, 14,7, [0, *range(2,17), 1])
+car = Vehicle(100, 401, 14,7, [0, *range(2,17), 1])
+car2 = Vehicle(0, 401, 14,7, [0, *range(2,17), 1])
+car2.v = 20
+car2.a = 100
 
 # car.stopped = True
 # vehicles = [
@@ -97,10 +100,18 @@ while running:
     
     
     car.update()
+    car2.update(lead=car)
+    
     if car.x > roads[car.path[car.current_road]].length:
         car.current_road+=1
         car.x = 0
+        
+    if car2.x > roads[car2.path[car2.current_road]].length:
+        car2.current_road+=1
+        car2.x = 0
+        
     draw_vehicle(screen, car, BLUE)
+    draw_vehicle(screen, car2, BLUE)
     
     # gfxdraw.box(screen, vehicles[0].get_rect, BLUE)
     # for i in range(1, len(vehicles)):
