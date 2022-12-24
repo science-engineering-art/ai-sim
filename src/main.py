@@ -4,6 +4,7 @@ from pygame.locals import *
 from pyparsing import python_style_comment
 
 from models.corner import corner
+from models.corner import corner
 from models.road import Road
 from models.vehicle import Vehicle
 
@@ -60,18 +61,18 @@ road_locations = [
     
 ]
 
-pos_x, pos_y, end_y, start_x, curv = 710, 400, 0, 900, -5
+pos_x, pos_y, end_y, start_x, curv = 710, 400, 0, 1400, -5
 road_locations.extend([
     ((start_x, pos_y),(pos_x, pos_y)),
     ((pos_x + curv, pos_y + curv), (pos_x + curv, end_y)),
     *Road.get_curve_road((pos_x, pos_y), (pos_x + curv, pos_y + curv),  ( pos_x + curv, pos_y)),
 ])
 
-corner = corner(light_controled=True)
-corner.addIncomingRoads([0,17])
-corner.addOutgoingRoads([1,18])
-corner.addFollow(0,1)
-corner.addFollow(17,18)
+corn = corner(light_controled=True)
+corn.addIncomingRoads([0,17])
+corn.addOutgoingRoads([1,18])
+corn.addFollow(0,1)
+corn.addFollow(17,18)
 
 # road_locations = [
 #     ((0,400),(700,400)),
@@ -102,19 +103,22 @@ vehicles = [
 ]
 
 vehicles2 = [
-    Vehicle(0,401,14,7,[0, *range(17, 18), 1]),
-    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
-    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
-    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
-    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
-    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
-    Vehicle(0,401,14,7, [0, *range(17, 18), 1]),
+    Vehicle(0,401,14,7,[17, *range(19, 32), 18]),
+    Vehicle(0,401,14,7,[17, *range(19, 32), 18]),
+    Vehicle(0,401,14,7,[17, *range(19, 32), 18]),
+    Vehicle(0,401,14,7,[17, *range(19, 32), 18]),
+    Vehicle(0,401,14,7,[17, *range(19, 32), 18]),
+    Vehicle(0,401,14,7,[17, *range(19, 32), 18]),
+    Vehicle(0,401,14,7,[17, *range(19, 32), 18]),
 ]
 
 toDelete = []
 running = True
 count = 0
 while running:
+    
+    corn.tick()
+
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -139,10 +143,16 @@ while running:
             car2.update()
         
         if car2.x > roads[car2.path[car2.current_road]].length:
-            car2.current_road+=1
-            if car2.current_road == len(car2.path):
+            if car2.current_road == len(car2.path) - 1:
                 toDelete.append(car2)
-            car2.x = 0
+            else:
+                if corn.CanIPass(car2.path[car2.current_road], car2.path[car2.current_road + 1]):
+                    car2.stopped = False
+                    car2.current_road+=1
+                    car2.x = 0
+                else:
+                    car2.stopped = True
+                    
             
     for car2 in toDelete:
         vehicles.remove(car2)
@@ -150,6 +160,33 @@ while running:
     
     for i in range(0, len(vehicles)):
         car2 = vehicles[i]
+        draw_vehicle(screen, car2, BLUE)
+        
+    for i in range(0, len(vehicles2)):
+        car2 = vehicles2[i]
+        
+        if i != 0: 
+            car2.update(lead=vehicles2[i-1])
+        else:
+            car2.update()
+        
+        if car2.x > roads[car2.path[car2.current_road]].length:
+            if car2.current_road == len(car2.path) - 1:
+                toDelete.append(car2)
+            else:
+                if corn.CanIPass(car2.path[car2.current_road], car2.path[car2.current_road + 1]):
+                    car2.stopped = False
+                    car2.current_road+=1
+                    car2.x = 0
+                else:
+                    car2.stopped = True
+            
+    for car2 in toDelete:
+        vehicles2.remove(car2)
+    toDelete = []
+    
+    for i in range(0, len(vehicles2)):
+        car2 = vehicles2[i]
         draw_vehicle(screen, car2, BLUE)
     
     pygame.display.update()

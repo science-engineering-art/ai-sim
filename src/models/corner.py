@@ -2,7 +2,7 @@
 from typing import List
 
 from sympy import false
-from models.road import Road
+# from road import Road
 
 
 class corner():
@@ -12,7 +12,7 @@ class corner():
         self.current_turn = -1
         self.numberOfTurns = 0
         self.time_tick = 0
-        self.intermediate_time = 5
+        self.intermediate_time = 100
         self.turns = []
         self.times = []
         self.myturn = {}
@@ -23,16 +23,16 @@ class corner():
     
     def tick(self, t = 1):
         self.time_tick += t
-        if self.current_turn < 0 and self.current_turn == self.intermediate_time:
+        if self.current_turn < 0 and self.time_tick == self.intermediate_time:
             self.time_tick = 0
-            self.current_turn  = -self.current_turn
-        elif self.tiems[self.current_turn] == self.time_tick:
+            self.current_turn  = -self.current_turn - 1
+        elif self.times[self.current_turn] == self.time_tick:
             self.time_tick = 0
             self.current_turn += 1
             if self.current_turn == self.numberOfTurns:
                 self.current_turn = -1
             else:
-                self.current_turn = -self.current_turn
+                self.current_turn = -self.current_turn - 1
             
             
     
@@ -44,7 +44,7 @@ class corner():
     def addOutgoingRoads(self, roads):
         self.OutgoingRoads.extend(roads)
         
-    def addFollow(self, in_road, out_road, order = None, displace = False, time = 10):
+    def addFollow(self, in_road, out_road, order = None, displace = False, time = 400):
         self.follow[in_road].append(out_road)
         
         if self.light_controled:
@@ -68,7 +68,7 @@ class corner():
                 self.turns.append([(in_road, out_road)])
                 self.myturn[(in_road, out_road)] = self.numberOfTurns - 1
         
-    def addFollows(self, in_roads, out_roads, order = None, displace = 0):
+    def addFollows(self, in_roads, out_roads, order = None, displace = False, time = 1000):
         
         if order == None:
             order = self.numberOfTurns
@@ -76,11 +76,10 @@ class corner():
         for in_road in in_roads:
             for out_road in out_roads:
                 if out_roads == out_roads[0]:
-                    self.addFollow(in_road, out_road, order, displace)
+                    self.addFollow(in_road, out_road, order, displace, time)
                 else:
                     self.addFollow(in_road, out_road, order)
     
-    @property
     def CanIPass(self, in_road, out_road):
         
         return self.current_turn == self.myturn[(in_road, out_road)] 
