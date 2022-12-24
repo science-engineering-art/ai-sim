@@ -27,7 +27,7 @@ class Road:
             
         return roads
     
-    def create_curve_road_points(init_point, end_point, inclination_point, steps = 40):
+    def create_curve_road_points(init_point, end_point, inclination_point, steps = 15):
         points = []
         
         for i in range(steps + 1):

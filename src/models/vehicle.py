@@ -3,13 +3,15 @@ from numpy import sqrt
 
 class Vehicle:
 
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, length, width, path = []):
         # dimensions
         self.x = x
         self.y = y
+        self.length = length
         self.width = width
-        self.height = height
         
+        self.current_road = 0
+        self.path = path
         self.v = 0
         self.v_max = 60
         self.a = 0
@@ -23,7 +25,7 @@ class Vehicle:
 
     @property
     def get_rect(self) -> Tuple[int,int,int,int]:
-        return (self.x, self.y, self.width, self.height)
+        return (self.x, self.y, self.length, self.width)
 
     def update(self, dt = 1/60, lead: 'Vehicle' = None):
         
@@ -38,7 +40,7 @@ class Vehicle:
 
         alpha = 0
         if lead: 
-            delta_x = lead.x - self.x - self.width
+            delta_x = lead.x - self.x - self.length
             delta_v = self.v - lead.v
             alpha = (self.s0 + max(0, self.v*self.T + self.v*delta_v/(2*sqrt(self.a_max*self.b_max)))) / delta_x
 
