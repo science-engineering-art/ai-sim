@@ -19,7 +19,7 @@ class Vehicle:
         self.b_max = 4.61
 
         self.s0 = 4
-        self.T = 1
+        self.T = 0
 
         self.stopped = False
 
