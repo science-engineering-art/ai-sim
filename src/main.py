@@ -70,7 +70,7 @@ road_locations = [
 
 roads = [Road(x,y) for x,y in road_locations]
 
-car = Vehicle(0, 401, 14,7, [0,1,2,3,4])
+car = Vehicle(0, 401, 14,7, [0, *range(2,17), 1])
 
 # car.stopped = True
 # vehicles = [
@@ -95,9 +95,13 @@ while running:
     for road in roads:
         draw_road(screen,road, GRAY)
     
+    
+    car.update()
+    if car.x > roads[car.path[car.current_road]].length:
+        car.current_road+=1
+        car.x = 0
     draw_vehicle(screen, car, BLUE)
     
-    # vehicles[0].update()
     # gfxdraw.box(screen, vehicles[0].get_rect, BLUE)
     # for i in range(1, len(vehicles)):
     #     vehicles[i].update(1/60, vehicles[i-1])
