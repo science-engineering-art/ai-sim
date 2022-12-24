@@ -19,7 +19,7 @@ class Vehicle:
         self.b_max = 4.61
 
         self.s0 = 4
-        self.T = 0
+        self.T = 1
 
         self.stopped = False
 
@@ -27,7 +27,7 @@ class Vehicle:
     def get_rect(self) -> Tuple[int,int,int,int]:
         return (self.x, self.y, self.length, self.width)
 
-    def update(self, dt = 1/260, lead: 'Vehicle' = None):
+    def update(self, dt = 1/160, lead: 'Vehicle' = None):
         
         if self.stopped: return
 

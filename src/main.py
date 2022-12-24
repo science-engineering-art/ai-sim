@@ -71,8 +71,8 @@ road_locations.extend([
 corn = corner(light_controled=True)
 corn.addIncomingRoads([0,17])
 corn.addOutgoingRoads([1,18])
-corn.addFollow(17,18)
 corn.addFollow(0,1)
+corn.addFollow(17,18)
 
 # road_locations = [
 #     ((0,400),(700,400)),
@@ -86,13 +86,19 @@ corn.addFollow(0,1)
 
 roads = [Road(x,y) for x,y in road_locations]
 
-car = Vehicle(100, 401, 14,7, [0, *range(2,17), 1])
+r1, r2 = roads[0], roads[17]
+
+car = Vehicle(0, 401, 14,7, [0, *range(2,17), 1])
 # car2 = Vehicle(0, 401, 14,7, [0, *range(2,17), 1])
 # car2.v = 20
 # car2.a = 100
 
 # car.stopped = True
+s1, s2 = Vehicle(r1.length,401,3,9,[0]), Vehicle(r2.length,401,3,9,[17])
+s1.stopped = True
+s2.stopped = True
 vehicles = [
+    s1, 
     car,
     Vehicle(0,401,14,7,[0, *range(2,17), 1]),
     Vehicle(0,401,14,7, [0, *range(2,17), 1]),
@@ -103,6 +109,8 @@ vehicles = [
 ]
 
 vehicles2 = [
+    
+    s2,
     Vehicle(0,401,14,7,[17, *range(19, 32), 18]),
     Vehicle(0,401,14,7,[17, *range(19, 32), 18]),
     Vehicle(0,401,14,7,[17, *range(19, 32), 18]),
@@ -123,6 +131,23 @@ count = 0
 while running:
     # break    
     corn.tick()
+    print(corn.current_turn)
+    if(corn.current_turn < 0):
+        if vehicles[0] != s1:
+            vehicles.insert(0,s1)
+        if vehicles2[0] != s2:
+            vehicles2.insert(0,s2)
+    if(corn.current_turn == 0):
+        if vehicles[0] == s1:
+            vehicles.pop(0)
+        if vehicles2[0] != s2:
+            vehicles2.insert(0,s2)
+    if(corn.current_turn == 1):
+        if vehicles[0] != s1:
+            vehicles.insert(0,s1)
+        if vehicles2[0] == s2:
+            vehicles2.pop(0)
+    
     # print(corn.current_turn)
 
     for event in pygame.event.get():
@@ -142,6 +167,9 @@ while running:
     for i in range(0, len(vehicles)):
         car2 = vehicles[i]
         
+        if car2 == s1:
+            continue
+        
         if i != 0: 
             car2.update(lead=vehicles[i-1])
         else:
@@ -150,17 +178,8 @@ while running:
         if car2.x > roads[car2.path[car2.current_road]].length:
             if car2.current_road == len(car2.path) - 1:
                 toDelete.append(car2)
-            else:
-                x1, x2 = car2.path[car2.current_road], car2.path[car2.current_road] + 1
-                print(x1,x2, corn.myturn.get((x1,x2)))
-                if corn.myturn.get((x1,x2)) != None:
-                    print(corn.myturn[(x1,x2)])
-                if corn.myturn.get((x1,x2)) == None or corn.CanIPass(x1,x2):
-                    car2.stopped = False
-                    car2.current_road+=1
-                    car2.x = 0
-                else:
-                    car2.stopped = True
+            car2.current_road+=1
+            car2.x = 0
                     
             
     for car2 in toDelete:
@@ -174,6 +193,9 @@ while running:
     for i in range(0, len(vehicles2)):
         car2 = vehicles2[i]
         
+        if car2 == s2:
+            continue
+        
         if i != 0: 
             car2.update(lead=vehicles2[i-1])
         else:
@@ -182,17 +204,9 @@ while running:
         if car2.x > roads[car2.path[car2.current_road]].length:
             if car2.current_road == len(car2.path) - 1:
                 toDelete.append(car2)
-            else:
-                x1, x2 = car2.path[car2.current_road], car2.path[car2.current_road] + 1
-                print(x1,x2, corn.myturn.get((x1,x2)))
-                if corn.myturn.get((x1,x2)) != None:
-                    print(corn.myturn[(x1,x2)])
-                if corn.myturn.get((x1,x2)) == None or corn.CanIPass(x1,x2):
-                    car2.stopped = False
-                    car2.current_road+=1
-                    car2.x = 0
-                else:
-                    car2.stopped = True
+            car2.current_road+=1
+            car2.x = 0
+                    
             
     for car2 in toDelete:
         vehicles2.remove(car2)

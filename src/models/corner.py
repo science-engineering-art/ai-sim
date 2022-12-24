@@ -12,7 +12,7 @@ class corner():
         self.current_turn = -1
         self.numberOfTurns = 0
         self.time_tick = 0
-        self.intermediate_time = 100
+        self.intermediate_time = 1000
         self.turns = []
         self.times = []
         self.myturn = {}
@@ -44,7 +44,7 @@ class corner():
     def addOutgoingRoads(self, roads):
         self.OutgoingRoads.extend(roads)
         
-    def addFollow(self, in_road, out_road, order = None, displace = False, time = 400):
+    def addFollow(self, in_road, out_road, order = None, displace = False, time = 4000):
         self.follow[in_road].append(out_road)
         
         if self.light_controled:
