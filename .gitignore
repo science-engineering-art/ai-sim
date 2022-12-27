@@ -6,6 +6,7 @@ __pycache__/
 *$py.class
 
 proof.py
+proof2.py
 
 # C extensions
 *.so

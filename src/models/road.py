@@ -11,6 +11,8 @@ class Road:
         self.length = distance.euclidean(self.start, self.end)
         self.angle_sin = (self.end[1]-self.start[1]) / self.length
         self.angle_cos = (self.end[0]-self.start[0]) / self.length
+        self.vehicles = []
+        self.end = None
 
     @property
     def get_rect(self):
@@ -38,5 +40,5 @@ class Road:
         
         return points
             
-            
+    
 
