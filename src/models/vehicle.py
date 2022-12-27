@@ -29,7 +29,7 @@ class Vehicle:
     def get_rect(self) -> Tuple[int,int,int,int]:
         return (self.x, self.y, self.length, self.width)
 
-    def update(self, dt = 1/60, lead: 'Vehicle' = None):
+    def update(self, dt = 1/260, lead: 'Vehicle' = None):
         
         if self.stopped: return
         # if self.stopped: 
@@ -51,5 +51,5 @@ class Vehicle:
         self.a = self.a_max * (1 - (self.v/self.v_max)**4 - alpha**2)
         
         
-    def NextRoad(self):
-        
+    
+             

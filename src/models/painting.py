@@ -1,8 +1,8 @@
 
 import pygame
 from pygame import gfxdraw
-from road import Road
-from vehicle import Vehicle
+from models.road import Road
+from models.vehicle import Vehicle
 import random
 from copy import deepcopy
 
@@ -11,7 +11,7 @@ BLUE = (0, 0, 255)
 GRAY = (127, 127, 127)
 
 
-class Peinting:
+class Painting:
     def draw_road(screen, road : Road, color):
         x, y = road.start
         l = road.length

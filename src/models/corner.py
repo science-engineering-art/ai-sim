@@ -37,21 +37,23 @@ class corner():
             
     
     def addIncomingRoads(self, roads):
-        self.IncomingRoads.extend(roads)
-        for road in roads:
-            self.follow[road] = []
         
+        for in_road in roads:
+            if not self.IncomingRoads.__contains__(in_road):
+                self.IncomingRoads.append(in_road)
+                self.follow[in_road] = []
+            
     def addOutgoingRoads(self, roads):
-        self.OutgoingRoads.extend(roads)
+        for out_road in roads:
+            if not self.OutgoingRoads.__contains__(out_road):
+                self.OutgoingRoads.append(out_road)
         
     def addFollow(self, in_road, out_road, order = None, displace = False, time = 400):
-        self.follow[in_road].append(out_road)
         
-        if not self.IncomingRoads.__contains__(in_road):
-            self.IncomingRoads.append(in_road)
-            
-        if not self.OutgoingRoads.__contains__(out_road):
-            self.OutgoingRoads.append(out_road)
+        
+        self.addIncomingRoads([in_road])
+        self.addOutgoingRoads([out_road])
+        self.follow[in_road].append(out_road)
         
         if self.light_controled:
             if order:
