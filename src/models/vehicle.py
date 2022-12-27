@@ -1,9 +1,13 @@
 from typing import Tuple
 from numpy import sqrt
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+GRAY = (127, 127, 127)
 class Vehicle:
 
-    def __init__(self, x, length, width, path = []):
+    def __init__(self, x, length, width, path = [], color = BLUE):
         # dimensions
+        self.color = color
         self.x = x
         self.y = 0
         self.length = length

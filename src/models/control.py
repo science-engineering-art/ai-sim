@@ -2,6 +2,7 @@
 from multiprocessing.sharedctypes import copy
 from turtle import _Screen
 
+import typing
 from sympy import rot_axis1
 from models.corner import corner
 from models.vehicle import Vehicle
@@ -55,6 +56,8 @@ class control:
 
         while self.running:
             
+            for corn in self.corners:
+                corn.tick()
             screen.fill(LIGHT_GRAY)
             
             
@@ -69,25 +72,37 @@ class control:
         
             for road in self.roads:
                 Painting.draw_road(screen, road, GRAY)
+                # print(road, type(road.end_conn))
+                if type(road.end_conn) == corner and not road.end_conn.CanIPass(self.road_index[road]):
+                    road.vehicles.insert(0, Vehicle(road.length, 3, 9, color = RED))
                 self.UpdateRoad(road)
-                for car in road.vehicles:
-                    Painting.draw_vehicle(screen, road, car, BLUE)
             
+            for road in self.roads:
+                for car in road.vehicles:
+                    Painting.draw_vehicle(screen, road, car)
+                    
+                if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
+                    road.vehicles.__delitem__(0)
             
             pygame.display.update()
       
     def UpdateRoad(self, road):
-        delete_first = False
+        delete_list = [0 for _ in range(len(road.vehicles))]
         for i in range(len(road.vehicles)):
             car = road.vehicles[i]
-            car.update()
-            if i == 0:
-                if car.x >= road.length:
-                    delete_first = True
-                    self.NextRoad(car, road)
+            lead = None
+            if i != 0:
+                lead = road.vehicles[i - 1]
+            if car.color != RED:
+                car.update(lead = lead)
+            if car.x > road.length:
+                delete_list[i] = 1
+                self.NextRoad(car, road)
         
-        if delete_first:
-            road.vehicles.__delitem__(0)
+        for i in range(len(delete_list)):
+            if delete_list[i] == 1:
+                print(i)
+                road.vehicles.__delitem__(i)
             
         
           

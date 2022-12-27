@@ -23,7 +23,8 @@ class Painting:
 
         gfxdraw.filled_polygon(screen, vertices, color)
 
-    def draw_vehicle(screen, road, vehicle : Vehicle, color):
+    def draw_vehicle(screen, road, vehicle : Vehicle):
+        color = vehicle.color
         l = -vehicle.length
         h = vehicle.width
         # road : Road = roads[vehicle.path[vehicle.current_road]]
