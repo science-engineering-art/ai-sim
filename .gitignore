@@ -1,4 +1,9 @@
 map.json
+__pycache__
+cache
+ddb_storage
+.vscode
+state_of_the_art
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
