@@ -9,7 +9,6 @@ class Vehicle:
         # dimensions
         self.color = color
         self.x = x
-        self.y = 0
         self.length = length
         self.width = width
         

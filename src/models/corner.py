@@ -71,6 +71,7 @@ class corner():
         
         if self.light_controled:
             if order:
+                self.turns.extend([] for _ in range(order + 1 - self.numberOfTurns))
                 if displace:
                     self.turns.append([])
                     self.times.append(0)

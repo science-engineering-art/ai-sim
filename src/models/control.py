@@ -171,7 +171,10 @@ class control:
         self.corners.append(corn)
         
         for follow in follows:
-            corn.addFollow(follow[0], follow[1])
+            if len(follow) > 2:
+                corn.addFollow(follow[0], follow[1], order = follow[2])
+            else:
+                corn.addFollow(follow[0], follow)
             self.roads[follow[0]].end_conn = corn
 
         

@@ -12,7 +12,7 @@ class Road:
         self.angle_sin = (self.end[1]-self.start[1]) / self.length
         self.angle_cos = (self.end[0]-self.start[0]) / self.length
         self.vehicles = []
-        self.end_conn = None
+        self.end_conn = None #it may be another road or a corner
 
     @property
     def get_rect(self):
