@@ -1,0 +1,28 @@
+
+# in the initial population every traffic light will have a green time equal to the maximum waiting time of a vehicule
+def init_population(MWT):
+    pass
+
+
+def fitness():
+    pass
+
+
+def mutate():
+    pass
+
+
+def xover():
+    pass
+
+
+def select_progenitors():
+    pass
+
+
+def stop_criterion():
+    pass
+
+
+def evolutionary_algorithm():
+    pass
