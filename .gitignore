@@ -1,4 +1,12 @@
 map.json
+ball.gif
+test.ipynb
+state_of_the_art
+.vscode
+flask_example.py
+cartopy.py
+cache
+ddb_storage
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
