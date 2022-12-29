@@ -14,7 +14,6 @@ from pygame.locals import *
 from pygame import gfxdraw
 import pygame
 
-
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 GREEN = (0, 255, 0)
@@ -33,7 +32,7 @@ class control:
         self.extremeRoads = [] #roads who start at the edge of the map
         
         #random vehicles templates
-        self.basic_vehicles = [Vehicle(x=0, length= 14, width = 7)]
+        self.basic_vehicles = [Vehicle(x=0, length= 1, width = 1)]
         
     def NewRandomVehicle(self, prob = 1/1000, cant = 1):
         '''Creates a random vehicle with probability prob'''
@@ -106,13 +105,12 @@ class control:
             if delete_list[i] == 1:
                 road.vehicles.__delitem__(i)
             
-        
           
     def NextRoad(self, vehicle: Vehicle, road : Road):
         
         if not road.end_conn: #if nothing is associated with the end of the road
             return  #means the road end in the edge of the map
-        
+
         vehicle.x = 0
         if type(road.end_conn) == Road: #if the road is followed by other road
             road.end_conn.vehicles.append(vehicle) #simply add the vehicle to that road

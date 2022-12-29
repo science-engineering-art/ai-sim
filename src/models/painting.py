@@ -6,6 +6,7 @@ from models.vehicle import Vehicle
 import random
 from copy import deepcopy
 
+
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 GRAY = (127, 127, 127)

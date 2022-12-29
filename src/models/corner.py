@@ -1,12 +1,9 @@
 
-from typing import List
-from sympy import false
+class corner:
 
-
-class corner():
     '''class to simulate the concept of a corner 
     (i.e. a point where more than two roads converge)'''
-    
+
     def __init__(self, light_controled = False):
         
         self.current_turn = -1 #indicate which road has the green light 
@@ -21,7 +18,8 @@ class corner():
         self.OutgoingRoads = [] #stores the roads that star at the corner
         self.follow = {} #stores for each road that end at corner which
                         #roads may follow it 
-    
+
+
     def tick(self, t = 1):
         '''increments the time count and change the ligths if needed.
         (the turns sucession is -1, 0, -2, 1, 2, -3 ...., where the
@@ -40,22 +38,23 @@ class corner():
                 self.current_turn = -1
             else:
                 self.current_turn = -self.current_turn - 1
-            
-            
-    
+
+
     def addIncomingRoads(self, roads):
         '''Add the in_road, if it hasn't been added before'''
         for in_road in roads:
             if not self.IncomingRoads.__contains__(in_road):
                 self.IncomingRoads.append(in_road)
                 self.follow[in_road] = []
-            
+
+
     def addOutgoingRoads(self, roads):
         '''Add the out_road, if it hasn't been added before'''
         for out_road in roads:
             if not self.OutgoingRoads.__contains__(out_road):
                 self.OutgoingRoads.append(out_road)
-        
+
+
     def addFollow(self, in_road, out_road, order = None, displace = False, time = 4000):
         '''Add a follow pair, i.e. a  pair of (in_road, out_road) indicating 
         a car can move from in_road to out_road. 
@@ -90,7 +89,8 @@ class corner():
                 self.numberOfTurns+=1
                 self.turns.append([(in_road, out_road)])
                 self.myturn[(in_road, out_road)] = self.numberOfTurns - 1
-        
+
+
     def addFollows(self, in_roads, out_roads, order = None, displace = False, time = 1000):
         '''adds all the possible pair between in and out roads, as follow pairs'''
         if order == None:
@@ -102,7 +102,8 @@ class corner():
                     self.addFollow(in_road, out_road, order, displace, time)
                 else:
                     self.addFollow(in_road, out_road, order)
-    
+
+
     def CanIPass(self, in_road):
         '''If ask if a road has the green light. 
         It condiderate that the cars in a road can simultaneously with
@@ -110,4 +111,3 @@ class corner():
         to the current one but this is a behavior that we whish to improve.'''
         
         return self.current_turn == self.myturn[(in_road, self.follow[in_road][0])] 
-        

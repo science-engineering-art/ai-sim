@@ -14,12 +14,6 @@ class Road:
         self.vehicles = []
         self.end_conn = None #it may be another road or a corner
 
-    @property
-    def get_rect(self):
-        x0,y0 = self.start
-        x1,_ = self.end
-        return (x0, y0, x1-x0, 10)
-    
     def get_curve_road(init_point, end_point, inclination_point, steps = 15):
         points = Road.create_curve_road_points(init_point, end_point, inclination_point, steps)
         
@@ -39,6 +33,4 @@ class Road:
             points.append((x,y))   
         
         return points
-            
-    
-
+ 

@@ -1,8 +1,10 @@
 from typing import Tuple
 from numpy import sqrt
+
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 GRAY = (127, 127, 127)
+
 class Vehicle:
 
     def __init__(self, x, length, width, path = [], color = BLUE):
@@ -28,10 +30,6 @@ class Vehicle:
 
         self.stopped = False
 
-    @property
-    def get_rect(self) -> Tuple[int,int,int,int]:
-        return (self.x, self.y, self.length, self.width)
-
     def update(self, dt = 1/260, lead: 'Vehicle' = None):
         
         if self.stopped: return
@@ -52,7 +50,3 @@ class Vehicle:
             alpha = (self.s0 + max(0, self.v*self.T + self.v*delta_v/(2*sqrt(self.a_max*self.b_max)))) / delta_x
 
         self.a = self.a_max * (1 - (self.v/self.v_max)**4 - alpha**2)
-        
-        
-    
-             
