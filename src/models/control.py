@@ -32,7 +32,7 @@ class control:
         self.extremeRoads = [] #roads who start at the edge of the map
         
         #random vehicles templates
-        self.basic_vehicles = [Vehicle(x=0, length= 1, width = 1)]
+        self.basic_vehicles = [Vehicle(x=0, length= 10, width = 5)]
         
     def NewRandomVehicle(self, prob = 1/1000, cant = 1):
         '''Creates a random vehicle with probability prob'''
