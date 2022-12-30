@@ -10,7 +10,7 @@ class corner:
         self.light_controled = light_controled #indiates wether ther is a semaphore in the corner
         self.numberOfTurns = 0  #indicate the amount of turns the green light passes throw
         self.time_tick = 0 #used to decided when to change the lights
-        self.intermediate_time = 1000 #period of time where everyone is in red 
+        self.intermediate_time = 100 #period of time where everyone is in red 
         self.turns = [] #the position i stores which follow pair has the green light 
         self.times = [] #indicates the duration of each turn
         self.myturn = {} #store for each follow pair its turn number (inverse to self.turns)
@@ -28,9 +28,10 @@ class corner:
         if not self.light_controled:
             return
         self.time_tick += t
-        if self.current_turn < 0 and self.time_tick == self.intermediate_time:
-            self.time_tick = 0
-            self.current_turn  = -self.current_turn - 1
+        if self.current_turn < 0:
+            if self.time_tick == self.intermediate_time:
+                self.time_tick = 0
+                self.current_turn  = -self.current_turn - 1
         elif self.times[self.current_turn] == self.time_tick:
             self.time_tick = 0
             self.current_turn += 1
@@ -55,7 +56,7 @@ class corner:
                 self.OutgoingRoads.append(out_road)
 
 
-    def addFollow(self, in_road, out_road, order = None, displace = False, time = 4000):
+    def addFollow(self, in_road, out_road, order = None, displace = False, time = 400):
         '''Add a follow pair, i.e. a  pair of (in_road, out_road) indicating 
         a car can move from in_road to out_road. 
         The parameter order is used to indicate its turn in the semaphore.
@@ -69,8 +70,10 @@ class corner:
         self.follow[in_road].append(out_road)
         
         if self.light_controled:
-            if order:
-                self.turns.extend([] for _ in range(order + 1 - self.numberOfTurns))
+            if  order != None:
+                print(order + 1 - self.numberOfTurns)
+                self.turns.extend([] for _ in range(max(0, order + 1 - self.numberOfTurns)))
+                self.times.extend(time for _ in range(max(0, order + 1 - self.numberOfTurns)))
                 if displace:
                     self.turns.append([])
                     self.times.append(0)
@@ -79,9 +82,9 @@ class corner:
                         self.times[pos + 1] = self.times[pos]
                     self.turns[order] = [(in_road, out_road)]
                     self.times[order] = time
-                    self.numberOfTurns +=1
                 else:
                     self.turns[order].append((in_road, out_road))
+                self.numberOfTurns += max(0, order + 1 - self.numberOfTurns)
                 self.myturn[(in_road, out_road)] = order
                         
             else:
