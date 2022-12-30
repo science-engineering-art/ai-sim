@@ -46,14 +46,14 @@ from models.road import Road
 
 ctrl = control()
 
-ctrl.build_roads((700,400), (1400,400), 2, 2, 10)
-ctrl.build_roads((700,0)  , (700,400) , 2, 2, 10)
-ctrl.build_roads((0,400)  , (700,400) , 2, 2, 10)
-ctrl.build_roads((700,400), (700,800) , 2, 2, 10)
+ctrl.build_roads((700,400), (1380,400), 1, 1, 10)
+ctrl.build_roads((700,10)  , (700,400) , 1, 1, 10)
+ctrl.build_roads((10,400)  , (700,400) , 1, 1, 10)
+ctrl.build_roads((700,400), (700,790) , 1, 1, 10)
 ctrl.build_intersections()
 
-print(ctrl.coord_roads_in)
-print(ctrl.coord_roads_out)
+# for road in ctrl.roads:
+#     print(road.start, road.end)
 
 ctrl.Start()
 
