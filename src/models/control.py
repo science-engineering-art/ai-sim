@@ -34,6 +34,9 @@ class control:
         #random vehicles templates
         self.basic_vehicles = [Vehicle(x=0, length= 10, width = 5)]
         
+        #fitness prperties
+        self.road_max_queue = [] 
+        
     def NewRandomVehicle(self, prob = 1/1000, cant = 1):
         '''Creates a random vehicle with probability prob'''
         
@@ -53,14 +56,17 @@ class control:
         for road_id in roads:
             self.extremeRoads.append(road_id)
     
-    def Start(self):
+    def Start(self, it_amount = -1):
         '''method to begin the simulation'''
         pygame.init()
         screen = pygame.display.set_mode((1400,800))
         pygame.display.update()
 
-
-        while self.running:
+        #presetting the fitness properties
+        for road in self.roads:
+            self.road_max_queue.append(0)
+        it_number = 1
+        while it_number < it_amount or it_amount == -1:
             
             for corn in self.corners:
                 corn.tick() #increments the time of each semaphore
@@ -84,9 +90,12 @@ class control:
                     Painting.draw_vehicle(screen, road, car) #repaint all the cars
                     
                 if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
+                    self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)], \
+                        len(road.vehicles))
                     road.vehicles.__delitem__(0) #remove all the semaphores in red
             
             pygame.display.update()
+            it_number += 1
       
     def UpdateRoad(self, road):
         delete_list = [0 for _ in range(len(road.vehicles))] #list of cars that move to other roads

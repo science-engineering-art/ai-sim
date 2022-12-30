@@ -90,4 +90,5 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     
 print(ctrl.corners[0].turns)    
 
-ctrl.Start()
+ctrl.Start(it_amount= 10000)
+print(ctrl.road_max_queue)
