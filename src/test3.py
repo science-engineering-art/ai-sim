@@ -90,6 +90,11 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     
 print(ctrl.corners[0].turns)    
 
+
+print(ctrl.GetDimension())
+t1 = 100
+t2 = 400
+ctrl.SetConfiguration([t1,t2,t2,t2,t1,t2,t2,t2,t1,t2,t2,t2,t1,t2,t2])
 ctrl.Start(it_amount= 4000)
-print(ctrl.road_max_queue)
-print(ctrl.road_average_time_take_cars)
+# print(ctrl.road_max_queue)
+# print(ctrl.road_average_time_take_cars)

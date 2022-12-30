@@ -208,6 +208,23 @@ class control:
             else:
                 corn.addFollow(follow[0], follow)
             self.roads[follow[0]].end_conn = corn
+            
+    def GetDimension(self):
+        dimension = 0
+        for corner in self.corners:
+            dimension += (corner.numberOfTurns + 1)
+            
+        return dimension
+    
+    def SetConfiguration(self, individual):
+        pos = 0
+        for corner in self.corners:
+            corner.intermediate_time = individual[pos]
+            pos += 1
+            for i in range(corner.numberOfTurns):
+                corner.times[i] = individual[pos]
+                pos+=1
+        
 
         
     
