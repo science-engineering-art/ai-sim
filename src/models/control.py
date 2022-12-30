@@ -1,5 +1,6 @@
 
 from multiprocessing.sharedctypes import copy
+import queue
 from turtle import _Screen
 
 import typing
@@ -13,6 +14,7 @@ from models.painting import *
 from pygame.locals import *
 from pygame import gfxdraw
 import pygame
+from queue import Queue
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
@@ -36,20 +38,26 @@ class control:
         
         #fitness prperties
         self.road_max_queue = [] 
+        self.road_car_entrance_queue = [] 
+        self.road_total_amount_cars = [] 
+        self.road_total_time_take_cars = [] 
+        self.road_average_time_take_cars = [] 
         
-    def NewRandomVehicle(self, prob = 1/1000, cant = 1):
+    def NewRandomVehicle(self, prob = 1/100, cant = 1):
         '''Creates a random vehicle with probability prob'''
         
         r = random.random()
         if r > prob:
-            return
+            return None, None
         
         for _ in range(cant):
             #select uniformly the vehicle template (i.e. color, length, speed)
             car : Vehicle = deepcopy(random.choice(self.basic_vehicles))
             #select uniformly the vehicle start road from the extreme ones
-            road : Road = self.roads[random.choice(self.extremeRoads)]
+            road_id = random.choice(self.extremeRoads)
+            road : Road = self.roads[road_id]
             road.vehicles.append(car)
+            if cant == 1: return car, road_id
     
     def AddExtremeRoads(self,roads):
         '''establish the extreme roads'''
@@ -65,15 +73,20 @@ class control:
         #presetting the fitness properties
         for road in self.roads:
             self.road_max_queue.append(0)
-        it_number = 1
-        while it_number < it_amount or it_amount == -1:
+            self.road_total_amount_cars.append(0)
+            self.road_total_time_take_cars.append(0)
+            self.road_car_entrance_queue.append([])
+        self.it_number = 1
+        while self.it_number < it_amount or it_amount == -1:
             
             for corn in self.corners:
                 corn.tick() #increments the time of each semaphore
             
             screen.fill(LIGHT_GRAY) #repaint the background
             
-            self.NewRandomVehicle() #generates a new random vehicle
+            _, road_id = self.NewRandomVehicle() #generates a new random vehicle
+            if road_id != None:
+                self.road_car_entrance_queue[road_id].append(self.it_number)            #fitness.................................
             
             for event in pygame.event.get(): #check if exiting
                 if event.type == QUIT:
@@ -91,11 +104,15 @@ class control:
                     
                 if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
                     self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)], \
-                        len(road.vehicles))
+                        len(road.vehicles))                                                 #fitness.................................
                     road.vehicles.__delitem__(0) #remove all the semaphores in red
             
             pygame.display.update()
-            it_number += 1
+            self.it_number += 1
+        
+        for road_id in range(len(self.roads)):
+            self.road_average_time_take_cars.append(self.road_total_time_take_cars[road_id]\
+                /self.road_total_amount_cars[road_id] if self.road_total_amount_cars[road_id]  != 0 else 0)
       
     def UpdateRoad(self, road):
         delete_list = [0 for _ in range(len(road.vehicles))] #list of cars that move to other roads
@@ -113,6 +130,12 @@ class control:
         for i in range(len(delete_list)):   #remove the cars moving out from the road
             if delete_list[i] == 1:
                 road.vehicles.__delitem__(i)
+                
+                road_id = self.roads.index(road)
+                if len(self.road_car_entrance_queue[road_id]) > 0:
+                    self.road_total_amount_cars[road_id] += 1            #fitness.................................
+                    self.road_total_time_take_cars[road_id] += self.it_number + 1 - self.road_car_entrance_queue[road_id][0]
+                    self.road_car_entrance_queue[road_id].pop(0)          #fitness.................................
             
           
     def NextRoad(self, vehicle: Vehicle, road : Road):
@@ -123,6 +146,8 @@ class control:
         vehicle.x = 0
         if type(road.end_conn) == Road: #if the road is followed by other road
             road.end_conn.vehicles.append(vehicle) #simply add the vehicle to that road
+            next_road_id = self.roads.index(road.end_conn)
+            self.road_car_entrance_queue[next_road_id].append(self.it_number)       #fitness.................................
             return road.end_conn    
         
         #in other case the road ends in a cornen, in which case we uniformily random select
