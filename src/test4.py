@@ -55,30 +55,30 @@ ctrl.build_intersections()
 # for road in ctrl.roads:
 #     print(road.start, road.end)
 
-ctrl.Start()
+# ctrl.Start()
 
-# mask = set()
-# mask.add((700,400))
-# stack = [(700,400)]
-
-
-# def is_valid(pt):
-#     return pt[0] >= 0 and pt[0] <= 1400 and pt[1] >= 0 and pt[1] <= 800
+mask = set()
+mask.add((700,400))
+stack = [(700,400)]
 
 
-# while len(stack) > 0:
+def is_valid(pt):
+    return pt[0] >= 0 and pt[0] <= 1400 and pt[1] >= 0 and pt[1] <= 800
+
+
+while len(stack) > 0:
     
-#     vX, vY = heapq.heappop(stack)
-#     pts = [(vX + 100, vY), (vX - 100, vY), (vX, vY + 100), (vX, vY - 100)]
+    vX, vY = heapq.heappop(stack)
+    pts = [(vX + 100, vY), (vX - 100, vY), (vX, vY + 100), (vX, vY - 100)]
 
-#     for pt in pts:
-#         if pt not in mask and is_valid(pt):
-#             road_id = ctrl.AddRoad((vX,vY), pt)
-#             heapq.heappush(stack, pt)
-#             mask.add(pt)
+    for pt in pts:
+        if pt not in mask and is_valid(pt):
+            # road_id = ctrl.AddRoad((vX,vY), pt)
+            heapq.heappush(stack, pt)
+            mask.add(pt)
 
 
-# print(mask)
+print(mask)
 
 # pos_x, pos_y, end_y, start_x, curv = 700, 410, 900, 0, 5
 # road_WC_id = ctrl.AddRoad((start_x, pos_y), (pos_x, pos_y))
