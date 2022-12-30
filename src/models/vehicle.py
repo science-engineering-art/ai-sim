@@ -30,7 +30,7 @@ class Vehicle:
 
         self.stopped = False
 
-    def update(self, dt = 1/260, lead: 'Vehicle' = None):
+    def update(self, dt = 1/60, lead: 'Vehicle' = None):
         
         if self.stopped: return
         # if self.stopped: 

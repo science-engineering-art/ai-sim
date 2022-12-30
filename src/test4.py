@@ -77,4 +77,5 @@ while len(stack) > 0:
 
 ctrl.build_intersections()
 
+# print(ctrl.extremeRoads)
 ctrl.Start(it_amount=100000)

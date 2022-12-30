@@ -1,6 +1,7 @@
 
 from multiprocessing.sharedctypes import copy
 from queue import Queue
+from time import time
 from turtle import _Screen
 from scipy.spatial import distance
 from sympy import rot_axis1
@@ -47,7 +48,7 @@ class control:
         self.coord_roads_in  = {}
         self.coord_roads_out = {}
 
-    def NewRandomVehicle(self, prob = 1/1000, cant = 1):
+    def NewRandomVehicle(self, prob = 1/100, cant = 1):
         '''Creates a random vehicle with probability prob'''
         
         r = random.random()
@@ -83,7 +84,14 @@ class control:
             self.road_total_time_take_cars.append(0)
             self.road_car_entrance_queue.append([])
         self.it_number = 1
+        
+        tprev = time() #measures time complexity
+        
         while self.it_number < it_amount or it_amount == -1:
+            
+            t1 = time() #measures time complexity
+            print(t1 - tprev) #measures time complexity
+            tprev = t1 #measures time complexity
             
             for corn in self.corners:
                 corn.tick() #increments the time of each semaphore
@@ -98,11 +106,17 @@ class control:
                 if event.type == QUIT:
                     pygame.quit()
         
+            t2 = time()
+            print('t2 - t1: ', t2 - t1)
+        
             for road in self.roads: #for each road....
                 Painting.draw_road(screen, road, GRAY) #repaint it 
                 if type(road.end_conn) == corner and not road.end_conn.CanIPass(self.road_index[road]): #if it has a semaphore in red...
-                    road.vehicles.insert(0, Vehicle(road.length, 3, 9, color = RED)) #add a 'semaphore car' to vehicles
+                    road.vehicles.insert(0, Vehicle(road.length, 3, 1, color = RED)) #add a 'semaphore car' to vehicles
                 self.UpdateRoad(road) #update the state of each vehicle in the road
+            
+            t3 = time()
+            print('t3 - t2: ', t3 - t2)
             
             for road in self.roads:
                 for car in road.vehicles:
@@ -113,8 +127,14 @@ class control:
                         len(road.vehicles))                                                 #fitness.................................
                     road.vehicles.__delitem__(0) #remove all the semaphores in red
             
+            t4 = time()
+            print('t4 - t3: ', t4 - t3)
+            
             pygame.display.update()
             self.it_number += 1
+            
+            t5 = time()
+            print('t5 - t4: ', t5 - t4)
         
         for road_id in range(len(self.roads)):
             self.road_average_time_take_cars.append(self.road_total_time_take_cars[road_id]\
@@ -122,7 +142,7 @@ class control:
 
       
     def UpdateRoad(self, road):
-        delete_list = [0 for _ in range(len(road.vehicles))] #list of cars that move to other roads
+        delete_amout = 0 #amount of of cars that move to other roads
         for i in range(len(road.vehicles)):
             car = road.vehicles[i]
             lead = None
@@ -131,18 +151,17 @@ class control:
             if car.color != RED: #be careful do not update the semaphore car
                 car.update(lead = lead)
             if car.x > road.length: #if the car position is out of the road
-                delete_list[i] = 1  #remove the car from this road
+                delete_amout += 1  #remove the car from this road
                 self.NextRoad(car, road) #and add it in the next one
         
-        for i in range(len(delete_list)):   #remove the cars moving out from the road
-            if delete_list[i] == 1:
-                road.vehicles.__delitem__(i)
+        for i in range(delete_amout):   #remove the cars moving out from the road
+            road.vehicles.pop(0)
                 
-                road_id = self.roads.index(road)
-                if len(self.road_car_entrance_queue[road_id]) > 0:
-                    self.road_total_amount_cars[road_id] += 1            #fitness.................................
-                    self.road_total_time_take_cars[road_id] += self.it_number + 1 - self.road_car_entrance_queue[road_id][0]
-                    self.road_car_entrance_queue[road_id].pop(0)          #fitness.................................
+            road_id = self.roads.index(road)
+            if len(self.road_car_entrance_queue[road_id]) > 0:
+                self.road_total_amount_cars[road_id] += 1            #fitness.................................
+                self.road_total_time_take_cars[road_id] += self.it_number + 1 - self.road_car_entrance_queue[road_id][0]
+                self.road_car_entrance_queue[road_id].pop(0)          #fitness.................................
             
           
     def NextRoad(self, vehicle: Vehicle, road : Road):
