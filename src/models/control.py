@@ -2,7 +2,6 @@
 from multiprocessing.sharedctypes import copy
 from turtle import _Screen
 
-import typing
 from sympy import rot_axis1
 from models.corner import corner
 from models.vehicle import Vehicle
@@ -13,15 +12,20 @@ from models.painting import *
 from pygame.locals import *
 from pygame import gfxdraw
 import pygame
+from scipy.spatial import distance
+
 
 RED = (255, 0, 0)
-BLUE = (0, 0, 255)
+BLUE = (0, 255, 255)
 GREEN = (0, 255, 0)
-GRAY = (127, 127, 127)
-LIGHT_GRAY = (220,220,220)
+GRAY = (50, 50, 50)
+LIGHT_GRAY = (225,225,225)
+
 
 class control:
     '''class made to control hall the simulation over the map'''
+
+
     def __init__(self):
         self.roads = []
         self.road_index = {}#store the index of each road in roads list
@@ -32,8 +36,13 @@ class control:
         self.extremeRoads = [] #roads who start at the edge of the map
         
         #random vehicles templates
-        self.basic_vehicles = [Vehicle(x=0, length= 1, width = 1)]
-        
+        self.basic_vehicles = [Vehicle(x=0, length= 3, width = 1, color=(10,255,255))]
+
+        # coordinates - roads
+        self.coord_roads_in  = {}
+        self.coord_roads_out = {}
+
+
     def NewRandomVehicle(self, prob = 1/1000, cant = 1):
         '''Creates a random vehicle with probability prob'''
         
@@ -47,18 +56,19 @@ class control:
             #select uniformly the vehicle start road from the extreme ones
             road : Road = self.roads[random.choice(self.extremeRoads)]
             road.vehicles.append(car)
-    
+
+
     def AddExtremeRoads(self,roads):
         '''establish the extreme roads'''
         for road_id in roads:
             self.extremeRoads.append(road_id)
-    
+
+
     def Start(self):
         '''method to begin the simulation'''
         pygame.init()
         screen = pygame.display.set_mode((1400,800))
         pygame.display.update()
-
 
         while self.running:
             
@@ -87,7 +97,8 @@ class control:
                     road.vehicles.__delitem__(0) #remove all the semaphores in red
             
             pygame.display.update()
-      
+
+
     def UpdateRoad(self, road):
         delete_list = [0 for _ in range(len(road.vehicles))] #list of cars that move to other roads
         for i in range(len(road.vehicles)):
@@ -126,6 +137,7 @@ class control:
         next_road.vehicles.append(vehicle)
         return next_road
     
+
     def AddRoad(self, road_init_point, road_end_point):
         '''Adds a nex road to the simulation'''
         
@@ -134,7 +146,96 @@ class control:
         self.roads.append(road)
         self.road_index[road] = road_id
         return road_id
-     
+
+
+    def build_roads(self, start, end, inN, outN, width):
+        x0, y0 = start
+        x1, y1 = end
+
+        if x0**2 + y0**2 > x1**2 + y1**2:
+            x0, y0 = end
+            x1, y1 = start
+
+        vX, vY = x1-x0, y1-y0
+        nX, nY = vY, -vX
+
+        #normalize
+        n = (nX**2 + nY**2)**0.5
+        nX, nY = width/n*nX, width/n*nY 
+
+        n = (inN + outN) / 2
+        rX, rY = n * -nX, n * -nY
+
+        if (inN + outN) % 2 == 0:
+            rX, rY = rX + width/2 * nX, rY + width/2 *nY
+
+        x0, y0 = start
+        x1, y1 = end
+
+        x0, y0 = x0 + rX, y0 + rY
+        x1, y1 = x1 + rX, y1 + rY
+
+        if start not in self.coord_roads_in:
+            self.coord_roads_in[start] = []
+        if end not in self.coord_roads_in:
+            self.coord_roads_in[end] = []
+        if start not in self.coord_roads_out:
+            self.coord_roads_out[start] = []
+        if end not in self.coord_roads_out:
+            self.coord_roads_out[end] = []
+
+        for _ in range(outN):
+            id = self.AddRoad((x1, y1), (x0, y0))
+            x0, y0 = x0 + nX, y0 + nY
+            x1, y1 = x1 + nX, y1 + nY 
+            self.coord_roads_in[start].append(id)
+            self.coord_roads_out[end].append(id)
+
+        for _ in range(inN):
+            id = self.AddRoad((x0, y0), (x1, y1))
+            x0, y0 = x0 + nX, y0 + nY
+            x1, y1 = x1 + nX, y1 + nY 
+            self.coord_roads_in[end].append(id)
+            self.coord_roads_out[start].append(id)
+
+
+    def build_intersections(self):
+ 
+        for x, y in self.coord_roads_in:
+            for road_out_id in self.coord_roads_out[(x,y)]:
+                
+                road_in_id = self.coord_roads_in[(x,y)][0]
+                road_in: Road = self.roads[road_in_id]
+                road_out: Road = self.roads[road_out_id]
+
+                # check if road_in and road_out are in the same avenue
+                if distance.euclidean(road_in.start, road_out.start) == \
+                    distance.euclidean(road_in.end, road_out.end):
+                    continue
+
+                if road_in.end == (x,y):
+                    x0, y0 = road_in.start
+                    x1, y1 = road_in.end
+                    vX, vY = x1-x0, y1-y0
+                    
+                    n = (vX**2 + vY**2)**0.5
+                    vX, vY = vX/n, vY/n
+                    
+                    road_in.end = x - vX, y - vY
+                
+                if road_out.start == (x,y):
+                    x0, y0 = road_out.start
+                    x1, y1 = road_out.end
+                    vX, vY = x1-x0, y1-y0
+                    
+                    n = (vX**2 + vY**2)**0.5
+                    vX, vY = vX/n, vY/n
+                    
+                    road_out.start = x + vX, y + vY
+                
+                self.connect_roads(road_in_id, road_out_id, (x,y))
+                
+
     def connect_roads(self, road_1_id, road_2_id, curve_point):    
         '''connects to roads with a curve using an external point to create the curve
         and return the indexes of the curve's sub-roads'''
@@ -161,7 +262,8 @@ class control:
         self.curves[(road_1_id, road_2_id)] = return_val
             
         return return_val
-    
+
+
     def CreateCorner(self, follows):
         '''Create a new corner given a list of follow pairs'''
         
@@ -175,11 +277,3 @@ class control:
                 corn.addFollow(follow[0], follow)
             self.roads[follow[0]].end_conn = corn
 
-        
-    
-
-        
-        
-        
-        
-        

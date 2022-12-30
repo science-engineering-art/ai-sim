@@ -1,10 +1,6 @@
 from models.control import control
 
 
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
-GRAY = (127, 127, 127)
-
 
 ctrl = control()
 pos_x, pos_y, end_y, start_x, curv = 700, 410, 900, 0, 5

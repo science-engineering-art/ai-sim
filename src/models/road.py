@@ -5,12 +5,13 @@ from scipy.spatial import distance
 
 
 class Road:
+
     def __init__(self, start:Tuple[int,int], end: Tuple[int,int]):
         self.start = start
         self.end = end
         self.length = distance.euclidean(self.start, self.end)
-        self.angle_sin = (self.end[1]-self.start[1]) / self.length
-        self.angle_cos = (self.end[0]-self.start[0]) / self.length
+        # self.angle_sin = (self.end[1]-self.start[1]) / self.length
+        # self.angle_cos = (self.end[0]-self.start[0]) / self.length
         self.vehicles = []
         self.end_conn = None #it may be another road or a corner
 
