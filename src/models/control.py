@@ -34,7 +34,7 @@ class control:
         self.extremeRoads = [] #roads who start at the edge of the map
         
         #random vehicles templates
-        self.basic_vehicles = [Vehicle(x=0, length= 1, width = 1, color=(30, 255,255))]
+        self.basic_vehicles = [Vehicle(x=0, length= 3, width = 1, color=(30, 255,255))]
 
          #fitness prperties
         self.road_max_queue = [] 
@@ -181,6 +181,7 @@ class control:
     def build_roads(self, start, end, inN, outN, width):
         x0, y0 = start
         x1, y1 = end
+        # print(x0, y0, x1, y1)
 
         if x0**2 + y0**2 > x1**2 + y1**2:
             x0, y0 = end
@@ -234,17 +235,20 @@ class control:
     def build_intersections(self):
 
         for x, y in self.coord_roads_in:
+            follows = []
+            i = 0
             for road_in_id in self.coord_roads_in[(x,y)]:
                 for road_out_id in self.coord_roads_out[(x,y)]:
 
-                    # print(f'{(x,y)}')
+                    print(f'{(x,y)}')
 
                     road_in: Road = self.roads[road_in_id]
                     road_out: Road = self.roads[road_out_id]
 
                     # check if road_in and road_out are parallel
-                    if distance.euclidean(road_in.start, road_out.start) == \
-                       distance.euclidean(road_in.end, road_out.end):
+                    if distance.euclidean(road_in.start, road_out.end) == \
+                       distance.euclidean(road_in.end, road_out.start):
+                        print(f'PARALLEL: {(road_in.start, road_in.end)} -- {(road_out.start, road_out.end)}')
                         continue
 
                     x0, y0 = road_in.start[0] - road_in.end[0], road_in.start[1] - road_in.end[1]
@@ -255,12 +259,18 @@ class control:
                     if sim == 1 or sim == -1:
                         continue
                     
-                    # print(f'connect {road_in.end} to {road_out.start}')
-                    # print(road_in.start, road_in.end, road_out.start, road_out.end)
+                    print(f'connect {road_in.end} to {road_out.start}')
+                    print(road_in.start, road_in.end, road_out.start, road_out.end)
                     curve_pt = self.calculate_curve_point(road_in, road_out)
-                    # print(f'curve at {curve_pt}')
+                    print(f'curve at {curve_pt}')
                     self.connect_roads(road_in_id, road_out_id, curve_pt)
 
+                    follows.append((road_in_id, road_out_id, i))
+                i += 1
+
+            print(f'follows: {follows}')
+            if len(follows) > 0:
+                self.CreateCorner(follows)
 
     def calculate_curve_point(self, road_a: Road, road_b: Road):
         '''calculates the point where the curve should be created'''

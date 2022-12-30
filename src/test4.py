@@ -43,22 +43,10 @@ from models.road import Road
 #             start = start[0] + nX, start[1] + nY
 #             end   = end[0] + nX  , end[1] + nY 
 
-
 ctrl = control()
 
-ctrl.build_roads((700,400), (1380,400), 1, 1, 10)
-ctrl.build_roads((700,10)  , (700,400) , 1, 1, 10)
-ctrl.build_roads((10,400)  , (700,400) , 1, 1, 10)
-ctrl.build_roads((700,400), (700,790) , 1, 1, 10)
-ctrl.build_intersections()
 
-# for road in ctrl.roads:
-#     print(road.start, road.end)
-
-# ctrl.Start()
-
-mask = set()
-mask.add((700,400))
+edges = set()
 stack = [(700,400)]
 
 
@@ -72,42 +60,21 @@ while len(stack) > 0:
     pts = [(vX + 100, vY), (vX - 100, vY), (vX, vY + 100), (vX, vY - 100)]
 
     for pt in pts:
-        if pt not in mask and is_valid(pt):
-            # road_id = ctrl.AddRoad((vX,vY), pt)
+        if ((vX, vY), pt) not in edges and (pt, (vX, vY)) not in edges \
+            and is_valid(pt):
+
+            pt0 = (vX, vY)
+            pt1 = pt
+            
+            if (pt0[0]**2 + pt0[1]**2)**0.5 > (pt1[0]**2 + pt1[1]**2)**0.5:
+                pt0 = pt
+                pt1 = (vX, vY)
+            
+            ctrl.build_roads(pt0, pt1, 1, 1, 4)
             heapq.heappush(stack, pt)
-            mask.add(pt)
+            edges.add((pt0, pt1))
 
 
-print(mask)
+ctrl.build_intersections()
 
-# pos_x, pos_y, end_y, start_x, curv = 700, 410, 900, 0, 5
-# road_WC_id = ctrl.AddRoad((start_x, pos_y), (pos_x, pos_y))
-# road_CW_id = ctrl.AddRoad((pos_x, pos_y - 10), (start_x, pos_y- 10))
-# road_CS_id = ctrl.AddRoad((pos_x + curv, pos_y + curv), (pos_x + curv, end_y))
-# road_curWCS_ids = ctrl.connect_roads(road_WC_id, road_CS_id, (pos_x + curv, pos_y))
-
-
-# pos_x, pos_y, end_y, start_x, curv = 720, 400, 200, 1400, -5
-# road_EC_id = ctrl.AddRoad((start_x, pos_y), (pos_x, pos_y))
-# road_CE_id = ctrl.AddRoad((pos_x, pos_y + 10), (start_x, pos_y + 10))
-# road_CN_id = ctrl.AddRoad((pos_x + curv, pos_y + curv), (pos_x + curv, end_y))
-
-
-# road_curvECN_ids = ctrl.connect_roads(road_EC_id, road_CN_id, (pos_x + curv, pos_y))
-# road_curvECW_ids = ctrl.connect_roads(road_EC_id, road_CW_id, (pos_x, pos_y))
-# road_curvWCE_ids = ctrl.connect_roads(road_WC_id, road_CE_id, (pos_x, pos_y + 10))
-# road_curvWCN_ids = ctrl.connect_roads(road_WC_id, road_CN_id, (pos_x - curv, pos_y))
-# road_curvECS_ids = ctrl.connect_roads(road_EC_id, road_CS_id, (pos_x + curv, pos_y))
-
-
-# curv_x = -5; curv_y = -5; 
-# road_NE_id = ctrl.AddRoad((pos_x, end_y + curv_y), (start_x, end_y + curv_y))
-# road_curvCNE_ids = ctrl.connect_roads(road_CN_id, road_NE_id, (pos_x + curv_x, end_y + curv_y))
-
-
-# ctrl.AddExtremeRoads([road_WC_id, road_EC_id])
-# ctrl.CreateCorner([(road_WC_id, road_CS_id, 0), (road_EC_id, road_CN_id, 1), (road_EC_id, road_CW_id, 1),\
-#     (road_WC_id, road_CN_id, 0), (road_EC_id, road_CS_id,1), (road_WC_id, road_CE_id, 0)])
-# ctrl.roads[road_CN_id].end_conn = ctrl.roads[road_NE_id]
-# ctrl.curves[(road_NE_id, road_NE_id)] = road_curvCNE_ids
-# ctrl.Start()
+ctrl.Start(it_amount=100000)

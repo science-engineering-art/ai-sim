@@ -2,9 +2,8 @@ from matplotlib.hatch import HorizontalHatch
 from models.control import control
 
 
-
-pos_x = [0, 350, 700, 1050]
-pos_y = [0, 200, 400, 600]
+pos_x = [100, 450, 800, 1150]
+pos_y = [100, 300, 500, 700]
 h_diff = 20
 v_diff = 20
 road_width = 10
@@ -29,9 +28,9 @@ KJ = ctrl.AddRoad((pos_x[1] + h_diff / 2, pos_y[0]), (pos_x[1] + h_diff / 2, pos
 JB = ctrl.AddRoad((pos_x[1] + h_diff / 2, pos_y[1] + v_diff / 2), (pos_x[1] + h_diff / 2, pos_y[2] - v_diff))
 BE = ctrl.AddRoad((pos_x[1] + h_diff / 2, pos_y[2] + v_diff / 2), (pos_x[1] + h_diff / 2, pos_y[3]))
 
-IH = ctrl.AddRoad( (pos_x[2] + h_diff / 2, pos_y[1] - v_diff), (pos_x[2] + h_diff / 2, pos_y[0]))
-CI = ctrl.AddRoad( (pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff / 2, pos_y[1] + v_diff / 2))
-FC = ctrl.AddRoad( (pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2))
+IH = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[1] - v_diff), (pos_x[2] + h_diff / 2, pos_y[0]))
+CI = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff / 2, pos_y[1] + v_diff / 2))
+FC = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2))
 
 ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ])
 
@@ -75,22 +74,25 @@ ctrl.connect_roads(FC, CI, (pos_x[2] + h_diff / 2, pos_y[2]))
 ctrl.CreateCorner([(AB, BE, 0), (AB, BC, 0),\
     (CB, BE, 1), (CB, BA, 1),\
     (JB, BC, 2), (JB, BA, 2), (JB, BE, 2)])
+
 ctrl.CreateCorner([(BC, CD, 0), (BC, CI, 0),\
     (DC, CI, 1), (DC, CB, 1),\
     (FC, CD, 2), (FC, CB, 2), (FC, CI, 2)])
+
 ctrl.CreateCorner([(LJ, JI, 0), (LJ, JB, 0),\
     (IJ, JB, 1),\
     (KJ, JI, 2), (KJ, JB, 2)])
+
 ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     (CI, IH, 1), (CI, IG, 1), (CI, IJ, 1)])
     
-print(ctrl.corners[0].turns)    
+# print(ctrl.corners[0].turns)    
 
 
 print(ctrl.GetDimension())
 t1 = 100
 t2 = 400
 ctrl.SetConfiguration([t1,t2,t2,t2,t1,t2,t2,t2,t1,t2,t2,t2,t1,t2,t2])
-ctrl.Start(it_amount= 4000)
+ctrl.Start(it_amount= 100000)
 # print(ctrl.road_max_queue)
 # print(ctrl.road_average_time_take_cars)
