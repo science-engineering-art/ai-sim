@@ -167,7 +167,7 @@ class control:
                 self.road_total_time_take_cars[road_id] += self.it_number + 1 - self.road_car_entrance_queue[road_id][0]
                 self.road_car_entrance_queue[road_id].pop(0)          #fitness.................................
             
-        if red != None: road.vehicles.appendleft(0,red)
+        if red != None: road.vehicles.appendleft(red)
           
     def NextRoad(self, vehicle: Vehicle, road : Road):
         
