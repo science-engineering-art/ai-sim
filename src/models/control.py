@@ -34,6 +34,7 @@ class control:
         self.vehicles = []
         self.corners = []
         self.curves = {} #stores for each connection the road conforming its curve
+        self.is_curve = [] #Determines wheter a road represents a curve/auxiliar road
         self.extremeRoads = [] #roads who start at the edge of the map
         
         #random vehicles templates
@@ -200,6 +201,7 @@ class control:
         road = Road(road_init_point, road_end_point)
         road_id = len(self.roads)
         self.roads.append(road)
+        self.is_curve.append(False)
         self.road_index[road] = road_id
         return road_id
 
@@ -356,6 +358,7 @@ class control:
             self.road_index[road] = len(self.roads)
             return_val.append(len(self.roads))
             self.roads.append(road)
+            self.is_curve.append(True)
            
         #assign to each follow pair, the first sub-road of the corresponding curve
         self.curves[(road_1_id, road_2_id)] = return_val
