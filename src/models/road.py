@@ -1,3 +1,4 @@
+from collections import deque
 from ctypes import create_unicode_buffer
 from typing import List, Tuple
 from venv import create
@@ -12,7 +13,7 @@ class Road:
         self.length = distance.euclidean(self.start, self.end)
         self.angle_sin = (self.end[1]-self.start[1]) / self.length
         self.angle_cos = (self.end[0]-self.start[0]) / self.length
-        self.vehicles = []
+        self.vehicles = deque()
         self.end_conn = None #it may be another road or a corner
 
     def get_curve_road(init_point, end_point, inclination_point, steps = 15):

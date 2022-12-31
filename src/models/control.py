@@ -1,8 +1,10 @@
 
+from collections import deque
 from multiprocessing.sharedctypes import copy
 from queue import Queue
 from time import time
 from turtle import _Screen
+from typing import Deque
 from scipy.spatial import distance
 from sympy import rot_axis1
 from models.corner import corner
@@ -109,10 +111,11 @@ class control:
             t2 = time()
             print('t2 - t1: ', t2 - t1)
         
-            for road in self.roads: #for each road....
+            for road_id in range(len(self.roads)): #for each road....
+                road = self.roads[road_id]
                 Painting.draw_road(screen, road, GRAY) #repaint it 
-                if type(road.end_conn) == corner and not road.end_conn.CanIPass(self.road_index[road]): #if it has a semaphore in red...
-                    road.vehicles.insert(0, Vehicle(road.length, 3, 1, color = RED)) #add a 'semaphore car' to vehicles
+                if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id): #if it has a semaphore in red...
+                    road.vehicles : deque .appendleft(Vehicle(road.length, 3, 1, color = RED)) #add a 'semaphore car' to vehicles
                 self.UpdateRoad(road) #update the state of each vehicle in the road
             
             t3 = time()
@@ -125,7 +128,7 @@ class control:
                 if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
                     self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)], \
                         len(road.vehicles))                                                 #fitness.................................
-                    road.vehicles.__delitem__(0) #remove all the semaphores in red
+                    road.vehicles : deque .popleft() #remove all the semaphores in red
             
             t4 = time()
             print('t4 - t3: ', t4 - t3)
@@ -154,9 +157,9 @@ class control:
                 delete_amout += 1  #remove the car from this road
                 self.NextRoad(car, road) #and add it in the next one
         
-        red = road.vehicles.pop(0) if len(road.vehicles) > 0 and road.vehicles[0].color == RED else None
+        red = road.vehicles.popleft() if len(road.vehicles) > 0 and road.vehicles[0].color == RED else None
         for i in range(delete_amout):   #remove the cars moving out from the road
-            road.vehicles.pop(0)
+            road.vehicles.popleft()
                 
             road_id = self.roads.index(road)
             if len(self.road_car_entrance_queue[road_id]) > 0:
@@ -164,7 +167,7 @@ class control:
                 self.road_total_time_take_cars[road_id] += self.it_number + 1 - self.road_car_entrance_queue[road_id][0]
                 self.road_car_entrance_queue[road_id].pop(0)          #fitness.................................
             
-        if red != None: road.vehicles.insert(0,red)
+        if red != None: road.vehicles.appendleft(0,red)
           
     def NextRoad(self, vehicle: Vehicle, road : Road):
         
