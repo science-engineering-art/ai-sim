@@ -86,16 +86,25 @@ def select_parents(population_set, fitness_set):
 
     parents = []
     parents_fitness = []
-    for i in range(population_set):
+    for i in range(len(population_set)):
         if fitness_set[i] >= avg:
             parents.append(population_set[i])
             parents_fitness.append(fitness_set[i])
+            
+    #patch to guarantee parents len is at least two
+    if len(parents) == 1:
+        if fitness_set[0] >= avg:
+            parents.append(population_set[1])
+            parents_fitness.append(fitness_set[1])
+        else:
+            parents.append(population_set[0])
+            parents_fitness.append(fitness_set[0])
 
     if len(parents) % 2 != 0:
         i = parents_fitness.index(min(parents_fitness))
         parents.remove(parents[i])
         parents_fitness.remove(parents_fitness[i])
-    return parents, [parents[0:len(parents)/2], parents[len(parents)/2:]]
+    return parents, [parents[0:len(parents)//2], parents[len(parents)//2:]]
 
 
 # random crossover points are selected and the alternating segments of the individuals are swapped to get new offsprings.
@@ -127,7 +136,7 @@ def cromosome_xover(individual_a, individual_b):
 def xover(parent_a, parent_b):
     # TODO: decide when to xover cromosomes and when individuals
     new_population = []
-    for i in len(parent_a):
+    for i in range(len(parent_a)):
         new_population += multipoint_xover(parent_a[i], parent_b[i])
     return new_population
 
@@ -190,7 +199,7 @@ def genetic_algorithm(pop_size, number_of_turns, maximum_waiting_time, average_p
 # print(multipoint_xover("1111", "2222"))
 
 
-a = [1, -9, -90, 3, 2]
-print(a.index(min(a)))
-a.remove(a[a.index(min(a))])
-print(a)
+# a = [1, -9, -90, 3, 2]
+# print(a.index(min(a)))
+# a.remove(a[a.index(min(a))])
+# print(a)

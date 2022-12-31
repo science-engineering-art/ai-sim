@@ -92,8 +92,9 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
 print(ctrl.GetDimension())
 t1 = 100
 t2 = 400
-ctrl.SetConfiguration([t1,t2,t2,t2,t1,t2,t2,t2,t1,t2,t2,t2,t1,t2,t2])
-ctrl.Start(it_amount= 10000, draw=False)
+ctrl.SetConfiguration([574, 305, 694, 278, 291, 801, 115, 486, 397, 328, 96, 247, 690, 253, 194])
+# ctrl.Start(it_amount= 10000, draw=False)
+ctrl.Start(it_amount= 10000, draw=True)
 
 to_print_1 = []
 to_print_2 = []

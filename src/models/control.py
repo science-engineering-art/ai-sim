@@ -38,7 +38,8 @@ class control:
         self.extremeRoads = [] #roads who start at the edge of the map
         
         #random vehicles templates
-        self.basic_vehicles = [Vehicle(x=0, length= 3, width = 1, color=(30, 255,255))]
+        self.basic_vehicles = [Vehicle(x=0, length= 3, width = 1, color=(30, 255, 255)),
+                               Vehicle(x=0, length= 3, width = 1, color=(247, 100, 45))]
 
          #fitness prperties
         self.road_max_queue = [] 
@@ -94,7 +95,7 @@ class control:
         while self.it_number < it_amount or it_amount == -1:
             
             t1 = time() #measures time complexity
-            print(t1 - tprev) #measures time complexity
+            # print(t1 - tprev) #measures time complexity
             tprev = t1 #measures time complexity
             
             for corn in self.corners:
@@ -112,7 +113,7 @@ class control:
                         pygame.quit()
         
             t2 = time()
-            print('t2 - t1: ', t2 - t1)
+            # print('t2 - t1: ', t2 - t1)
         
             for road_id in range(len(self.roads)): #for each road....
                 road = self.roads[road_id]
@@ -122,7 +123,7 @@ class control:
                 self.UpdateRoad(road) #update the state of each vehicle in the road
             
             t3 = time()
-            print('t3 - t2: ', t3 - t2)
+            # print('t3 - t2: ', t3 - t2)
             
             for road in self.roads:
                 for car in road.vehicles:
@@ -134,13 +135,13 @@ class control:
                     road.vehicles.popleft() #remove all the semaphores in red
             
             t4 = time()
-            print('t4 - t3: ', t4 - t3)
+            # print('t4 - t3: ', t4 - t3)
             
             if draw : pygame.display.update()
             self.it_number += 1
             
             t5 = time()
-            print('t5 - t4: ', t5 - t4)
+            # print('t5 - t4: ', t5 - t4)
         
         for road_id in range(len(self.roads)):
             self.road_average_time_take_cars.append(self.road_total_time_take_cars[road_id]\
