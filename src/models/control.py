@@ -115,7 +115,7 @@ class control:
                 road = self.roads[road_id]
                 Painting.draw_road(screen, road, GRAY) #repaint it 
                 if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id): #if it has a semaphore in red...
-                    road.vehicles : deque .appendleft(Vehicle(road.length, 3, 1, color = RED)) #add a 'semaphore car' to vehicles
+                    road.vehicles.appendleft(Vehicle(road.length, 3, 1, color = RED)) #add a 'semaphore car' to vehicles
                 self.UpdateRoad(road) #update the state of each vehicle in the road
             
             t3 = time()
@@ -126,9 +126,10 @@ class control:
                     Painting.draw_vehicle(screen, road, car) #repaint all the cars
                     
                 if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
+                    print('here')
                     self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)], \
                         len(road.vehicles))                                                 #fitness.................................
-                    road.vehicles : deque .popleft() #remove all the semaphores in red
+                    road.vehicles.popleft() #remove all the semaphores in red
             
             t4 = time()
             print('t4 - t3: ', t4 - t3)
