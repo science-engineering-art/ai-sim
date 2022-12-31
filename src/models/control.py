@@ -72,11 +72,12 @@ class control:
         for road_id in roads:
             self.extremeRoads.append(road_id)
     
-    def Start(self, it_amount = -1):
+    def Start(self, it_amount = -1, draw = True):
         '''method to begin the simulation'''
-        pygame.init()
-        screen = pygame.display.set_mode((1400,800))
-        pygame.display.update()
+        if draw : 
+            pygame.init()
+            screen = pygame.display.set_mode((1400,800))
+            pygame.display.update()
 
 
         #presetting the fitness properties
@@ -98,22 +99,23 @@ class control:
             for corn in self.corners:
                 corn.tick() #increments the time of each semaphore
             
-            screen.fill(LIGHT_GRAY) #repaint the background
+            if draw : screen.fill(LIGHT_GRAY) #repaint the background
             
             _, road_id = self.NewRandomVehicle() #generates a new random vehicle
             if road_id != None:
                 self.road_car_entrance_queue[road_id].append(self.it_number)            #fitness.................................
             
-            for event in pygame.event.get(): #check if exiting
-                if event.type == QUIT:
-                    pygame.quit()
+            if draw : 
+                for event in pygame.event.get(): #check if exiting
+                    if event.type == QUIT:
+                        pygame.quit()
         
             t2 = time()
             print('t2 - t1: ', t2 - t1)
         
             for road_id in range(len(self.roads)): #for each road....
                 road = self.roads[road_id]
-                Painting.draw_road(screen, road, GRAY) #repaint it 
+                if draw : Painting.draw_road(screen, road, GRAY) #repaint it 
                 if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id): #if it has a semaphore in red...
                     road.vehicles.appendleft(Vehicle(road.length, 3, 1, color = RED)) #add a 'semaphore car' to vehicles
                 self.UpdateRoad(road) #update the state of each vehicle in the road
@@ -123,10 +125,9 @@ class control:
             
             for road in self.roads:
                 for car in road.vehicles:
-                    Painting.draw_vehicle(screen, road, car) #repaint all the cars
+                    if draw : Painting.draw_vehicle(screen, road, car) #repaint all the cars
                     
                 if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
-                    print('here')
                     self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)], \
                         len(road.vehicles))                                                 #fitness.................................
                     road.vehicles.popleft() #remove all the semaphores in red
@@ -134,7 +135,7 @@ class control:
             t4 = time()
             print('t4 - t3: ', t4 - t3)
             
-            pygame.display.update()
+            if draw : pygame.display.update()
             self.it_number += 1
             
             t5 = time()
