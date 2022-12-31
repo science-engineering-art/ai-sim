@@ -1,0 +1,25 @@
+-Despues de llamar al metodo Start() los siguientes arrays
+	self.road_max_queue = [] 
+        self.road_total_amount_cars = [] 
+        self.road_total_time_take_cars = [] 
+        self.road_average_time_take_cars = [] 
+tendran caculados algunos valores que seran utiles para cada road en la simulacion.
+.el primero es la longitud maxima que ha tenido una cola en esa calle
+.el segundo es el total de carros que han entrado y salido de la carretera
+.el tercero es el total de tiempo que le ha tomado a todos los carros entrar y salir de la carretera (dado en iteraciones del ciclo while)
+.el promedio de lo anterior.
+
+-Estos valores son los que me pidio Laura, pero yo en la prueba que hice de unir las cosas solo use el average de carros.
+
+*** Es importante quitar de estos arrays las carreteras que no son importantes. Estas estaran marcadas como True en el arrat self.is_curve.
+
+
+-Para ejecutar la simulacion sin parte visual (muuucho mas rapido), se le pasa a Start el parametro draw=False.
+-Para ejecutar la simulacion sobre un mismo mapa multiples veces cree la clase Simulation. Esta contiene el metodo get_new_control_object que basicamente te devuelve una instancia nueva de la simulacion, desde cero. Entonces por cada mapa, habria que heredar de esta clase y redefinir este metodo, como hice con Simulation_test_3.
+-Luego para la IA en la funcion de fitness es que habria que pedir este objeto de tipo control, ponerle como configuracion la poblacion, y darle start, para obtener en los arrays aquellos los valores que se quieren.
+
+-en test3_integration_attempt.py escribi mi codigo para el metodo de fitness, para no tocar mucho lo de Laura, y copie genetic_algorithm porque creo que tambien le hice algun cambiecillo, o no, no se.
+-en este caso el fitness lo calculo simplemente como el maximo, sober toda calle x, del average de tiempo que tomo a los carros que cruzaron la calle x.
+- este valor lo pongo negativo ya que mientras mayor sea mas malo sera como fitness.
+
+
