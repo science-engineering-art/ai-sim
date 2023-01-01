@@ -15,6 +15,9 @@ class Road:
         self.angle_cos = (self.end[0]-self.start[0]) / self.length
         self.vehicles = deque()
         self.end_conn = None #it may be another road or a corner
+        
+        # default value of amount of vehicle transiting per second 
+        self.Lambda = 0.001 # which is equivalent of 3.6 veh/h
 
     def get_curve_road(init_point, end_point, inclination_point, steps = 15):
         points = Road.create_curve_road_points(init_point, end_point, inclination_point, steps)

@@ -29,45 +29,61 @@ class control:
 
     def __init__(self):
         self.roads = []
-        self.road_index = {}#store the index of each road in roads list
+        self.road_index = {} # store the index of each road in roads list
         self.running = True
         self.vehicles = []
         self.corners = []
-        self.curves = {} #stores for each connection the road conforming its curve
-        self.is_curve = [] #Determines wheter a road represents a curve/auxiliar road
-        self.extremeRoads = [] #roads who start at the edge of the map
+        self.curves = {} # stores for each connection the road conforming its curve
+        self.is_curve = [] # Determines wheter a road represents a curve/auxiliar road
+        self.extremeRoads = [] # roads who start at the edge of the map
         
-        #random vehicles templates
-        self.basic_vehicles = [Vehicle(x=0, length= 3, width = 1, color=(30, 255,255))]
+        # random vehicles templates
+        self.basic_vehicles = [
+            Vehicle(x=0, length= 3, width = 1, color=(30, 255,255), v_max = 80, a_max=1.9, b_max=3.5), 
+            Vehicle(x=0, length= 3, width = 1.5, color=(255, 30,255), v_max = 30, a_max=2.9, b_max=3),
+            Vehicle(x=0, length= 2, width = 0.85, color=(255, 255,30), v_max = 40, a_max=2.2, b_max=4),
+            Vehicle(x=0, length= 2.5, width = 1.2, color=(118,181,197), v_max = 65, a_max=4.9, b_max=1.5),
+            # Vehicle(x=0, length= 2.5, width = 1.2, color=(135,62,35), v_max = 50, a_max=2.9, b_max=2.5),
+        ]
 
-         #fitness prperties
+        # fitness prperties
         self.road_max_queue = [] 
         self.road_car_entrance_queue = [] 
         self.road_total_amount_cars = [] 
         self.road_total_time_take_cars = [] 
         self.road_average_time_take_cars = [] 
 
-         # coordinates - roads
+        # coordinates - roads
         self.coord_roads_in  = {}
         self.coord_roads_out = {}
 
-    def NewRandomVehicle(self, prob = 1/100, cant = 1):
+    def NewRandomVehicle(self):
         '''Creates a random vehicle with probability prob'''
         
-        r = random.random()
-        if r > prob:
-            return None, None
-        
-        for _ in range(cant):
-            #select uniformly the vehicle template (i.e. color, length, speed)
-            car : Vehicle = deepcopy(random.choice(self.basic_vehicles))
-            #select uniformly the vehicle start road from the extreme ones
-            road_id = random.choice(self.extremeRoads)
-            road : Road = self.roads[road_id]
-            road.vehicles.append(car)
+        from math import e, factorial
 
-            if cant == 1: return car, road_id
-    
+        def poisson(Lambda: float, t: float, x: int):
+            Lambda *= t
+            return Lambda**x * (e**(-Lambda)) / factorial(x)
+
+        cars = []
+        roads_id = []
+
+        for road_id in self.extremeRoads:
+            road: Road = self.roads[road_id]
+
+            r = random.random()
+            if r > poisson(road.Lambda, 1, 1): continue
+
+            # select uniformly the vehicle template (i.e. color, length, speed)
+            car : Vehicle = deepcopy(random.choice(self.basic_vehicles))
+            road.vehicles.append(car)
+            cars.append(car)
+            roads_id.append(road_id)
+
+        return cars, roads_id
+
+
     def AddExtremeRoads(self,roads):
         '''establish the extreme roads'''
         for road_id in roads:
@@ -102,9 +118,11 @@ class control:
             
             if draw : screen.fill(LIGHT_GRAY) #repaint the background
             
-            _, road_id = self.NewRandomVehicle() #generates a new random vehicle
-            if road_id != None:
-                self.road_car_entrance_queue[road_id].append(self.it_number)            #fitness.................................
+            _, roads_id = self.NewRandomVehicle() #generates a new random vehicle
+            if len(roads_id) > 0: 
+                for road_id in roads_id:
+                    self.road_car_entrance_queue[road_id].append(self.it_number)            #fitness.................................
+                    self.it_number += 1 # is this correct?
             
             if draw : 
                 for event in pygame.event.get(): #check if exiting
@@ -258,7 +276,6 @@ class control:
             x1, y1 = x1 + nX, y1 + nY 
             self.coord_roads_in[start].append(id)
             self.coord_roads_out[end].append(id)
-        
 
     def build_intersections(self):
 
@@ -336,6 +353,7 @@ class control:
             y = m_a * x + n_a
 
         return (x, y)
+
 
     def connect_roads(self, road_1_id, road_2_id, curve_point):    
         '''connects to roads with a curve using an external point to create the curve
