@@ -7,3 +7,4 @@ ctrl = control()
 
 template = GridMap(ctrl, (700, 400), 92, 300, 200, 1100, 600, 2, 2, 4)
 template.generate_map()
+ctrl.Start(observation_time=120, draw=True)
