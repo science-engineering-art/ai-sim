@@ -49,13 +49,26 @@ def init_population(pop_size, number_of_turns, maximum_waiting_time, average_pas
 
 
 # evaluates an individual in the simulation returning queue size in relation to waiting time
-def eval_individual_in_simulation():
-    pass
+def eval_individual_in_simulation(simulation, individual):
+    ctrl = simulation.get_new_control_object()
+    ctrl.SetConfiguration(individual)
+    ctrl.Start(it_amount=10000, draw=False)
+    fitness_val = -1
+    for road_id in range(len(ctrl.road_max_queue)):
+        if not ctrl.is_curve[road_id]:
+            # we use the max between average time a car takes in every semaphore
+            fitness_val = max(
+                fitness_val, ctrl.road_average_time_take_cars[road_id])
+    # I use the opposite value because we wish to diminish the time it takes for the cars
+    return -fitness_val
 
 
 # gives a fitness value to each individual of the population
-def fitness():
-    pass
+def fitness(population, simulation):
+    fitness = []
+    for individual in population:
+        fitness.append(eval_individual_in_simulation(simulation, individual))
+    return fitness
 
 
 # to mutate an individual (encoded) it randomly takes k indexes in n cromosomes (also random)
@@ -162,12 +175,10 @@ def multipoint_xover(parent_a, parent_b, p=1):
 
     for i in points:
         offsprings[0] += last[1][last[0]:i]
-        offsprings[1] += parent_b[last[0]
-            :i] if last[1] == parent_a else parent_a[last[0]:i]
+        offsprings[1] += parent_b[last[0]:i] if last[1] == parent_a else parent_a[last[0]:i]
         last = (i, parent_b if last[1] == parent_a else parent_a)
     offsprings[0] += last[1][last[0]:]
-    offsprings[1] += parent_b[last[0]
-        :] if last[1] == parent_a else parent_a[last[0]:]
+    offsprings[1] += parent_b[last[0]:] if last[1] == parent_a else parent_a[last[0]:]
 
     return offsprings
 
@@ -197,7 +208,7 @@ def stop_criterion(i):
 
 
 # main method of the genetic algorithm
-def genetic_algorithm(pop_size, number_of_turns, maximum_waiting_time, average_passing_time):
+def genetic_algorithm(pop_size, number_of_turns, maximum_waiting_time, average_passing_time, simulation):
     # init
     population = init_population(
         pop_size, number_of_turns, maximum_waiting_time, average_passing_time)
@@ -209,8 +220,7 @@ def genetic_algorithm(pop_size, number_of_turns, maximum_waiting_time, average_p
     best_solution = ([], -Inf)  # (solution, fitness value)
 
     while not stop_criterion(i):
-        # TODO: get fitness of each individual in population
-        fitness = []
+        fitness = fitness(population, simulation)
 
         # saves the solution with the greatest fitness in the current generation if it is better that the stored
         # in best solution
@@ -227,6 +237,18 @@ def genetic_algorithm(pop_size, number_of_turns, maximum_waiting_time, average_p
         new_population += best_solutions
         # crossovering parents
         new_population += xover(parents[0], parents[1])
+
+        # making sure new population is the same size as the old one
+        while len(new_population) < len(population):
+            indexes = get_random_indexes(range(len(new_population)))
+            to_mutate = []
+            for i in indexes:
+                to_mutate.append(new_population[i])
+            new_population += mutate(to_mutate, 1)
+
+        if len(new_population) > len(population):
+            new_population = new_population[0:len(population)]
+
         # mutating some individuals
         new_population = mutate(new_population)
 
@@ -239,21 +261,21 @@ def genetic_algorithm(pop_size, number_of_turns, maximum_waiting_time, average_p
     return best_solution[0]
 
 
-pop = [[1, 4, 5, 10], [11, 5, 2, 1], [
-    5, 8, 4, 15], [3, 2, 54, 1], [7, 8, 23, 5]]
-fitness = [1, 9, 5, 8, 90]
-bin_p = encode_population(pop)
-print(bin_p)
-print(mutate(bin_p, 0.5))
+# pop = [[1, 4, 5, 10], [11, 5, 2, 1], [
+#     5, 8, 4, 15], [3, 2, 54, 1], [7, 8, 23, 5]]
+# fitness = [1, 9, 5, 8, 90]
+# bin_p = encode_population(pop)
+# print(bin_p)
+# print(mutate(bin_p, 0.5))
 # print(bin_p)
 # print(get_random_indexes([1, 2, 3, 4, 5], 1))
-print(multipoint_xover("100", "202"))
+# print(multipoint_xover("100", "202"))
 
-print(select_parents(pop, fitness))
+# print(select_parents(pop, fitness))
 
 # a = [1, -9, -90, 3, 2]
 # print(a.index(min(a)))
 # a.remove(a[a.index(min(a))])
 # print(a)
 
-print(cromosome_xover(bin_p[0], bin_p[1]))
+# print(cromosome_xover(bin_p[0], bin_p[1]))
