@@ -112,9 +112,9 @@ def xover(parent_a, parent_b):
 def eval_individual_in_simulation(simulation, individual):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
-    ctrl.speed = 50
+    ctrl.speed = 10
     print(individual)
-    ctrl.Start(observation_time = 1, draw=False)
+    ctrl.Start(observation_time = 5, draw=False)
     fitness_val = -1
     for road_id in range(len(ctrl.roads)):
         if not ctrl.is_curve[road_id]:
