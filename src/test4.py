@@ -77,7 +77,9 @@ while len(stack) > 0:
 
 
 ctrl.build_intersections()
-
+# for road in ctrl.roads:
+#     if not ctrl.is_curve[ctrl.roads.index(road)]:
+#         print(road.length)
 # print(ctrl.extremeRoads)
 t = time()
 ctrl.Start(it_amount=10000, draw=True)
@@ -85,7 +87,6 @@ ctrl.Start(it_amount=10000, draw=True)
 to_print_1 = []
 to_print_2 = []
 for road_id in range(len(ctrl.road_max_queue)):
-    if not ctrl.is_curve[road_id]:
         to_print_1.append(ctrl.road_max_queue[road_id])
         to_print_2.append(ctrl.road_average_time_take_cars[road_id])
 print(to_print_1)

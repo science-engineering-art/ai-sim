@@ -2,7 +2,7 @@
 from collections import deque
 from multiprocessing.sharedctypes import copy
 from queue import Queue
-from time import time
+from time import sleep, time
 from turtle import _Screen
 from typing import Deque
 from scipy.spatial import distance
@@ -39,10 +39,10 @@ class control:
         
         #random vehicles templates
         self.basic_vehicles = [
-            Vehicle(x=0, length= 3, width = 1, color=(30, 255,255), v_max = 80, a_max=1.9, b_max=3.5), 
-            Vehicle(x=0, length= 3, width = 1.5, color=(255, 30,255), v_max = 30, a_max=2.9, b_max=3),
-            Vehicle(x=0, length= 2, width = 0.85, color=(255, 255,30), v_max = 40, a_max=2.2, b_max=4),
-            Vehicle(x=0, length= 2.5, width = 1.2, color=(118,181,197), v_max = 65, a_max=4.9, b_max=1.5),
+            Vehicle(x=0, length= 1, width = 1, color=(30, 255,255), v_max = 80, a_max=1.9, b_max=3.5), 
+            # Vehicle(x=0, length= 3, width = 1.5, color=(255, 30,255), v_max = 30, a_max=2.9, b_max=3),
+            # Vehicle(x=0, length= 2, width = 0.85, color=(255, 255,30), v_max = 40, a_max=2.2, b_max=4),
+            # Vehicle(x=0, length= 2.5, width = 1.2, color=(118,181,197), v_max = 65, a_max=4.9, b_max=1.5),
             # Vehicle(x=0, length= 2.5, width = 1.2, color=(135,62,35), v_max = 50, a_max=2.9, b_max=2.5),
         ]
 
@@ -109,7 +109,9 @@ class control:
         
         while self.it_number < it_amount or it_amount == -1:
             print(self.it_number)
+           
             t1 = time() #measures time complexity
+            
             # print(t1 - tprev) #measures time complexity
             tprev = t1 #measures time complexity
             
@@ -136,15 +138,27 @@ class control:
                 road = self.roads[road_id]
                 if draw : Painting.draw_road(screen, road, GRAY) #repaint it 
                 if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id): #if it has a semaphore in red...
-                    road.vehicles.appendleft(Vehicle(road.length, 3, 1, color = RED)) #add a 'semaphore car' to vehicles
+                    road.vehicles.appendleft(Vehicle(road.length, 3, 1, color = RED, v = 0)) #add a 'semaphore car' to vehicles
                 self.UpdateRoad(road) #update the state of each vehicle in the road
             
             t3 = time()
             # print('t3 - t2: ', t3 - t2)
-            
+            #debugging
+            if len(self.roads[0].vehicles) > 0 : 
+                print('vehicle:', self.roads[0].vehicles[0].x)
+                if self.roads[0].vehicles[0].color == RED:
+                    if len(self.roads[0].vehicles) > 1 :
+                        print('actual vehicle pos:', self.roads[0].vehicles[1].x)
+                        print('velocity: ', self.roads[0].vehicles[1].v) 
+                        print('aceleration: ', self.roads[0].vehicles[1].a) 
+                    else : print('no vehicle')
+                    
+                    
             for road in self.roads:
                 for car in road.vehicles:
                     if draw : Painting.draw_vehicle(screen, road, car) #repaint all the cars
+            
+            
                     
                 if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
                     self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)], \
@@ -159,7 +173,6 @@ class control:
             
             t5 = time()
             # print('t5 - t4: ', t5 - t4)
-        
         for road_id in range(len(self.roads)):
             self.road_average_time_take_cars.append(self.road_total_time_take_cars[road_id]\
                 /self.road_total_amount_cars[road_id] if self.road_total_amount_cars[road_id]  != 0 else 0)

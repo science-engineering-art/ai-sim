@@ -32,7 +32,7 @@ class Vehicle:
 
         self.__dict__.update(kwargs)
 
-    def update(self, dt = 1/10, lead: 'Vehicle' = None):
+    def update(self, dt = 1/60, lead: 'Vehicle' = None):
         
         if self.stopped: return
         # if self.stopped: 
@@ -47,7 +47,7 @@ class Vehicle:
 
         alpha = 0
         if lead: 
-            delta_x = lead.x - self.x - self.length
+            delta_x = lead.x - self.x - lead.length
             delta_v = self.v - lead.v
             alpha = (self.s0 + max(0, self.v*self.T + self.v*delta_v/(2*sqrt(self.a_max*self.b_max)))) / delta_x
 
