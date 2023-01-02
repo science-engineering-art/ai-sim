@@ -8,7 +8,7 @@ from models.simulation import Simulation, Simulation_test_3
 
 simulation = Simulation_test_3()
 
-pop_size = 10
+pop_size = 50
 number_of_turns = 15
 maximum_waiting_time = 90
 average_passing_time = 3
