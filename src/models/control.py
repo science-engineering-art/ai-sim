@@ -37,7 +37,7 @@ class control:
 
     def __init__(self, **kwargs):
         
-        self.speed = 5
+        self.speed = 5 #how many simulation second will pass for every real life second
         self.dt = self.speed * (1/300)
         
         self.roads = []
@@ -52,7 +52,7 @@ class control:
         #random vehicles templates
         self.basic_vehicles = [
             Vehicle(x=0, length= 1.22, width = 1, color=(255, 30,255), v_max = 33.3, a_max=2.89, b_max=9.25), 
-            Vehicle(x=0, length= 1.22, width = 1, color=(30, 255,255), v_max = 80, a_max=2.89, b_max=9.25), 
+            # Vehicle(x=0, length= 1.22, width = 1, color=(30, 255,255), v_max = 80, a_max=2.89, b_max=9.25), 
             # Vehicle(x=0, length= 3, width = 1.5, color=(255, 30,255), v_max = 30, a_max=2.9, b_max=3),
             # Vehicle(x=0, length= 2, width = 0.85, color=(255, 255,30), v_max = 40, a_max=2.2, b_max=4),
             # Vehicle(x=0, length= 2.5, width = 1.2, color=(118,181,197), v_max = 65, a_max=4.9, b_max=1.5),
@@ -88,7 +88,7 @@ class control:
             road: Road = self.roads[road_id]
 
             r = random.random()
-            if r > poisson(road.Lambda, 1, 1): continue
+            if r > poisson(road.Lambda, self.dt, 1): continue
 
             # select uniformly the vehicle template (i.e. color, length, speed)
             car : Vehicle = deepcopy(random.choice(self.basic_vehicles))
@@ -99,9 +99,12 @@ class control:
         return cars, roads_id
 
 
-    def AddExtremeRoads(self,roads):
+    def AddExtremeRoads(self,roads, lambdas = None):
         '''establish the extreme roads'''
-        for road_id in roads:
+        for i in range(len(roads)):
+            road_id = roads[i]
+            if lambdas != None:
+                self.roads[road_id].Lambda = lambdas[i]
             self.extremeRoads.append(road_id)
     
     def Start(self, observation_time = -1, it_amount = -1, draw = True):

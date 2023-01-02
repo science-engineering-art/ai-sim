@@ -7,7 +7,7 @@ from scipy.spatial import distance
 
 class Road:
 
-    def __init__(self, start:Tuple[int,int], end: Tuple[int,int]):
+    def __init__(self, start:Tuple[int,int], end: Tuple[int,int], **args):
         self.start = start
         self.end = end
         self.length = distance.euclidean(self.start, self.end)
@@ -17,7 +17,8 @@ class Road:
         self.end_conn = None #it may be another road or a corner
         
         # default value of amount of vehicle transiting per second 
-        self.Lambda = 0.001 # which is equivalent of 3.6 veh/h
+        self.Lambda = 1/50 # which is equivalent of 72 veh/h
+        self.__dict__.update(args)
 
     def get_curve_road(init_point, end_point, inclination_point, steps = 15):
         points = Road.create_curve_road_points(init_point, end_point, inclination_point, steps)

@@ -32,7 +32,8 @@ IH = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[1] - v_diff), (pos_x[2] + h_diff
 CI = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff / 2, pos_y[1] + v_diff / 2))
 FC = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2))
 
-ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ])
+normal = 1/50
+ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * 3, normal * 3, normal, normal, normal])
 
 #curvas desde la izquiera
 ctrl.connect_roads(AB, BE, (pos_x[1] + h_diff / 2, pos_y[2]))
@@ -98,7 +99,7 @@ ctrl.SetConfiguration([t1, t2, t2, t2,  t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2,
 # ctrl.Start(it_amount= 10000, draw=False)
 
 ctrl.speed = 5
-ctrl.Start(it_amount= 10000, draw=True)
+ctrl.Start(observation_time = 100, draw=True)
 
 to_print_1 = []
 to_print_2 = []
@@ -108,3 +109,6 @@ for road_id in range(len(ctrl.road_max_queue)):
         to_print_2.append(ctrl.road_average_time_take_cars[road_id])
 print(to_print_1)
 print(to_print_2)
+
+#[1390.5, 1867.888888888889, 0, 0, 824.3333333333334, 2670.0, 0, 0, 2307.0, 1360.0, 10109.75, 3970.0, 603.75, 1077.5, 314.0, 9004.0]
+#[3785.3333333333335, 4095.2, 0, 3977.0, 0, 3793.0, 0, 0, 0, 0, 0, 0, 2202.5, 0, 0, 0]

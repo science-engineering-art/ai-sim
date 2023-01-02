@@ -117,7 +117,8 @@ def eval_individual_in_simulation(simulation, individual):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
     print(individual)
-    ctrl.Start(it_amount = 10000, draw=False)
+    ctrl.speed = 5
+    ctrl.Start(obser, draw=False)
     fitness_val = -1
     for road_id in range(len(ctrl.road_max_queue)):
         if not ctrl.is_curve[road_id]:
