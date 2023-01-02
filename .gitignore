@@ -3,7 +3,9 @@ __pycache__
 cache
 ddb_storage
 .vscode
-state_of_the_art
+state_art
+TODO.md
+Cosas importantes sobre la integracion.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
