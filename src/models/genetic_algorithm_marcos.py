@@ -3,7 +3,7 @@ from numpy import Inf, sort
 
 
 
-MAX_ITERATIONS = 100000
+MAX_ITERATIONS = 100
     
 
 # gets k random indexes in a list
@@ -117,8 +117,8 @@ def eval_individual_in_simulation(simulation, individual):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
     print(individual)
-    ctrl.speed = 5
-    ctrl.Start(obser, draw=False)
+    ctrl.speed = 50
+    ctrl.Start(observation_time = 1, draw=False)
     fitness_val = -1
     for road_id in range(len(ctrl.road_max_queue)):
         if not ctrl.is_curve[road_id]:

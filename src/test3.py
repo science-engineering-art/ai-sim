@@ -95,7 +95,7 @@ t1 = 5
 t2 = 40
 # ctrl.SetConfiguration([574, 305, 694, 278, 291, 801, 115, 486, 397, 328, 96, 247, 690, 253, 194])
 ctrl.SetConfiguration([t1, t2, t2, t2,  t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
-# ctrl.SetConfiguration([66, 58, 80, 60, 80, 58, 70, 67, 51, 93, 55, 99, 62, 72, 53])
+ctrl.SetConfiguration([99, 97, 66, 53, 7, 69, 74, 85, 80, 38, 52, 70, 37, 75, 77])
 # ctrl.Start(it_amount= 10000, draw=False)
 
 ctrl.speed = 5

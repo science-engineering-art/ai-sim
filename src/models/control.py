@@ -127,7 +127,7 @@ class control:
         tprev = time() #measures time complexity
         
         while (self.it_number < it_amount or it_amount == -1) and (time() - init_time < observation_time or observation_time == -1):
-            print(self.it_number)
+            # print(self.it_number)
            
             t1 = time() #measures time complexity
             
@@ -163,14 +163,14 @@ class control:
             t3 = time()
             # print('t3 - t2: ', t3 - t2)
             #debugging
-            if len(self.roads[0].vehicles) > 0 : 
-                print('vehicle:', self.roads[0].vehicles[0].x)
-                if self.roads[0].vehicles[0].color == RED:
-                    if len(self.roads[0].vehicles) > 1 :
-                        print('actual vehicle pos:', self.roads[0].vehicles[1].x)
-                        print('velocity: ', self.roads[0].vehicles[1].v) 
-                        print('aceleration: ', self.roads[0].vehicles[1].a) 
-                    else : print('no vehicle')
+            # if len(self.roads[0].vehicles) > 0 : 
+            #     print('vehicle:', self.roads[0].vehicles[0].x)
+            #     if self.roads[0].vehicles[0].color == RED:
+            #         if len(self.roads[0].vehicles) > 1 :
+            #             print('actual vehicle pos:', self.roads[0].vehicles[1].x)
+            #             print('velocity: ', self.roads[0].vehicles[1].v) 
+            #             print('aceleration: ', self.roads[0].vehicles[1].a) 
+            #         else : print('no vehicle')
                     
                     
             for road in self.roads:
@@ -194,7 +194,7 @@ class control:
             
             t5 = time()
             
-            print('t5 - t1: ', t5 - t1)
+            # print('t5 - t1: ', t5 - t1)
             
             
         for road_id in range(len(self.roads)):

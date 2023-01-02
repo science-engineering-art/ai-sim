@@ -41,7 +41,8 @@ class Simulation_test_3(Simulation):
         CI = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff / 2, pos_y[1] + v_diff / 2))
         FC = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2))
 
-        ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ])
+        normal = 1/50
+        ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * 3, normal * 3, normal, normal, normal])
 
         #curvas desde la izquiera
         ctrl.connect_roads(AB, BE, (pos_x[1] + h_diff / 2, pos_y[2]))
