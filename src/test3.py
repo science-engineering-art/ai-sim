@@ -91,10 +91,10 @@ print(ctrl.GetDimension())
 t1 = 5
 t2 = 40
 ctrl.SetConfiguration([t1, t2, t2, t2, t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
-# ctrl.SetConfiguration([49, 46, 93, 47, 10, 25, 36, 67, 19, 15, 92, 13, 40, 83, 45])
+# ctrl.SetConfiguration([19, 89, 27, 44, 4, 38, 11, 40, 11, 10, 52, 56, 59, 27, 59]    )
 
-ctrl.speed = 10
-ctrl.Start(observation_time = 20, draw=True)
+ctrl.speed = 20
+ctrl.Start(observation_time = 10, draw=False)
 
 to_print_1 = []
 to_print_2 = []
@@ -105,7 +105,7 @@ str_rr = ['AB', 'BA', 'BE', 'BC', 'CB', 'CD', 'DC','FC', 'CI', 'IG', 'IH', 'IJ',
 for i in range(16):
     road_id = rr[i]
     to_print_1.append(f'{str_rr[i]} : {ctrl.road_max_queue[road_id]}')
-    to_print_2.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id] * ctrl.dt}')
+    to_print_2.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id]}')
 
 
 print('max queue')

@@ -94,7 +94,7 @@ class corner:
                 self.myturn[(in_road, out_road)] = self.numberOfTurns - 1
 
 
-    def addFollows(self, in_roads, out_roads, order = None, displace = False, time = 1000):
+    def addFollows(self, in_roads, out_roads, order = None, displace = False, time = 40):
         '''adds all the possible pair between in and out roads, as follow pairs'''
         if order == None:
             order = self.numberOfTurns

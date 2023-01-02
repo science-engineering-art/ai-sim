@@ -172,7 +172,7 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
     else:
         tests_path = tests_path.replace('src/models', 'tests/')
 
-    file_name = f'test_{max_iterations}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}'
+    file_name = f'test_{max_iterations}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}_{speed}'
     ls = os.listdir(tests_path)
     print(ls)
 

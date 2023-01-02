@@ -105,7 +105,7 @@ print(ctrl.extremeRoads)
 #         print(road.length)
 # print(ctrl.extremeRoads)
 t = time()
-ctrl.speed = 10
+ctrl.speed = 20
 for er in ctrl.extremeRoads: #adjusting generation rate
     ctrl.roads[er].Lambda = 1/50
 ctrl.Start(observation_time=120, draw=True)

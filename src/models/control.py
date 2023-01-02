@@ -174,6 +174,7 @@ class control:
             if draw:
                 pygame.display.update()
 
+            # print(self.dt)
             self.dt = (time() - t1) * self.speed
             self.it_number += 1
 
@@ -184,10 +185,13 @@ class control:
             for i in range(len(self.roads[road_id].vehicles)):
                 c += 1
                 t += self.it_number - self.road_car_entrance_queue[road_id][i]
-            self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id] + t)
+            self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id] + self.dt * c)
                                                      / (self.road_total_amount_cars[road_id] + c) if self.road_total_amount_cars[road_id] + c != 0 else 0))
 
     def UpdateRoad(self, road):
+        
+        road_id = self.roads.index(road)
+        
         delete_amout = 0  # amount of of cars that move to other roads
         for i in range(len(road.vehicles)):
             car = road.vehicles[i]
@@ -202,15 +206,18 @@ class control:
 
         red = road.vehicles.popleft() if len(
             road.vehicles) > 0 and road.vehicles[0].color == RED else None
+        
+        self.road_total_time_take_cars[road_id] += self.dt * len(road.vehicles)
+            
+            
         for i in range(delete_amout):  # remove the cars moving out from the road
             road.vehicles.popleft()
 
-            road_id = self.roads.index(road)
             if len(self.road_car_entrance_queue[road_id]) > 0:
                 # fitness.................................
                 self.road_total_amount_cars[road_id] += 1
-                self.road_total_time_take_cars[road_id] += self.it_number + \
-                    1 - self.road_car_entrance_queue[road_id][0]
+                # self.road_total_time_take_cars[road_id] += self.it_number + \
+                    # 1 - self.road_car_entrance_queue[road_id][0]
                 # fitness.................................
                 self.road_car_entrance_queue[road_id].pop(0)
 
