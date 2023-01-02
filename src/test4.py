@@ -49,16 +49,34 @@ ctrl = control()
 
 edges = set()
 stack = [(700,400)]
-
+len_roads = 92
 
 def is_valid(pt):
     return pt[0] >= 0 and pt[0] <= 1400 and pt[1] >= 0 and pt[1] <= 800
 
+def calculate_limits(center_pt, len_roads):
+    x, y = center_pt
+    X, Y = center_pt
+
+    while x > 0 or y > 0 or X < 1400 or Y < 800:
+        if x > 0: x -= len_roads
+        if X < 1400: X += len_roads
+        if y > 0: y -= len_roads
+        if Y < 800: Y += len_roads
+    else:
+        x += len_roads
+        X -= len_roads
+        y += len_roads
+        Y -= len_roads
+    
+    return x, X, y, Y
+
+x, X, y, Y = calculate_limits((700, 400), len_roads)
 
 while len(stack) > 0:
     
     vX, vY = heapq.heappop(stack)
-    pts = [(vX + 100, vY), (vX - 100, vY), (vX, vY + 100), (vX, vY - 100)]
+    pts = [(vX + len_roads, vY), (vX - len_roads, vY), (vX, vY + len_roads), (vX, vY - len_roads)]
 
     for pt in pts:
         if ((vX, vY), pt) not in edges and (pt, (vX, vY)) not in edges \
@@ -71,8 +89,8 @@ while len(stack) > 0:
                 pt0 = pt
                 pt1 = (vX, vY)
             
-            if (pt0[0] == pt1[0] and pt0[0] == 1400) or \
-                (pt0[1] == pt1[1] and pt0[1] == 800): 
+            if (pt0[0] == pt1[0] and (pt0[0] == x or pt0[0] == X)) or \
+                (pt0[1] == pt1[1] and (pt0[1] == y or pt0[1] == Y)): 
                 continue
 
             ctrl.build_roads(pt0, pt1, 1, 1, 4)
@@ -90,7 +108,7 @@ t = time()
 ctrl.speed = 10
 for er in ctrl.extremeRoads: #adjusting generation rate
     ctrl.roads[er].Lambda = 1/150
-ctrl.Start(observation_time=20, draw=True)
+ctrl.Start(observation_time=120, draw=True)
 
 to_print_1 = []
 to_print_2 = []
