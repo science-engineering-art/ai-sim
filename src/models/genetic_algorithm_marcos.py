@@ -12,15 +12,6 @@ def get_random_indexes(input_list, k=-1):
                                    k=k)))
 
 
-
-# converts each cromosome from binary to int
-def decode_population(population_set):
-    decoded_population_set = []
-    for individual in population_set:
-        decoded_population_set.append([int(i, 2) for i in individual])
-    return decoded_population_set
-
-
 # initialites the population with random values between the average passing time (time that takes a car to cross a road)
 # and the maximum waiting time
 # each individual contains a list with the green times of each turn (disjoint semaphores in the intersection)
@@ -51,31 +42,14 @@ def fitness():
     pass
 
 
-# to mutate an individual (encoded) it randomly takes k indexes in n cromosomes (also random)
-# and changes '1's to '0's and '0's to '1's in them
-def mutate_individual(individual):
-    mutated_ind = []
-    indexes = get_random_indexes(individual)
-    for i in range(len(individual)):
-        if i in indexes:
-            cromosome = list(individual[i])
-            for j in get_random_indexes(cromosome):
-                cromosome[j] = '0' if cromosome[j] == '1' else '1'
-            individual[i] = "".join(cromosome)
-        mutated_ind.append(individual[i])
-    return mutated_ind
-
-# mutates k individuals according to the mutation rate required (%)
-def mutate(encoded_pop_set, mutation_rate):
-    mutated_pop = []
-    indexes = get_random_indexes(encoded_pop_set, k=int(
-        mutation_rate*len(encoded_pop_set)))
-    for i in range(len(encoded_pop_set)):
-        if i in indexes:
-            mutated_pop.append(mutate_individual(encoded_pop_set[i]))
-        else:
-            mutated_pop.append(encoded_pop_set[i])
-    return mutated_pop
+# mutates k individuals according to the mutation probability of replace a gen by a random
+# valid number
+def mutate_random(population_set, mutation_probability, maximum_waiting_time, average_passing_time):
+       for individual in population_set:
+        for i in range(len(individual)):
+            r = random.random()
+            if r < mutation_probability:
+                individual[i] = random.randint(average_passing_time, maximum_waiting_time)
 
 
 # Assign to each individual a probability of being a parent based on the ranking based on fitness.
@@ -165,7 +139,6 @@ def genetic_algorithm(pop_size, number_of_turns, maximum_waiting_time, average_p
     best_solution = ([], -Inf)  # (solution, fitness value)
 
     while not stop_criterion(i):
-        # TODO: get fitness of each individual in population
         fitness = []
 
         # saves the solution with the greatest fitness in the current generation if it is better that the stored
@@ -183,10 +156,7 @@ def genetic_algorithm(pop_size, number_of_turns, maximum_waiting_time, average_p
         # crossovering parents
         new_population += xover(parents[0], parents[1])
         # mutating some individuals
-        new_population = mutate(new_population)
-
-        # sets cromosomes back to decimal
-        new_population = decode_population(new_population)
+        new_population = mutate_random(new_population)
 
         population = new_population
         i += 1
