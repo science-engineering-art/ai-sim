@@ -48,10 +48,11 @@ def mutate_random(population_set, mutation_probability, maximum_waiting_time, av
 def select_parents_ranked(population_set, fitness_set, bests_amount = 2, s = 1.8):
     
     pop_len = len(population_set)
-    parents_amount = (pop_len - bests_amount)//2
-    if (pop_len - bests_amount) % 2 != 0: 
-        parents_amount += 1
-        bests_amount -= 1
+    # parents_amount = (pop_len - bests_amount)//2
+    # if (pop_len - bests_amount) % 2 != 0: 
+    #     parents_amount += 1
+    #     bests_amount -= 1
+    parents_amount = (pop_len - bests_amount) #debugging
     
     order = sorted(range(pop_len), key = lambda i: fitness_set[i])
     weights = [0 for _ in range(pop_len)]
@@ -105,7 +106,7 @@ def geometric_xover(parent_a, parent_b):
 def xover(parent_a, parent_b):
     new_population = []
     for i in range(len(parent_a)):
-        new_population += multipoint_xover(parent_a[i], parent_b[i])
+        new_population += intermediate_xover(parent_a[i], parent_b[i])
     return new_population
 
 # evaluates an individual in the simulation returning queue size in relation to waiting time

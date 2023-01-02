@@ -90,11 +90,11 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
 print(ctrl.GetDimension())
 t1 = 5
 t2 = 40
-ctrl.SetConfiguration([t1, t2, t2, t2,  t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
-ctrl.SetConfiguration([49, 46, 93, 47, 10, 25, 36, 67, 19, 15, 92, 13, 40, 83, 45])
+ctrl.SetConfiguration([t1, t2, t2, t2, t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
+# ctrl.SetConfiguration([49, 46, 93, 47, 10, 25, 36, 67, 19, 15, 92, 13, 40, 83, 45])
 
 ctrl.speed = 10
-ctrl.Start(observation_time = 1, draw=True)
+ctrl.Start(observation_time = 20, draw=True)
 
 to_print_1 = []
 to_print_2 = []
