@@ -170,10 +170,26 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
     else:
         tests_path = tests_path.replace('src/models', 'tests/')
 
-    f = open(tests_path +
-             f'test_{max_iterations}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}.txt', "w")
+    file_name = f'test_{max_iterations}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}'
+    ls = os.listdir(tests_path)
+    print(ls)
+
+    test_number = 0
+    for file in ls:
+        if file.startswith(file_name):
+            test_number += 1
+
+    if test_number != 0:
+        file_name += f'_({test_number})'
+    file_name += '.txt'
+
+    print(file_name)
+
+    f = open(tests_path + file_name, "w")
 
     f.write(f"MAX_ITERATIONS: {max_iterations} \n\n")
+    f.write(f"SPEED: {speed} \n\n")
+    f.write(f"OBSERVATION_TIME: {obs_time} \n\n")
 
     while i < max_iterations:
         f.write(f"Generation {i} \n\n")
