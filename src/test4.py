@@ -54,15 +54,15 @@ len_roads = 92
 def is_valid(pt):
     return pt[0] >= 0 and pt[0] <= 1400 and pt[1] >= 0 and pt[1] <= 800
 
-def calculate_limits(center_pt, len_roads):
+def calculate_limits(center_pt, len_roads, low_limit_x = 0, low_limit_y = 0, up_limit_x = 1400, up_limit_y = 800):
     x, y = center_pt
     X, Y = center_pt
 
-    while x > 0 or y > 0 or X < 1400 or Y < 800:
-        if x > 0: x -= len_roads
-        if X < 1400: X += len_roads
-        if y > 0: y -= len_roads
-        if Y < 800: Y += len_roads
+    while x > low_limit_x or y > low_limit_y or X < up_limit_x or Y < up_limit_y:
+        if x > low_limit_x: x -= len_roads
+        if X < up_limit_x: X += len_roads
+        if y > low_limit_y: y -= len_roads
+        if Y < up_limit_y: Y += len_roads
     else:
         x += len_roads
         X -= len_roads
@@ -71,7 +71,7 @@ def calculate_limits(center_pt, len_roads):
     
     return x, X, y, Y
 
-x, X, y, Y = calculate_limits((700, 400), len_roads)
+x, X, y, Y = calculate_limits((700, 400), len_roads, low_limit_x=200, low_limit_y=200, up_limit_x=1200, up_limit_y=600)
 
 while len(stack) > 0:
     
@@ -89,11 +89,11 @@ while len(stack) > 0:
                 pt0 = pt
                 pt1 = (vX, vY)
             
-            if (pt0[0] == pt1[0] and (pt0[0] == x or pt0[0] == X)) or \
-                (pt0[1] == pt1[1] and (pt0[1] == y or pt0[1] == Y)): 
+            if  ((pt0[0] <= x or pt0[0] >= X) and (pt1[0] <= x or pt1[0] >= X)) or \
+                ((pt0[1] <= y or pt0[1] >= Y) and (pt1[1] <= y or pt1[1] >= Y)): 
                 continue
 
-            ctrl.build_roads(pt0, pt1, 1, 1, 4)
+            ctrl.build_roads(pt0, pt1, 2, 2, 3)
             heapq.heappush(stack, pt)
             edges.add((pt0, pt1))
 
