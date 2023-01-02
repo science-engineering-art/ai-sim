@@ -42,8 +42,8 @@ class Vehicle:
             self.x -= 1/2*self.v**2/self.a
             self.v = 0
         else:
-            self.x += self.v * dt + self.a * dt**2 /2
             self.v += self.a * dt
+            self.x += self.v * dt + self.a * dt**2 /2
 
         alpha = 0
         if lead: 

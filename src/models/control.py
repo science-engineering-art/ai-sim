@@ -27,7 +27,10 @@ LIGHT_GRAY = (225,225,225)
 class control:
     '''class made to control hall the simulation over the map'''
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        
+        self.dt = 1/60
+        
         self.roads = []
         self.road_index = {} # store the index of each road in roads list
         self.running = True
@@ -39,7 +42,8 @@ class control:
         
         #random vehicles templates
         self.basic_vehicles = [
-            Vehicle(x=0, length= 1, width = 1, color=(30, 255,255), v_max = 80, a_max=1.9, b_max=3.5), 
+            Vehicle(x=0, length= 1, width = 1, color=(30, 255,255), v_max = 100, a_max=10, b_max=32), 
+            # Vehicle(x=0, length= 1, width = 1, color=(30, 255,255), v_max = 80, a_max=1.9, b_max=3.5), 
             # Vehicle(x=0, length= 3, width = 1.5, color=(255, 30,255), v_max = 30, a_max=2.9, b_max=3),
             # Vehicle(x=0, length= 2, width = 0.85, color=(255, 255,30), v_max = 40, a_max=2.2, b_max=4),
             # Vehicle(x=0, length= 2.5, width = 1.2, color=(118,181,197), v_max = 65, a_max=4.9, b_max=1.5),
@@ -56,6 +60,8 @@ class control:
         # coordinates - roads
         self.coord_roads_in  = {}
         self.coord_roads_out = {}
+        
+        self.__dict__.update(kwargs)
 
     def NewRandomVehicle(self):
         '''Creates a random vehicle with probability prob'''
@@ -186,7 +192,7 @@ class control:
             if i != 0:
                 lead = road.vehicles[i - 1]
             if car.color != RED: #be careful do not update the semaphore car
-                car.update(lead = lead)
+                car.update(dt = self.dt, lead = lead)
             if car.x > road.length: #if the car position is out of the road
                 delete_amout += 1  #remove the car from this road
                 self.NextRoad(car, road) #and add it in the next one

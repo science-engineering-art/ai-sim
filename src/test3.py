@@ -96,7 +96,9 @@ t2 = 400
 ctrl.SetConfiguration([t1, t2, t2, t2,  t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
 # ctrl.SetConfiguration([66, 58, 80, 60, 80, 58, 70, 67, 51, 93, 55, 99, 62, 72, 53])
 # ctrl.Start(it_amount= 10000, draw=False)
-ctrl.Start(it_amount= 100000, draw=True)
+
+ctrl.dt = 1/60
+ctrl.Start(it_amount= 1000, draw=True)
 
 to_print_1 = []
 to_print_2 = []

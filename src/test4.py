@@ -82,6 +82,7 @@ ctrl.build_intersections()
 #         print(road.length)
 # print(ctrl.extremeRoads)
 t = time()
+ctrl.dt = 1/60
 ctrl.Start(it_amount=10000, draw=True)
 
 to_print_1 = []
