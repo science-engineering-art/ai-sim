@@ -8,7 +8,6 @@ h_diff = 20
 v_diff = 20
 road_width = 10
 ctrl = control()
-# pos_x, pos_y, end_y, start_x, curv = 700, 410, 900, 0, 5
 
 AB = ctrl.AddRoad((pos_x[0], pos_y[2]), (pos_x[1], pos_y[2]))
 LJ = ctrl.AddRoad((pos_x[0], pos_y[1]), (pos_x[1], pos_y[1]))
@@ -87,16 +86,12 @@ ctrl.CreateCorner([(LJ, JI, 0), (LJ, JB, 0),\
 ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     (CI, IH, 1), (CI, IG, 1), (CI, IJ, 1)])
     
-# print(ctrl.corners[0].turns)    
 
 
 print(ctrl.GetDimension())
 t1 = 5
 t2 = 40
-# ctrl.SetConfiguration([574, 305, 694, 278, 291, 801, 115, 486, 397, 328, 96, 247, 690, 253, 194])
 ctrl.SetConfiguration([t1, t2, t2, t2,  t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
-# ctrl.SetConfiguration([99, 97, 66, 53, 7, 69, 74, 85, 80, 38, 52, 70, 37, 75, 77])
-# ctrl.Start(it_amount= 10000, draw=False)
 
 ctrl.speed = 5
 ctrl.Start(observation_time = 10, draw=True)
@@ -107,19 +102,13 @@ to_print_2 = []
 my_roads = []
 rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
 str_rr = ['AB', 'BA', 'BE', 'BC', 'CB', 'CD', 'DC','FC', 'CI', 'IG', 'IH', 'IJ', 'JI', 'KJ', 'LJ', 'JB']
-# inv_rr = {AB : 'AB', BA : 'BA', BE : 'BE', BC : 'BC', CB, CD, DC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
 for i in range(16):
     road_id = rr[i]
     to_print_1.append(f'{str_rr[i]} : {ctrl.road_max_queue[road_id]}')
     to_print_2.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id] * ctrl.dt}')
-# print(len(my_roads))
-# print(len(rr))
-# for id in rr:
-#     if not my_roads.__contains__(id):
+
+
 print('max queue')
 print(to_print_1)
 print('ave time')
 print(to_print_2)
-
-#[1390.5, 1867.888888888889, 0, 0, 824.3333333333334, 2670.0, 0, 0, 2307.0, 1360.0, 10109.75, 3970.0, 603.75, 1077.5, 314.0, 9004.0]
-#[3785.3333333333335, 4095.2, 0, 3977.0, 0, 3793.0, 0, 0, 0, 0, 0, 0, 2202.5, 0, 0, 0]

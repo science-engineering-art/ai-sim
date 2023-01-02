@@ -38,7 +38,7 @@ class control:
     def __init__(self, **kwargs):
         
         self.speed = 5 #how many simulation second will pass for every real life second
-        self.dt = self.speed * (1/300)
+        self.dt = self.speed * (1/300) #time step in each iteration of while cycle in Start
         
         self.roads = []
         self.road_index = {} # store the index of each road in roads list
@@ -124,15 +124,10 @@ class control:
         self.it_number = 1
         
         init_time = time()
-        tprev = time() #measures time complexity
         
         while (self.it_number < it_amount or it_amount == -1) and (time() - init_time < observation_time or observation_time == -1):
-            # print(self.it_number)
            
             t1 = time() #measures time complexity
-            
-            # print(t1 - tprev) #measures time complexity
-            tprev = t1 #measures time complexity
             
             for corn in self.corners:
                 corn.tick(self.dt) #increments the time of each semaphore
@@ -143,15 +138,12 @@ class control:
             if len(roads_id) > 0: 
                 for road_id in roads_id:
                     self.road_car_entrance_queue[road_id].append(self.it_number)            #fitness.................................
-                    self.it_number += 1 # is this correct?
             
             if draw : 
                 for event in pygame.event.get(): #check if exiting
                     if event.type == QUIT:
                         pygame.quit()
         
-            t2 = time()
-            # print('t2 - t1: ', t2 - t1)
         
             for road_id in range(len(self.roads)): #for each road....
                 road = self.roads[road_id]
@@ -160,44 +152,23 @@ class control:
                     road.vehicles.appendleft(Vehicle(road.length, 3, 1, color = RED, v = 0)) #add a 'semaphore car' to vehicles
                 self.UpdateRoad(road) #update the state of each vehicle in the road
             
-            t3 = time()
-            # print('t3 - t2: ', t3 - t2)
-            #debugging
-            # if len(self.roads[0].vehicles) > 0 : 
-            #     print('vehicle:', self.roads[0].vehicles[0].x)
-            #     if self.roads[0].vehicles[0].color == RED:
-            #         if len(self.roads[0].vehicles) > 1 :
-            #             print('actual vehicle pos:', self.roads[0].vehicles[1].x)
-            #             print('velocity: ', self.roads[0].vehicles[1].v) 
-            #             print('aceleration: ', self.roads[0].vehicles[1].a) 
-            #         else : print('no vehicle')
-                    
-                    
+            
             for road in self.roads:
                 for car in road.vehicles:
                     if draw : Painting.draw_vehicle(screen, road, car) #repaint all the cars
-            
-            
                     
                 if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
                     self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)], \
                         len(road.vehicles))                                                 #fitness.................................
                     road.vehicles.popleft() #remove all the semaphores in red
             
-            t4 = time()
-            # print('t4 - t3: ', t4 - t3)
-            
             if draw : pygame.display.update()
             
             self.dt = (time() - t1) * self.speed 
             self.it_number += 1
             
-            t5 = time()
             
-            # print('t5 - t1: ', t5 - t1)
-            
-            
-        for road_id in range(len(self.roads)):
+        for road_id in range(len(self.roads)):                                               #fitness.................................
             c = 0
             t = 0
             for i in range(len(self.roads[road_id].vehicles)):

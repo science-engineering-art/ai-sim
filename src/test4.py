@@ -88,13 +88,16 @@ print(ctrl.extremeRoads)
 # print(ctrl.extremeRoads)
 t = time()
 ctrl.speed = 10
-ctrl.Start(it_amount=10000, draw=True)
+for er in ctrl.extremeRoads: #adjusting generation rate
+    ctrl.roads[er].Lambda = 1/150
+ctrl.Start(observation_time=20, draw=True)
 
 to_print_1 = []
 to_print_2 = []
 for road_id in range(len(ctrl.road_max_queue)):
+    if not ctrl.is_curve[road_id]:
         to_print_1.append(ctrl.road_max_queue[road_id])
-        to_print_2.append(ctrl.road_average_time_take_cars[road_id])
+        to_print_2.append(ctrl.road_average_time_take_cars[road_id] * ctrl.dt)
 print(to_print_1)
 print(to_print_2)
 print( time() - t)
