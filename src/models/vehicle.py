@@ -7,7 +7,7 @@ GRAY = (127, 127, 127)
 
 class Vehicle:
 
-    def __init__(self, x, length, width, path = [], color = BLUE):
+    def __init__(self, x, length, width, path = [], color = BLUE, **kwargs):
         # dimensions
         self.color = color
         self.x = x
@@ -29,6 +29,8 @@ class Vehicle:
         self.T = 1
 
         self.stopped = False
+
+        self.__dict__.update(kwargs)
 
     def update(self, dt = 1/60, lead: 'Vehicle' = None):
         
