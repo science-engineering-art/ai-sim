@@ -1,6 +1,6 @@
 from matplotlib.hatch import HorizontalHatch
 from models.control import control
-
+from models.simulation import Simulation_test_3
 
 pos_x = [100, 450, 800, 1150]
 pos_y = [100, 300, 500, 700]
@@ -8,7 +8,6 @@ h_diff = 20
 v_diff = 20
 road_width = 10
 ctrl = control()
-# pos_x, pos_y, end_y, start_x, curv = 700, 410, 900, 0, 5
 
 AB = ctrl.AddRoad((pos_x[0], pos_y[2]), (pos_x[1], pos_y[2]))
 LJ = ctrl.AddRoad((pos_x[0], pos_y[1]), (pos_x[1], pos_y[1]))
@@ -32,7 +31,8 @@ IH = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[1] - v_diff), (pos_x[2] + h_diff
 CI = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff / 2, pos_y[1] + v_diff / 2))
 FC = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2))
 
-ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ])
+normal = 1/50
+ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * 5, normal * 5, normal, normal, normal])
 
 #curvas desde la izquiera
 ctrl.connect_roads(AB, BE, (pos_x[1] + h_diff / 2, pos_y[2]))
@@ -86,21 +86,29 @@ ctrl.CreateCorner([(LJ, JI, 0), (LJ, JB, 0),\
 ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     (CI, IH, 1), (CI, IG, 1), (CI, IJ, 1)])
     
-# print(ctrl.corners[0].turns)    
-
 
 print(ctrl.GetDimension())
-t1 = 100
-t2 = 400
-ctrl.SetConfiguration([574, 305, 694, 278, 291, 801, 115, 486, 397, 328, 96, 247, 690, 253, 194])
-# ctrl.Start(it_amount= 10000, draw=False)
-ctrl.Start(it_amount= 10000, draw=True)
+t1 = 5
+t2 = 40
+ctrl.SetConfiguration([t1, t2, t2, t2,  t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
+ctrl.SetConfiguration([49, 46, 93, 47, 10, 25, 36, 67, 19, 15, 92, 13, 40, 83, 45])
+
+ctrl.speed = 10
+ctrl.Start(observation_time = 1, draw=True)
 
 to_print_1 = []
 to_print_2 = []
-for road_id in range(len(ctrl.road_max_queue)):
-    if not ctrl.is_curve[road_id]:
-        to_print_1.append(ctrl.road_max_queue[road_id])
-        to_print_2.append(ctrl.road_average_time_take_cars[road_id])
+
+my_roads = []
+rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
+str_rr = ['AB', 'BA', 'BE', 'BC', 'CB', 'CD', 'DC','FC', 'CI', 'IG', 'IH', 'IJ', 'JI', 'KJ', 'LJ', 'JB']
+for i in range(16):
+    road_id = rr[i]
+    to_print_1.append(f'{str_rr[i]} : {ctrl.road_max_queue[road_id]}')
+    to_print_2.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id] * ctrl.dt}')
+
+
+print('max queue')
 print(to_print_1)
+print('ave time')
 print(to_print_2)

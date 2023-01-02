@@ -12,6 +12,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+salva_de_test3.py
 proof.py
 proof2.py
 proof3.py
@@ -142,3 +143,5 @@ dmypy.json
 .pyre/
 src/proof2.py
 src/models/proof_of_selection.py
+src/models/proof_of_another_problem.py
+src/proof_test3_integration_attempt.py
