@@ -71,12 +71,17 @@ while len(stack) > 0:
                 pt0 = pt
                 pt1 = (vX, vY)
             
+            if (pt0[0] == pt1[0] and pt0[0] == 1400) or \
+                (pt0[1] == pt1[1] and pt0[1] == 800): 
+                continue
+
             ctrl.build_roads(pt0, pt1, 1, 1, 4)
             heapq.heappush(stack, pt)
             edges.add((pt0, pt1))
 
 
 ctrl.build_intersections()
+print(ctrl.extremeRoads)
 # for road in ctrl.roads:
 #     if not ctrl.is_curve[ctrl.roads.index(road)]:
 #         print(road.length)
