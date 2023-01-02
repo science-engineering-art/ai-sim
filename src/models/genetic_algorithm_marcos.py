@@ -93,22 +93,21 @@ def multipoint_xover(parent_a, parent_b, p=1):
 
     for i in points:
         offsprings[0] += last[1][last[0]:i]
-        offsprings[1] += parent_b[last[0]
-            :i] if last[1] == parent_a else parent_a[last[0]:i]
+        offsprings[1] += parent_b[last[0]                                  :i] if last[1] == parent_a else parent_a[last[0]:i]
         last = (i, parent_b if last[1] == parent_a else parent_a)
     offsprings[0] += last[1][last[0]:]
-    offsprings[1] += parent_b[last[0]
-        :] if last[1] == parent_a else parent_a[last[0]:]
+    offsprings[1] += parent_b[last[0]                              :] if last[1] == parent_a else parent_a[last[0]:]
 
     return offsprings
 
-def intermediate_xover(parent_a, parent_b, alpha = 0.5):
-    
+
+def intermediate_xover(parent_a, parent_b, alpha=0.5):
+
     return [[int(alpha * parent_a[i] + (1 - alpha) * parent_b[i]) for i in range(len(parent_a))]]
 
 
 def geometric_xover(parent_a, parent_b):
-    
+
     return [[int((parent_a[i] * parent_b[i]) ** 0.5) for i in range(len(parent_a))]]
 
 
@@ -120,24 +119,29 @@ def xover(parent_a, parent_b):
     return new_population
 
 # evaluates an individual in the simulation returning queue size in relation to waiting time
+
+
 def eval_individual_in_simulation(simulation, individual, speed, obs_time):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
-    ctrl.speed = speed 
-    print(individual)
-    ctrl.Start(observation_time = obs_time, draw=False)
+    ctrl.speed = speed
+    ctrl.Start(observation_time=obs_time, draw=False)
     fitness_val = -1
     for road_id in range(len(ctrl.roads)):
         if not ctrl.is_curve[road_id]:
-            fitness_val = max(fitness_val, ctrl.road_average_time_take_cars[road_id]) #we use the max between average time a car takes in every semaphore
-    return -fitness_val * ctrl.dt #I use the opposite value because we wish to diminish the time it takes for the cars
+            # we use the max between average time a car takes in every semaphore
+            fitness_val = max(
+                fitness_val, ctrl.road_average_time_take_cars[road_id])
+    # I use the opposite value because we wish to diminish the time it takes for the cars
+    return -fitness_val * ctrl.dt
 
 
 # gives a fitness value to each individual of the population
 def fitness(simulation, population, speed, obs_time):
     fitness = []
     for individual in population:
-        fitness.append(eval_individual_in_simulation(simulation, individual, speed, obs_time))
+        fitness.append(eval_individual_in_simulation(
+            simulation, individual, speed, obs_time))
     return fitness
 
 # algorithm stops after a fixed number of iterations
@@ -147,7 +151,9 @@ def stop_criterion(i):
     return i >= MAX_ITERATIONS
 
 # main method of the genetic algorithm
-def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, speed, obs_time, max_iterations = 100):
+
+
+def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, speed, obs_time, max_iterations=100):
     # init
     population = init_population(
         pop_size, number_of_turns, maximum_waiting_time, average_passing_time)
@@ -165,22 +171,20 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
         tests_path = tests_path.replace('src/models', 'tests/')
 
     f = open(tests_path +
-             f'test_{MAX_ITERATIONS}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}.txt', "w")
+             f'test_{max_iterations}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}.txt', "w")
 
-    f.write(f"MAX_ITERATIONS: {MAX_ITERATIONS} \n\n")
+    f.write(f"MAX_ITERATIONS: {max_iterations} \n\n")
 
-    while not stop_criterion(i):
+    while i < max_iterations:
         f.write(f"Generation {i} \n\n")
 
         f.write(f"Population: \n")
         for individual in population:
             f.write(f"{individual} \n")
+            print(individual)
         f.write(f"\n")
 
-        fitness_vals = fitness(simulation, population)
-        print(
-            f'Iteration {i} DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        print(f'fitness: {fitness_vals}')
+        fitness_vals = fitness(simulation, population, speed, obs_time)
 
         f.write(f"fitness: {fitness_vals} \n\n")
 
@@ -192,11 +196,8 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
             f.write(f'Better solution FOUND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n')
             f.write(f'best solution: {best_solution} \n\n')
 
-            print(f'best solution: {best_solution}')
-
-        print(f'Iteration {i} DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        print(f'Best Solution found:{best_solution[0]} !!!!!')
-        print(f'Best Solution fitness:{best_solution[1]} !!!!!')
+        print(
+            f'Iteration {i} DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 
         # gets best solutions to create new population with cromosomes in binary
         bests, parents = select_parents_ranked(population, fitness_vals)
@@ -217,4 +218,3 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
     f.write(f'Final solution: {best_solution}')
     f.close()
     return best_solution[0]
-
