@@ -1,17 +1,17 @@
 import random
 from numpy import Inf, sort
+import os
+import sys
 
+MAX_ITERATIONS = 100
 
-
-MAX_ITERATIONS = 10000
-    
 
 # gets k random indexes in a list
 def get_random_indexes(input_list, k=-1):
     if k < 0:
         k = random.randint(1, len(input_list))
     return list(set(random.choices(range(len(input_list)),
-                                k=k)))
+                                   k=k)))
 
 
 # initialites the population with random values between the average passing time (time that takes a car to cross a road)
@@ -35,42 +35,52 @@ def init_population(pop_size, number_of_turns, maximum_waiting_time, average_pas
 
 # mutates k individuals according to the mutation probability of replace a gen by a random
 # valid number
+
+
 def mutate_random(population_set, mutation_probability, maximum_waiting_time, average_passing_time):
     for individual in population_set:
         for i in range(len(individual)):
             r = random.random()
             if r < mutation_probability:
-                individual[i] = random.randint(average_passing_time, maximum_waiting_time)
+                individual[i] = random.randint(
+                    average_passing_time, maximum_waiting_time)
     return population_set
 
 # Assign to each individual a probability of being a parent based on the ranking based on fitness.
 # Then the two arrays of parents are selected randomly from the population according to the
 # probabilities assigned. It is considered here that the new population must be equally large
 # to the current one, that the best_amount best individual will prevale and that each couple
-# of parents produce two children. 
-def select_parents_ranked(population_set, fitness_set, bests_amount = 2, s = 1.8):
-    
+# of parents produce two children.
+
+
+def select_parents_ranked(population_set, fitness_set, bests_amount=2, s=1.8):
+
     pop_len = len(population_set)
     parents_amount = (pop_len - bests_amount)//2
-    if (pop_len - bests_amount) % 2 != 0: 
+    if (pop_len - bests_amount) % 2 != 0:
         parents_amount += 1
         bests_amount -= 1
-    
-    order = sorted(range(pop_len), key = lambda i: fitness_set[i])
+
+    order = sorted(range(pop_len), key=lambda i: fitness_set[i])
     weights = [0 for _ in range(pop_len)]
     for i in range(pop_len):
-        weights[order[i]] =  (2 - s)/pop_len + (2*(i)*(s-1))/(pop_len * (pop_len - 1))
+        weights[order[i]] = (2 - s)/pop_len + (2*(i)*(s-1)
+                                               )/(pop_len * (pop_len - 1))
 
     parents = [[], []]
-    parents_a_indexes = random.choices(population=range(pop_len),k=parents_amount, weights=weights)
+    parents_a_indexes = random.choices(population=range(
+        pop_len), k=parents_amount, weights=weights)
     for p_a in parents_a_indexes:
         record = weights[p_a]
         weights[p_a] = 0
-        parents[1].append(random.choices(population=population_set,k=1, weights=weights)[0])
+        parents[1].append(random.choices(
+            population=population_set, k=1, weights=weights)[0])
         weights[p_a] = record
-    parents[0] = [population_set[parents_a_indexes[i]] for i in range(parents_amount)]
-    
-    bests = [population_set[order[pop_len - i]] for i in range(1, bests_amount + 1)] #two best parents
+    parents[0] = [population_set[parents_a_indexes[i]]
+                  for i in range(parents_amount)]
+
+    bests = [population_set[order[pop_len - i]]
+             for i in range(1, bests_amount + 1)]  # two best parents
     return bests, parents
 
 
@@ -95,12 +105,14 @@ def multipoint_xover(parent_a, parent_b, p=1):
 
     return offsprings
 
-def intermediate_xover(parent_a, parent_b, alpha = 0.5):
-    
+
+def intermediate_xover(parent_a, parent_b, alpha=0.5):
+
     return [int(alpha * parent_a[i] + (1 - alpha) * parent_b[i]) for i in range(len(parent_a))]
 
+
 def geometric_xover(parent_a, parent_b):
-    
+
     return [int((parent_a[i] * parent_b[i]) ** 0.5) for i in range(len(parent_a))]
 
 
@@ -113,16 +125,21 @@ def xover(parent_a, parent_b):
     return new_population
 
 # evaluates an individual in the simulation returning queue size in relation to waiting time
+
+
 def eval_individual_in_simulation(simulation, individual):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
     print(individual)
-    ctrl.Start(it_amount = 10000, draw=False)
+    ctrl.Start(it_amount=10000, draw=False)
     fitness_val = -1
     for road_id in range(len(ctrl.road_max_queue)):
         if not ctrl.is_curve[road_id]:
-            fitness_val = max(fitness_val, ctrl.road_average_time_take_cars[road_id]) #we use the max between average time a car takes in every semaphore
-    return -fitness_val #I use the opposite value because we wish to diminish the time it takes for the cars
+            # we use the max between average time a car takes in every semaphore
+            fitness_val = max(
+                fitness_val, ctrl.road_average_time_take_cars[road_id])
+    # I use the opposite value because we wish to diminish the time it takes for the cars
+    return -fitness_val
 
 
 # gives a fitness value to each individual of the population
@@ -133,10 +150,14 @@ def fitness(simulation, population):
     return fitness
 
 # algorithm stops after a fixed number of iterations
+
+
 def stop_criterion(i):
     return i >= MAX_ITERATIONS
 
 # main method of the genetic algorithm
+
+
 def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time):
     # init
     population = init_population(
@@ -148,16 +169,41 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
     # best solution found
     best_solution = ([], -Inf)  # (solution, fitness value)
 
+    tests_path = os.path.dirname(__file__)
+    if sys.platform.startswith('win'):
+        tests_path = tests_path.replace('src\\models', 'tests\\')
+    else:
+        tests_path = tests_path.replace('src/models', 'tests/')
+
+    f = open(tests_path +
+             f'test_{MAX_ITERATIONS}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}.txt', "w")
+
+    f.write(f"MAX_ITERATIONS: {MAX_ITERATIONS} \n\n")
+
     while not stop_criterion(i):
+        f.write(f"Generation {i} \n\n")
+
+        f.write(f"Population: \n")
+        for individual in population:
+            f.write(f"{individual} \n")
+        f.write(f"\n")
+
         fitness_vals = fitness(simulation, population)
-        print(f'Iteration {i} DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        print(fitness_vals)
+        print(
+            f'Iteration {i} DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print(f'fitness: {fitness_vals}')
+
+        f.write(f"fitness: {fitness_vals} \n\n")
 
         # saves the solution with the greatest fitness in the current generation if it is better that the stored
         # in best solution
         max_f = max(fitness_vals)
         if max_f > best_solution[1]:
             best_solution = (population[fitness_vals.index(max_f)], max_f)
+            f.write(f'Better solution FOUND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n')
+            f.write(f'best solution: {best_solution} \n\n')
+
+            print(f'best solution: {best_solution}')
 
         # gets best solutions to create new population with cromosomes in binary
         bests, parents = select_parents_ranked(population, fitness_vals)
@@ -168,11 +214,15 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
         # crossovering parents
         new_population += xover(parents[0], parents[1])
         # mutating some individuals
-        new_population = mutate_random(new_population, 1/number_of_turns, maximum_waiting_time, average_passing_time)
+        new_population = mutate_random(
+            new_population, 1/number_of_turns, maximum_waiting_time, average_passing_time)
 
         population = new_population
         i += 1
 
+    f.write(f"Genetic algorithm ENDED!!!!!!!!!! \n")
+    f.write(f'Final solution: {best_solution}')
+    f.close()
     return best_solution[0]
 
 

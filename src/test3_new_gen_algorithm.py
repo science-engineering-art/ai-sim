@@ -1,18 +1,22 @@
 from pyexpat import model
 from matplotlib.hatch import HorizontalHatch
 from models.control import control
-from models.genetic_algorithm_marcos import *
+import models.genetic_algorithm_marcos as gam
+import models.genetic_algorithm as ga
 from models.simulation import Simulation, Simulation_test_3
 
 
-
 simulation = Simulation_test_3()
-MAX_ITERATIONS = 10
-genetic_algorithm(simulation, 4, 15, 1000, 10)
 
+pop_size = 10
+number_of_turns = 15
+maximum_waiting_time = 90
+average_passing_time = 3
+gam.genetic_algorithm(simulation, pop_size, number_of_turns,
+                      maximum_waiting_time, average_passing_time)
+# ga.genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time)
 
-
-# print(ctrl.corners[0].turns)    
+# print(ctrl.corners[0].turns)
 # ctrl = new_simulation()
 # print(ctrl.GetDimension())
 # t1 = 100

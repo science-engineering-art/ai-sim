@@ -208,7 +208,7 @@ def stop_criterion(i):
 
 
 # main method of the genetic algorithm
-def genetic_algorithm(pop_size, number_of_turns, maximum_waiting_time, average_passing_time, simulation):
+def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time):
     # init
     population = init_population(
         pop_size, number_of_turns, maximum_waiting_time, average_passing_time)
@@ -250,7 +250,8 @@ def genetic_algorithm(pop_size, number_of_turns, maximum_waiting_time, average_p
             new_population = new_population[0:len(population)]
 
         # mutating some individuals
-        new_population = mutate(new_population)
+        mutation_rate = random.random()
+        new_population = mutate(new_population, mutation_rate)
 
         # sets cromosomes back to decimal
         new_population = decode_population(new_population)
