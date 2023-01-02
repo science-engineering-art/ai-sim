@@ -1,6 +1,6 @@
 from matplotlib.hatch import HorizontalHatch
 from models.control import control
-
+from models.simulation import Simulation_test_3
 
 pos_x = [100, 450, 800, 1150]
 pos_y = [100, 300, 500, 700]
@@ -32,7 +32,7 @@ CI = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff
 FC = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2))
 
 normal = 1/50
-ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * 3, normal * 3, normal, normal, normal])
+ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * 5, normal * 5, normal, normal, normal])
 
 #curvas desde la izquiera
 ctrl.connect_roads(AB, BE, (pos_x[1] + h_diff / 2, pos_y[2]))
@@ -87,14 +87,14 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     (CI, IH, 1), (CI, IG, 1), (CI, IJ, 1)])
     
 
-
 print(ctrl.GetDimension())
 t1 = 5
 t2 = 40
 ctrl.SetConfiguration([t1, t2, t2, t2,  t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
+ctrl.SetConfiguration([49, 46, 93, 47, 10, 25, 36, 67, 19, 15, 92, 13, 40, 83, 45])
 
-ctrl.speed = 5
-ctrl.Start(observation_time = 10, draw=True)
+ctrl.speed = 10
+ctrl.Start(observation_time = 1, draw=True)
 
 to_print_1 = []
 to_print_2 = []

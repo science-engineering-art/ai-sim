@@ -109,12 +109,12 @@ def xover(parent_a, parent_b):
     return new_population
 
 # evaluates an individual in the simulation returning queue size in relation to waiting time
-def eval_individual_in_simulation(simulation, individual):
+def eval_individual_in_simulation(simulation, individual, speed, obs_time):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
-    ctrl.speed = 50
+    ctrl.speed = speed 
     print(individual)
-    ctrl.Start(observation_time = 1, draw=False)
+    ctrl.Start(observation_time = obs_time, draw=False)
     fitness_val = -1
     for road_id in range(len(ctrl.roads)):
         if not ctrl.is_curve[road_id]:
@@ -123,10 +123,10 @@ def eval_individual_in_simulation(simulation, individual):
 
 
 # gives a fitness value to each individual of the population
-def fitness(simulation, population):
+def fitness(simulation, population, speed, obs_time):
     fitness = []
     for individual in population:
-        fitness.append(eval_individual_in_simulation(simulation, individual))
+        fitness.append(eval_individual_in_simulation(simulation, individual, speed, obs_time))
     return fitness
 
 # algorithm stops after a fixed number of iterations
@@ -134,7 +134,7 @@ def stop_criterion(i):
     return i >= MAX_ITERATIONS
 
 # main method of the genetic algorithm
-def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, max_iterations = 100):
+def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, speed, obs_time, max_iterations = 100):
     # init
     population = init_population(
         pop_size, number_of_turns, maximum_waiting_time, average_passing_time)
@@ -146,19 +146,21 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
     best_solution = ([], -Inf)  # (solution, fitness value)
 
     while i < max_iterations:
-        fitness_vals = fitness(simulation, population)
+        fitness_vals = fitness(simulation, population, speed, obs_time)
         
-        print(f'Iteration {i} DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         # for individual in population:
         #     print(individual)
         print(fitness_vals)
-        print(f'Best Solution found:{best_solution[1]} !!!!!')
 
         # saves the solution with the greatest fitness in the current generation if it is better that the stored
         # in best solution
         max_f = max(fitness_vals)
         if max_f > best_solution[1]:
             best_solution = (population[fitness_vals.index(max_f)], max_f)
+
+        print(f'Iteration {i} DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        print(f'Best Solution found:{best_solution[0]} !!!!!')
+        print(f'Best Solution fitness:{best_solution[1]} !!!!!')
 
         # gets best solutions to create new population with cromosomes in binary
         bests, parents = select_parents_ranked(population, fitness_vals)
