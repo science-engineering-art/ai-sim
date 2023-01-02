@@ -8,6 +8,6 @@ from models.simulation import Simulation, Simulation_test_3
 
 simulation = Simulation_test_3()
 MAX_ITERATIONS = 10
-genetic_algorithm(simulation, 10, 15, 100, 5, max_iterations= 5)
+genetic_algorithm(simulation, 10, 15, 100, 5,speed = 20, obs_time=1, max_iterations= 5)
 
 
