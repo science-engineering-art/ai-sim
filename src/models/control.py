@@ -4,7 +4,6 @@ from multiprocessing.sharedctypes import copy
 from queue import Queue
 from time import sleep, time
 from tokenize import Intnumber
-from turtle import _Screen, speed
 from typing import Deque
 from xml.etree.ElementTree import Comment
 from scipy.spatial import distance
@@ -18,16 +17,17 @@ from models.painting import *
 from pygame.locals import *
 from pygame import gfxdraw
 import pygame
+import math
 
 RED = (255, 0, 0)
 BLUE = (0, 255, 255)
 GREEN = (0, 255, 0)
 GRAY = (50, 50, 50)
-LIGHT_GRAY = (225,225,225)
+LIGHT_GRAY = (225, 225, 225)
 
 
 # relaciones:
-# vehiculo.length/calle 4m/300m 
+# vehiculo.length/calle 4m/300m
 # vehiculo.vmax/calle 80-120km/h/300m = 22.2-33.3m/s/300m
 # vehiculo.a_max/vmax 1/11.5
 # vehiculo.b_max/vmax 1/3.60
@@ -36,23 +36,25 @@ class control:
     '''class made to control hall the simulation over the map'''
 
     def __init__(self, **kwargs):
-        
-        self.speed = 5 #how many simulation second will pass for every real life second
-        self.dt = self.speed * (1/300) #time step in each iteration of while cycle in Start
-        
+
+        self.speed = 5  # how many simulation second will pass for every real life second
+        # time step in each iteration of while cycle in Start
+        self.dt = self.speed * (1/300)
+
         self.roads = []
-        self.road_index = {} # store the index of each road in roads list
+        self.road_index = {}  # store the index of each road in roads list
         self.running = True
         self.vehicles = []
         self.corners = []
-        self.curves = {} # stores for each connection the road conforming its curve
-        self.is_curve = [] # Determines wheter a road represents a curve/auxiliar road
-        self.extremeRoads = [] # roads who start at the edge of the map
-        
-        #random vehicles templates
+        self.curves = {}  # stores for each connection the road conforming its curve
+        self.is_curve = []  # Determines wheter a road represents a curve/auxiliar road
+        self.extremeRoads = []  # roads who start at the edge of the map
+
+        # random vehicles templates
         self.basic_vehicles = [
-            Vehicle(x=0, length= 1.22, width = 1, color=(30, 255,255), v_max = 33.3, a_max=2.89, b_max=9.25), 
-            # Vehicle(x=0, length= 1.22, width = 1, color=(30, 255,255), v_max = 80, a_max=2.89, b_max=9.25), 
+            Vehicle(x=0, length=1.22, width=1, color=(30, 255, 255),
+                    v_max=33.3, a_max=2.89, b_max=9.25),
+            # Vehicle(x=0, length= 1.22, width = 1, color=(30, 255,255), v_max = 80, a_max=2.89, b_max=9.25),
             # Vehicle(x=0, length= 3, width = 1.5, color=(255, 30,255), v_max = 30, a_max=2.9, b_max=3),
             # Vehicle(x=0, length= 2, width = 0.85, color=(255, 255,30), v_max = 40, a_max=2.2, b_max=4),
             # Vehicle(x=0, length= 2.5, width = 1.2, color=(118,181,197), v_max = 65, a_max=4.9, b_max=1.5),
@@ -60,21 +62,21 @@ class control:
         ]
 
         # fitness prperties
-        self.road_max_queue = [] 
-        self.road_car_entrance_queue = [] 
-        self.road_total_amount_cars = [] 
-        self.road_total_time_take_cars = [] 
-        self.road_average_time_take_cars = [] 
+        self.road_max_queue = []
+        self.road_car_entrance_queue = []
+        self.road_total_amount_cars = []
+        self.road_total_time_take_cars = []
+        self.road_average_time_take_cars = []
 
         # coordinates - roads
-        self.coord_roads_in  = {}
+        self.coord_roads_in = {}
         self.coord_roads_out = {}
-        
+
         self.__dict__.update(kwargs)
 
     def NewRandomVehicle(self):
         '''Creates a random vehicle with probability prob'''
-        
+
         from math import e, factorial
 
         def poisson(Lambda: float, t: float, x: int):
@@ -88,155 +90,170 @@ class control:
             road: Road = self.roads[road_id]
 
             r = random.random()
-            if r > poisson(road.Lambda, self.dt, 1): continue
+            if r > poisson(road.Lambda, self.dt, 1):
+                continue
 
             # select uniformly the vehicle template (i.e. color, length, speed)
-            car : Vehicle = deepcopy(random.choice(self.basic_vehicles))
+            car: Vehicle = deepcopy(random.choice(self.basic_vehicles))
             road.vehicles.append(car)
             cars.append(car)
             roads_id.append(road_id)
 
         return cars, roads_id
 
-
-    def AddExtremeRoads(self,roads, lambdas = None):
+    def AddExtremeRoads(self, roads, lambdas=None):
         '''establish the extreme roads'''
         for i in range(len(roads)):
             road_id = roads[i]
             if lambdas != None:
                 self.roads[road_id].Lambda = lambdas[i]
             self.extremeRoads.append(road_id)
-    
-    def Start(self, observation_time = -1, it_amount = -1, draw = True):
+
+    def Start(self, observation_time=-1, it_amount=-1, draw=True):
         '''method to begin the simulation'''
-        if draw : 
+        if draw:
             pygame.init()
-            screen = pygame.display.set_mode((1400,800))
+            screen = pygame.display.set_mode((1400, 800))
             pygame.display.update()
 
-
-        #presetting the fitness properties
+        # presetting the fitness properties
         for road in self.roads:
             self.road_max_queue.append(0)
             self.road_total_amount_cars.append(0)
             self.road_total_time_take_cars.append(0)
             self.road_car_entrance_queue.append([])
         self.it_number = 1
-        
+
         init_time = time()
-        
+
         while (self.it_number < it_amount or it_amount == -1) and (time() - init_time < observation_time or observation_time == -1):
-           
-            t1 = time() #measures time complexity
-            
+
+            t1 = time()  # measures time complexity
+
             for corn in self.corners:
-                corn.tick(self.dt) #increments the time of each semaphore
-            
-            if draw : screen.fill(LIGHT_GRAY) #repaint the background
-            
-            _, roads_id = self.NewRandomVehicle() #generates a new random vehicle
-            if len(roads_id) > 0: 
+                corn.tick(self.dt)  # increments the time of each semaphore
+
+            if draw:
+                screen.fill(LIGHT_GRAY)  # repaint the background
+
+            _, roads_id = self.NewRandomVehicle()  # generates a new random vehicle
+            if len(roads_id) > 0:
                 for road_id in roads_id:
-                    self.road_car_entrance_queue[road_id].append(self.it_number)            #fitness.................................
-            
-            if draw : 
-                for event in pygame.event.get(): #check if exiting
+                    # fitness.................................
+                    self.road_car_entrance_queue[road_id].append(
+                        self.it_number)
+
+            if draw:
+                for event in pygame.event.get():  # check if exiting
                     if event.type == QUIT:
                         pygame.quit()
-        
-        
-            for road_id in range(len(self.roads)): #for each road....
+
+            for road_id in range(len(self.roads)):  # for each road....
                 road = self.roads[road_id]
-                if draw : Painting.draw_road(screen, road, GRAY) #repaint it 
-                if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id): #if it has a semaphore in red...
-                    road.vehicles.appendleft(Vehicle(road.length, 3, 1, color = RED, v = 0)) #add a 'semaphore car' to vehicles
-                self.UpdateRoad(road) #update the state of each vehicle in the road
-            
-            
+                if draw:
+                    Painting.draw_road(screen, road, GRAY)  # repaint it
+                # if it has a semaphore in red...
+                if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id):
+                    # add a 'semaphore car' to vehicles
+                    road.vehicles.appendleft(
+                        Vehicle(road.length, 3, 1, color=RED, v=0))
+                # update the state of each vehicle in the road
+                self.UpdateRoad(road)
+
             for road in self.roads:
                 for car in road.vehicles:
-                    if draw : Painting.draw_vehicle(screen, road, car) #repaint all the cars
-                    
+                    if draw:
+                        # repaint all the cars
+                        Painting.draw_vehicle(screen, road, car)
+
                 if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
-                    self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)], \
-                        len(road.vehicles))                                                 #fitness.................................
-                    road.vehicles.popleft() #remove all the semaphores in red
-            
-            if draw : pygame.display.update()
-            
-            self.dt = (time() - t1) * self.speed 
+                    self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)],
+                                                                      len(road.vehicles))  # fitness.................................
+                    road.vehicles.popleft()  # remove all the semaphores in red
+
+            if draw:
+                pygame.display.update()
+
+            self.dt = (time() - t1) * self.speed
             self.it_number += 1
-            
-            
-        for road_id in range(len(self.roads)):                                               #fitness.................................
+
+        # fitness.................................
+        for road_id in range(len(self.roads)):
             c = 0
             t = 0
             for i in range(len(self.roads[road_id].vehicles)):
-                c+=1
+                c += 1
                 t += self.it_number - self.road_car_entrance_queue[road_id][i]
             self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id] + t)
-                / (self.road_total_amount_cars[road_id] + c) if self.road_total_amount_cars[road_id] + c != 0 else 0))
+                                                     / (self.road_total_amount_cars[road_id] + c) if self.road_total_amount_cars[road_id] + c != 0 else 0))
 
-      
     def UpdateRoad(self, road):
-        delete_amout = 0 #amount of of cars that move to other roads
+        delete_amout = 0  # amount of of cars that move to other roads
         for i in range(len(road.vehicles)):
             car = road.vehicles[i]
             lead = None
             if i != 0:
                 lead = road.vehicles[i - 1]
-            if car.color != RED: #be careful do not update the semaphore car
-                car.update(dt = self.dt, lead = lead)
-            if car.x > road.length: #if the car position is out of the road
-                delete_amout += 1  #remove the car from this road
-                self.NextRoad(car, road) #and add it in the next one
-        
-        red = road.vehicles.popleft() if len(road.vehicles) > 0 and road.vehicles[0].color == RED else None
-        for i in range(delete_amout):   #remove the cars moving out from the road
+            if car.color != RED:  # be careful do not update the semaphore car
+                car.update(dt=self.dt, lead=lead)
+            if car.x > road.length:  # if the car position is out of the road
+                delete_amout += 1  # remove the car from this road
+                self.NextRoad(car, road)  # and add it in the next one
+
+        red = road.vehicles.popleft() if len(
+            road.vehicles) > 0 and road.vehicles[0].color == RED else None
+        for i in range(delete_amout):  # remove the cars moving out from the road
             road.vehicles.popleft()
-                
+
             road_id = self.roads.index(road)
             if len(self.road_car_entrance_queue[road_id]) > 0:
-                self.road_total_amount_cars[road_id] += 1            #fitness.................................
-                self.road_total_time_take_cars[road_id] += self.it_number + 1 - self.road_car_entrance_queue[road_id][0]
-                self.road_car_entrance_queue[road_id].pop(0)          #fitness.................................
-            
-        if red != None: road.vehicles.appendleft(red)
-          
-    def NextRoad(self, vehicle: Vehicle, road : Road):
-        
-        if not road.end_conn: #if nothing is associated with the end of the road
-            return  #means the road end in the edge of the map
+                # fitness.................................
+                self.road_total_amount_cars[road_id] += 1
+                self.road_total_time_take_cars[road_id] += self.it_number + \
+                    1 - self.road_car_entrance_queue[road_id][0]
+                # fitness.................................
+                self.road_car_entrance_queue[road_id].pop(0)
+
+        if red != None:
+            road.vehicles.appendleft(red)
+
+    def NextRoad(self, vehicle: Vehicle, road: Road):
+
+        if not road.end_conn:  # if nothing is associated with the end of the road
+            return  # means the road end in the edge of the map
 
         vehicle.x = 0
-        if type(road.end_conn) == Road: #if the road is followed by other road
-            road.end_conn.vehicles.append(vehicle) #simply add the vehicle to that road
+        if type(road.end_conn) == Road:  # if the road is followed by other road
+            # simply add the vehicle to that road
+            road.end_conn.vehicles.append(vehicle)
             next_road_id = self.roads.index(road.end_conn)
-            self.road_car_entrance_queue[next_road_id].append(self.it_number)       #fitness.................................
-            return road.end_conn    
-        
-        #in other case the road ends in a cornen, in which case we uniformily random select
-        #the next road from the corner that can be reached from the current one
-        next_road_id = random.choice(road.end_conn.follow[self.road_index[road]])
-        
-        #if the road is in a corner it may have a curve associated
-        next_road_curve_id = self.curves[(self.road_index[road],next_road_id )][0]
-        next_road : Road = self.roads[next_road_curve_id]
+            # fitness.................................
+            self.road_car_entrance_queue[next_road_id].append(self.it_number)
+            return road.end_conn
+
+        # in other case the road ends in a cornen, in which case we uniformily random select
+        # the next road from the corner that can be reached from the current one
+        next_road_id = random.choice(
+            road.end_conn.follow[self.road_index[road]])
+
+        # if the road is in a corner it may have a curve associated
+        next_road_curve_id = self.curves[(
+            self.road_index[road], next_road_id)][0]
+        next_road: Road = self.roads[next_road_curve_id]
         next_road.vehicles.append(vehicle)
-        self.road_car_entrance_queue[next_road_curve_id].append(self.it_number)       #fitness.................................
+        # fitness.................................
+        self.road_car_entrance_queue[next_road_curve_id].append(self.it_number)
         return next_road
-    
 
     def AddRoad(self, road_init_point, road_end_point):
         '''Adds a nex road to the simulation'''
-        
+
         road = Road(road_init_point, road_end_point)
         road_id = len(self.roads)
         self.roads.append(road)
         self.is_curve.append(False)
         self.road_index[road] = road_id
         return road_id
-
 
     def build_roads(self, start, end, inN, outN, width):
         x0, y0 = start
@@ -250,14 +267,14 @@ class control:
         vX, vY = x1-x0, y1-y0
         nX, nY = vY, -vX
 
-        #normalize
+        # normalize
         n = (nX**2 + nY**2)**0.5
-        nX, nY = width/n*nX, width/n*nY 
+        nX, nY = width/n*nX, width/n*nY
 
         n = (vX**2 + vY**2)**0.5
-        x0, y0 = x0 + vX * width / n, y0+ vY * width / n
+        x0, y0 = x0 + vX * width / n, y0 + vY * width / n
         x1, y1 = x1 - vX * width / n, y1 - vY * width / n
-        
+
         n = int((inN + outN) / 2)
         rX, rY = n * -nX, n * -nY
 
@@ -279,7 +296,7 @@ class control:
         for _ in range(inN):
             id = self.AddRoad((x0, y0), (x1, y1))
             x0, y0 = x0 + nX, y0 + nY
-            x1, y1 = x1 + nX, y1 + nY 
+            x1, y1 = x1 + nX, y1 + nY
             self.coord_roads_in[end].append(id)
             self.coord_roads_out[start].append(id)
             self.extremeRoads.append(id)
@@ -287,7 +304,7 @@ class control:
         for _ in range(outN):
             id = self.AddRoad((x1, y1), (x0, y0))
             x0, y0 = x0 + nX, y0 + nY
-            x1, y1 = x1 + nX, y1 + nY 
+            x1, y1 = x1 + nX, y1 + nY
             self.coord_roads_in[start].append(id)
             self.coord_roads_out[end].append(id)
             self.extremeRoads.append(id)
@@ -295,10 +312,10 @@ class control:
     def build_intersections(self):
 
         for x, y in self.coord_roads_in:
-            follows = []
+            follows = {}
             i = 0
-            for road_in_id in self.coord_roads_in[(x,y)]:
-                for road_out_id in self.coord_roads_out[(x,y)]:
+            for road_in_id in self.coord_roads_in[(x, y)]:
+                for road_out_id in self.coord_roads_out[(x, y)]:
 
                     print(f'{(x,y)}')
 
@@ -308,19 +325,24 @@ class control:
                     # check if road_in and road_out are parallel
                     if distance.euclidean(road_in.start, road_out.end) == \
                        distance.euclidean(road_in.end, road_out.start):
-                        print(f'PARALLEL: {(road_in.start, road_in.end)} -- {(road_out.start, road_out.end)}')
+                        print(
+                            f'PARALLEL: {(road_in.start, road_in.end)} -- {(road_out.start, road_out.end)}')
                         continue
 
-                    x0, y0 = road_in.start[0] - road_in.end[0], road_in.start[1] - road_in.end[1]
-                    x1, y1 = road_out.end[0] - road_out.start[0], road_out.end[1] - road_out.start[1]
-                    sim = (x0 * x1 + y0 * y1) / ((x0**2 + y0**2)**0.5 * (x1**2 + y1**2)**0.5)
-                    
+                    x0, y0 = road_in.start[0] - \
+                        road_in.end[0], road_in.start[1] - road_in.end[1]
+                    x1, y1 = road_out.end[0] - \
+                        road_out.start[0], road_out.end[1] - road_out.start[1]
+                    sim = (x0 * x1 + y0 * y1) / \
+                        ((x0**2 + y0**2)**0.5 * (x1**2 + y1**2)**0.5)
+
                     # check if road_in and road_out are the same road
                     if sim == 1 or sim == -1:
                         continue
-                    
+
                     print(f'connect {road_in.end} to {road_out.start}')
-                    print(road_in.start, road_in.end, road_out.start, road_out.end)
+                    print(road_in.start, road_in.end,
+                          road_out.start, road_out.end)
                     curve_pt = self.calculate_curve_point(road_in, road_out)
                     print(f'curve at {curve_pt}')
                     self.connect_roads(road_in_id, road_out_id, curve_pt)
@@ -329,9 +351,86 @@ class control:
                         self.extremeRoads.remove(road_out_id)
                     except:
                         print(f'road_out_id {road_out_id} not in extremeRoads')
+                    
+                    def calculate_angle(road_in: Road) -> float:
+                        x0, y0 = road_in.start
+                        x1, y1 = road_in.end
 
-                    follows.append((road_in_id, road_out_id, i))
+                        if (x0**2 + y0**2) > (x1**2 + y1**2):
+                            tmp = x0, y0
+                            x0, y0 = x1, y1
+                            x1, y1 = tmp
+
+                        print(f'x0: {x0}, y0: {y0}, x1: {x1}, y1: {y1}')
+
+                        co = y1 - y0
+                        ca = x1 - x0
+
+                        if ca == 0 and co != 0:
+                            return 90.0
+
+                        h = (co**2 + ca**2)**0.5
+                        
+                        print(f'co: {co}, ca: {ca}, h: {h}')
+                        try: 
+                            angle = math.acos((co**2 + ca**2 - h**2) / (2 * co * ca))
+                            angle = math.degrees(angle)
+                        except:
+                            print('error 1')
+
+                        try: 
+                            angle = math.acos((co**2 + h**2 - ca**2) / (2 * co * h))
+                            angle = math.degrees(angle)
+                        except:
+                            print('error 2')
+
+                        try:
+                            angle = math.acos((h**2 + ca**2 - co**2) / (2 * h * ca))
+                            angle = math.degrees(angle)
+                        except:
+                            print('error 3')
+
+                        return angle
+
+                    angle = calculate_angle(road_in)
+
+                    if i not in follows:
+                        follows[i] = []
+
+                    follows[i].append((angle, road_in_id, road_out_id))
                 i += 1
+
+            tmp = follows
+            follows = {}
+
+            for i in tmp:
+                angle, _, _ = tmp[i][0]
+
+                for j in tmp:
+                    if i == j: continue
+                    
+                    angle2, _, _ = tmp[j][0]
+
+                    if angle > 180 and angle2 < 180:
+                        angle %= 180
+                    if angle < 180 and angle2 > 180:
+                        angle2 %= 180                    
+                    
+                    if abs(angle - angle2) < 1e-8:
+                        if angle not in follows:
+                            follows[angle] = []
+                        follows[angle] += [(road_in_id, road_out_id, i) 
+                            for _, road_in_id, road_out_id in tmp[j]]
+
+                if angle not in follows:
+                    follows[angle] = []
+                follows[angle] += [(road_in_id, road_out_id, i) 
+                    for _, road_in_id, road_out_id in tmp[i]]
+            
+            tmp = follows
+            follows = []
+            for _, tuples in tmp.items():
+                follows += tuples
 
             print(f'follows: {follows}')
             if len(follows) > 0:
@@ -342,16 +441,18 @@ class control:
         xa_0, ya_0 = road_a.start
         xa_1, ya_1 = road_a.end
         xb_0, yb_0 = road_b.start
-        xb_1, yb_1 = road_b.end 
+        xb_1, yb_1 = road_b.end
 
-        try: 
+        try:
             m_a = (ya_1 - ya_0) / (xa_1 - xa_0)
-        except ZeroDivisionError:...
+        except ZeroDivisionError:
+            ...
 
-        try: 
+        try:
             m_b = (yb_1 - yb_0) / (xb_1 - xb_0)
-        except ZeroDivisionError:...
-        
+        except ZeroDivisionError:
+            ...
+
         n_a = 0
         if xa_1 - xa_0 == 0:
             x = xa_0
@@ -363,7 +464,7 @@ class control:
             n_a = ya_0 - xa_0*m_a
             n_b = yb_0 - xb_0*m_b
             x = (n_b - n_a) / (m_a - m_b)
-        
+
         y = 0
         if ya_1 - ya_0 == 0:
             y = ya_0
@@ -374,49 +475,46 @@ class control:
 
         return (x, y)
 
-
-    def connect_roads(self, road_1_id, road_2_id, curve_point):    
+    def connect_roads(self, road_1_id, road_2_id, curve_point):
         '''connects to roads with a curve using an external point to create the curve
         and return the indexes of the curve's sub-roads'''
-        
-        road_1 : Road = self.roads[road_1_id]
-        road_2 : Road = self.roads[road_2_id]
-        road_locations = [*Road.get_curve_road(road_1.end, road_2.start, curve_point)]
+
+        road_1: Road = self.roads[road_1_id]
+        road_2: Road = self.roads[road_2_id]
+        road_locations = [
+            *Road.get_curve_road(road_1.end, road_2.start, curve_point)]
         roads_2 = [Road(r_loc[0], r_loc[1]) for r_loc in road_locations]
-        
-        #the next road of each road of the curve is assigned
+
+        # the next road of each road of the curve is assigned
         for i in range(0, len(road_locations) - 1):
             roads_2[i].end_conn = roads_2[i+1]
         roads_2[len(road_locations) - 1].end_conn = road_2
-        
-        
-        #compute indexes
-        return_val = []    
+
+        # compute indexes
+        return_val = []
         for road in roads_2:
             self.road_index[road] = len(self.roads)
             return_val.append(len(self.roads))
             self.roads.append(road)
             self.is_curve.append(True)
-           
-        #assign to each follow pair, the first sub-road of the corresponding curve
-        self.curves[(road_1_id, road_2_id)] = return_val
-            
-        return return_val
 
+        # assign to each follow pair, the first sub-road of the corresponding curve
+        self.curves[(road_1_id, road_2_id)] = return_val
+
+        return return_val
 
     def CreateCorner(self, follows):
         '''Create a new corner given a list of follow pairs'''
-        
+
         corn = corner(light_controled=True)
         self.corners.append(corn)
-        
+
         for follow in follows:
             if len(follow) > 2:
-                corn.addFollow(follow[0], follow[1], order = follow[2])
+                corn.addFollow(follow[0], follow[1], order=follow[2])
             else:
                 corn.addFollow(follow[0], follow)
             self.roads[follow[0]].end_conn = corn
-
 
     def GetDimension(self):
         dimension = 0
@@ -432,4 +530,4 @@ class control:
             pos += 1
             for i in range(corner.numberOfTurns):
                 corner.times[i] = individual[pos]
-                pos+=1
+                pos += 1

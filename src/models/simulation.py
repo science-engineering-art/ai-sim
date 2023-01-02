@@ -1,5 +1,5 @@
 from abc import ABC
-from msilib.schema import Control
+# from msilib.schema import Control
 from models.control import control
 
 # @abstract
