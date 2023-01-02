@@ -78,14 +78,16 @@ def mutate(encoded_pop_set, mutation_rate):
     return mutated_pop
 
 
-# selects the individuals from the current population whose fitness value is greater than the average fitness value
-# then, it separates them into two lists equally sized (if the number of individuals chosen is not even,
-# the minimum of them is removed)
+# Assign to each individual a probability of being a parent based on the ranking based on fitness.
+# Then the two arrays of parents are selected randomly from the population according to the
+# probabilities assigned. It is considered here that the new population must be equally large
+# to the current one, that the best_amount best individual will prevale and that each couple
+# of parents produce two children. 
 def select_parents_ranked(population_set, fitness_set, bests_amount = 2, s = 1.8):
     
     pop_len = len(population_set)
     parents_amount = (pop_len - bests_amount)//2
-    if (pop_len - bests_amount) % 2 != 0:
+    if (pop_len - bests_amount) % 2 != 0: 
         parents_amount += 1
         bests_amount -= 1
     
@@ -94,7 +96,6 @@ def select_parents_ranked(population_set, fitness_set, bests_amount = 2, s = 1.8
     for i in range(pop_len):
         weights[order[i]] =  (2 - s)/pop_len + (2*(i)*(s-1))/(pop_len * (pop_len - 1))
 
-    #we substract 1 because we desire to give a chance to the two best parents
     parents = [[], []]
     parents_a_indexes = random.choices(population=range(pop_len),k=parents_amount, weights=weights)
     for p_a in parents_a_indexes:
@@ -106,8 +107,6 @@ def select_parents_ranked(population_set, fitness_set, bests_amount = 2, s = 1.8
     
     bests = [population_set[order[pop_len - i]] for i in range(1, bests_amount + 1)] #two best parents
     return bests, parents
-
-            
 
 
 # random crossover points are selected and the alternating segments of the individuals are swapped to get new offsprings.
@@ -152,7 +151,6 @@ def xover(parent_a, parent_b):
 # algorithm stops after a fixed number of iterations
 def stop_criterion(i):
     return i >= MAX_ITERATIONS
-
 
 # main method of the genetic algorithm
 def genetic_algorithm(pop_size, number_of_turns, maximum_waiting_time, average_passing_time):
