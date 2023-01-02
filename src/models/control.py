@@ -202,7 +202,7 @@ class control:
             t = 0
             for i in range(len(self.roads[road_id].vehicles)):
                 c+=1
-                t += time() - self.road_car_entrance_queue[road_id][i]
+                t += self.it_number - self.road_car_entrance_queue[road_id][i]
             self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id] + t)
                 / (self.road_total_amount_cars[road_id] + c) if self.road_total_amount_cars[road_id] + c != 0 else 0))
 

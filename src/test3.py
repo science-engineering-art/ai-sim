@@ -111,13 +111,14 @@ str_rr = ['AB', 'BA', 'BE', 'BC', 'CB', 'CD', 'DC','FC', 'CI', 'IG', 'IH', 'IJ',
 for i in range(16):
     road_id = rr[i]
     to_print_1.append(f'{str_rr[i]} : {ctrl.road_max_queue[road_id]}')
-    to_print_2.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id]}')
+    to_print_2.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id] * ctrl.dt}')
 # print(len(my_roads))
 # print(len(rr))
 # for id in rr:
 #     if not my_roads.__contains__(id):
-#         print(id)
+print('max queue')
 print(to_print_1)
+print('ave time')
 print(to_print_2)
 
 #[1390.5, 1867.888888888889, 0, 0, 824.3333333333334, 2670.0, 0, 0, 2307.0, 1360.0, 10109.75, 3970.0, 603.75, 1077.5, 314.0, 9004.0]
