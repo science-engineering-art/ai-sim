@@ -290,6 +290,7 @@ class control:
             x1, y1 = x1 + nX, y1 + nY 
             self.coord_roads_in[start].append(id)
             self.coord_roads_out[end].append(id)
+            self.extremeRoads.append(id)
 
     def build_intersections(self):
 
@@ -323,6 +324,11 @@ class control:
                     curve_pt = self.calculate_curve_point(road_in, road_out)
                     print(f'curve at {curve_pt}')
                     self.connect_roads(road_in_id, road_out_id, curve_pt)
+
+                    try:
+                        self.extremeRoads.remove(road_out_id)
+                    except:
+                        print(f'road_out_id {road_out_id} not in extremeRoads')
 
                     follows.append((road_in_id, road_out_id, i))
                 i += 1
