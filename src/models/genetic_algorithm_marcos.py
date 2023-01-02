@@ -93,10 +93,12 @@ def multipoint_xover(parent_a, parent_b, p=1):
 
     for i in points:
         offsprings[0] += last[1][last[0]:i]
-        offsprings[1] += parent_b[last[0]                                  :i] if last[1] == parent_a else parent_a[last[0]:i]
+        offsprings[1] += parent_b[last[0]                                  
+            :i] if last[1] == parent_a else parent_a[last[0]:i]
         last = (i, parent_b if last[1] == parent_a else parent_a)
     offsprings[0] += last[1][last[0]:]
-    offsprings[1] += parent_b[last[0]                              :] if last[1] == parent_a else parent_a[last[0]:]
+    offsprings[1] += parent_b[last[0]                              
+        :] if last[1] == parent_a else parent_a[last[0]:]
 
     return offsprings
 
@@ -115,7 +117,7 @@ def geometric_xover(parent_a, parent_b):
 def xover(parent_a, parent_b):
     new_population = []
     for i in range(len(parent_a)):
-        new_population += intermediate_xover(parent_a[i], parent_b[i])
+        new_population += multipoint_xover(parent_a[i], parent_b[i])
     return new_population
 
 # evaluates an individual in the simulation returning queue size in relation to waiting time
@@ -201,6 +203,7 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
         f.write(f"\n")
 
         fitness_vals = fitness(simulation, population, speed, obs_time)
+        print(fitness_vals)
 
         f.write(f"fitness: {fitness_vals} \n\n")
 
