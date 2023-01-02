@@ -17,6 +17,7 @@ from models.painting import *
 from pygame.locals import *
 from pygame import gfxdraw
 import pygame
+import math
 
 RED = (255, 0, 0)
 BLUE = (0, 255, 255)
@@ -311,7 +312,7 @@ class control:
     def build_intersections(self):
 
         for x, y in self.coord_roads_in:
-            follows = []
+            follows = {}
             i = 0
             for road_in_id in self.coord_roads_in[(x, y)]:
                 for road_out_id in self.coord_roads_out[(x, y)]:
@@ -350,9 +351,86 @@ class control:
                         self.extremeRoads.remove(road_out_id)
                     except:
                         print(f'road_out_id {road_out_id} not in extremeRoads')
+                    
+                    def calculate_angle(road_in: Road) -> float:
+                        x0, y0 = road_in.start
+                        x1, y1 = road_in.end
 
-                    follows.append((road_in_id, road_out_id, i))
+                        if (x0**2 + y0**2) > (x1**2 + y1**2):
+                            tmp = x0, y0
+                            x0, y0 = x1, y1
+                            x1, y1 = tmp
+
+                        print(f'x0: {x0}, y0: {y0}, x1: {x1}, y1: {y1}')
+
+                        co = y1 - y0
+                        ca = x1 - x0
+
+                        if ca == 0 and co != 0:
+                            return 90.0
+
+                        h = (co**2 + ca**2)**0.5
+                        
+                        print(f'co: {co}, ca: {ca}, h: {h}')
+                        try: 
+                            angle = math.acos((co**2 + ca**2 - h**2) / (2 * co * ca))
+                            angle = math.degrees(angle)
+                        except:
+                            print('error 1')
+
+                        try: 
+                            angle = math.acos((co**2 + h**2 - ca**2) / (2 * co * h))
+                            angle = math.degrees(angle)
+                        except:
+                            print('error 2')
+
+                        try:
+                            angle = math.acos((h**2 + ca**2 - co**2) / (2 * h * ca))
+                            angle = math.degrees(angle)
+                        except:
+                            print('error 3')
+
+                        return angle
+
+                    angle = calculate_angle(road_in)
+
+                    if i not in follows:
+                        follows[i] = []
+
+                    follows[i].append((angle, road_in_id, road_out_id))
                 i += 1
+
+            tmp = follows
+            follows = {}
+
+            for i in tmp:
+                angle, _, _ = tmp[i][0]
+
+                for j in tmp:
+                    if i == j: continue
+                    
+                    angle2, _, _ = tmp[j][0]
+
+                    if angle > 180 and angle2 < 180:
+                        angle %= 180
+                    if angle < 180 and angle2 > 180:
+                        angle2 %= 180                    
+                    
+                    if abs(angle - angle2) < 1e-8:
+                        if angle not in follows:
+                            follows[angle] = []
+                        follows[angle] += [(road_in_id, road_out_id, i) 
+                            for _, road_in_id, road_out_id in tmp[j]]
+
+                if angle not in follows:
+                    follows[angle] = []
+                follows[angle] += [(road_in_id, road_out_id, i) 
+                    for _, road_in_id, road_out_id in tmp[i]]
+            
+            tmp = follows
+            follows = []
+            for _, tuples in tmp.items():
+                follows += tuples
 
             print(f'follows: {follows}')
             if len(follows) > 0:
