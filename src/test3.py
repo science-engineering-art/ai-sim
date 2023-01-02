@@ -95,18 +95,28 @@ t1 = 5
 t2 = 40
 # ctrl.SetConfiguration([574, 305, 694, 278, 291, 801, 115, 486, 397, 328, 96, 247, 690, 253, 194])
 ctrl.SetConfiguration([t1, t2, t2, t2,  t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
-ctrl.SetConfiguration([99, 97, 66, 53, 7, 69, 74, 85, 80, 38, 52, 70, 37, 75, 77])
+# ctrl.SetConfiguration([99, 97, 66, 53, 7, 69, 74, 85, 80, 38, 52, 70, 37, 75, 77])
 # ctrl.Start(it_amount= 10000, draw=False)
 
 ctrl.speed = 5
-ctrl.Start(observation_time = 100, draw=True)
+ctrl.Start(observation_time = 10, draw=True)
 
 to_print_1 = []
 to_print_2 = []
-for road_id in range(len(ctrl.road_max_queue)):
-    if not ctrl.is_curve[road_id]:
-        to_print_1.append(ctrl.road_max_queue[road_id])
-        to_print_2.append(ctrl.road_average_time_take_cars[road_id])
+
+my_roads = []
+rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
+str_rr = ['AB', 'BA', 'BE', 'BC', 'CB', 'CD', 'DC','FC', 'CI', 'IG', 'IH', 'IJ', 'JI', 'KJ', 'LJ', 'JB']
+# inv_rr = {AB : 'AB', BA : 'BA', BE : 'BE', BC : 'BC', CB, CD, DC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
+for i in range(16):
+    road_id = rr[i]
+    to_print_1.append(f'{str_rr[i]} : {ctrl.road_max_queue[road_id]}')
+    to_print_2.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id]}')
+# print(len(my_roads))
+# print(len(rr))
+# for id in rr:
+#     if not my_roads.__contains__(id):
+#         print(id)
 print(to_print_1)
 print(to_print_2)
 

@@ -51,7 +51,7 @@ class control:
         
         #random vehicles templates
         self.basic_vehicles = [
-            Vehicle(x=0, length= 1.22, width = 1, color=(255, 30,255), v_max = 33.3, a_max=2.89, b_max=9.25), 
+            Vehicle(x=0, length= 1.22, width = 1, color=(30, 255,255), v_max = 33.3, a_max=2.89, b_max=9.25), 
             # Vehicle(x=0, length= 1.22, width = 1, color=(30, 255,255), v_max = 80, a_max=2.89, b_max=9.25), 
             # Vehicle(x=0, length= 3, width = 1.5, color=(255, 30,255), v_max = 30, a_max=2.9, b_max=3),
             # Vehicle(x=0, length= 2, width = 0.85, color=(255, 255,30), v_max = 40, a_max=2.2, b_max=4),
@@ -198,8 +198,13 @@ class control:
             
             
         for road_id in range(len(self.roads)):
-            self.road_average_time_take_cars.append(self.road_total_time_take_cars[road_id]\
-                /self.road_total_amount_cars[road_id] if self.road_total_amount_cars[road_id]  != 0 else 0)
+            c = 0
+            t = 0
+            for i in range(len(self.roads[road_id].vehicles)):
+                c+=1
+                t += time() - self.road_car_entrance_queue[road_id][i]
+            self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id] + t)
+                / (self.road_total_amount_cars[road_id] + c) if self.road_total_amount_cars[road_id] + c != 0 else 0))
 
       
     def UpdateRoad(self, road):
@@ -247,6 +252,7 @@ class control:
         next_road_curve_id = self.curves[(self.road_index[road],next_road_id )][0]
         next_road : Road = self.roads[next_road_curve_id]
         next_road.vehicles.append(vehicle)
+        self.road_car_entrance_queue[next_road_id].append(self.it_number)       #fitness.................................
         return next_road
     
 
