@@ -26,9 +26,6 @@ def init_population(pop_size, number_of_turns, maximum_waiting_time, average_pas
             individual.append(random.randint(
                 average_passing_time, maximum_waiting_time))
 
-            # individual.append(random.randint(average_passing_time, maximum_waiting_time),  # green time
-            #                   random.randint(average_passing_time, maximum_waiting_time))  # red time
-
         population_set.append(individual)
 
     return population_set
@@ -106,7 +103,6 @@ def geometric_xover(parent_a, parent_b):
 
 # performs crossover (of individuals or cromosomes) between parents
 def xover(parent_a, parent_b):
-    # TODO: decide when to xover cromosomes and when individuals
     new_population = []
     for i in range(len(parent_a)):
         new_population += multipoint_xover(parent_a[i], parent_b[i])
@@ -116,14 +112,14 @@ def xover(parent_a, parent_b):
 def eval_individual_in_simulation(simulation, individual):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
-    print(individual)
     ctrl.speed = 50
+    print(individual)
     ctrl.Start(observation_time = 1, draw=False)
     fitness_val = -1
-    for road_id in range(len(ctrl.road_max_queue)):
+    for road_id in range(len(ctrl.roads)):
         if not ctrl.is_curve[road_id]:
             fitness_val = max(fitness_val, ctrl.road_average_time_take_cars[road_id]) #we use the max between average time a car takes in every semaphore
-    return -fitness_val #I use the opposite value because we wish to diminish the time it takes for the cars
+    return -fitness_val * ctrl.dt #I use the opposite value because we wish to diminish the time it takes for the cars
 
 
 # gives a fitness value to each individual of the population
@@ -138,7 +134,7 @@ def stop_criterion(i):
     return i >= MAX_ITERATIONS
 
 # main method of the genetic algorithm
-def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time):
+def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, max_iterations = 100):
     # init
     population = init_population(
         pop_size, number_of_turns, maximum_waiting_time, average_passing_time)
@@ -149,12 +145,12 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
     # best solution found
     best_solution = ([], -Inf)  # (solution, fitness value)
 
-    while not stop_criterion(i):
+    while i < max_iterations:
         fitness_vals = fitness(simulation, population)
         
         print(f'Iteration {i} DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        for individual in population:
-            print(individual)
+        # for individual in population:
+        #     print(individual)
         print(fitness_vals)
         print(f'Best Solution found:{best_solution[1]} !!!!!')
 
@@ -180,22 +176,3 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
 
     return best_solution[0]
 
-
-# pop = [[1, 4, 5, 10], [11, 5, 2, 1], [
-#     5, 8, 4, 15], [3, 2, 54, 1], [7, 8, 23, 5]]
-# fitness = [1, 9, 5, 8, 90]
-# bin_p = encode_population(pop)
-# print(bin_p)
-# print(mutate(bin_p, 0.5))
-# # print(bin_p)
-# # print(get_random_indexes([1, 2, 3, 4, 5], 1))
-# print(multipoint_xover("100", "202"))
-
-# print(select_parents(pop, fitness))
-
-# # a = [1, -9, -90, 3, 2]
-# # print(a.index(min(a)))
-# # a.remove(a[a.index(min(a))])
-# # print(a)
-
-# print(cromosome_xover(bin_p[0], bin_p[1]))

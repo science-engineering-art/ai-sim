@@ -14,16 +14,13 @@ class Vehicle:
         self.length = length
         self.width = width
         
-        self.current_road = 0
         self.path = path
         self.v = 0
-        self.v_max = 60
-        self.v = self.v_max*3/4
+        self.v_max = 16.67
+        self.v = self.v_max * 3/4
         self.a = 0
-        self.a_max = 2.5
-        # self.a_max = 50
+        self.a_max = 1.44
         self.b_max = 4.61
-        # self.b_max = 46.1
 
         self.s0 = 4
         self.T = 1
@@ -35,8 +32,6 @@ class Vehicle:
     def update(self, dt = 1/60, lead: 'Vehicle' = None):
         
         if self.stopped: return
-        # if self.stopped: 
-        #     self.a = -self.b_max*self.v/self.v_max
 
         if self.v + self.a * dt < 0:
             self.x -= 1/2*self.v**2/self.a
