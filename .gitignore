@@ -141,3 +141,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 src/proof2.py
+src/models/proof_of_selection.py
