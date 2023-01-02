@@ -68,7 +68,7 @@ class control:
         self.road_total_time_take_cars = []
         self.road_average_time_take_cars = []
 
-        # coordinates - roads
+        # # coordinates - roads
         self.coord_roads_in = {}
         self.coord_roads_out = {}
 
