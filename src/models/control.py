@@ -223,7 +223,7 @@ class control:
         next_road_curve_id = self.curves[(self.road_index[road],next_road_id )][0]
         next_road : Road = self.roads[next_road_curve_id]
         next_road.vehicles.append(vehicle)
-        self.road_car_entrance_queue[next_road_id].append(self.it_number)       #fitness.................................
+        self.road_car_entrance_queue[next_road_curve_id].append(self.it_number)       #fitness.................................
         return next_road
     
 
