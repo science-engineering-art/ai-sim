@@ -32,7 +32,7 @@ class Vehicle:
 
         self.__dict__.update(kwargs)
 
-    def update(self, dt = 1/60, lead: 'Vehicle' = None):
+    def update(self, dt = 1/10, lead: 'Vehicle' = None):
         
         if self.stopped: return
         # if self.stopped: 

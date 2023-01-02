@@ -108,7 +108,7 @@ class control:
         tprev = time() #measures time complexity
         
         while self.it_number < it_amount or it_amount == -1:
-            
+            print(self.it_number)
             t1 = time() #measures time complexity
             # print(t1 - tprev) #measures time complexity
             tprev = t1 #measures time complexity

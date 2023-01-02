@@ -1,4 +1,5 @@
 import heapq
+from time import time
 from models.control import control
 from models.road import Road
 
@@ -78,4 +79,15 @@ while len(stack) > 0:
 ctrl.build_intersections()
 
 # print(ctrl.extremeRoads)
-ctrl.Start(it_amount=1000, draw=True)
+t = time()
+ctrl.Start(it_amount=10000, draw=True)
+
+to_print_1 = []
+to_print_2 = []
+for road_id in range(len(ctrl.road_max_queue)):
+    if not ctrl.is_curve[road_id]:
+        to_print_1.append(ctrl.road_max_queue[road_id])
+        to_print_2.append(ctrl.road_average_time_take_cars[road_id])
+print(to_print_1)
+print(to_print_2)
+print( time() - t)

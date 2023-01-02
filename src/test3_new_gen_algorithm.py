@@ -8,7 +8,7 @@ from models.simulation import Simulation, Simulation_test_3
 
 simulation = Simulation_test_3()
 MAX_ITERATIONS = 10
-genetic_algorithm(simulation, 4, 15, 1000, 10)
+genetic_algorithm(simulation, 4, 15, 100, 50)
 
 
 

@@ -3,7 +3,7 @@ from numpy import Inf, sort
 
 
 
-MAX_ITERATIONS = 10000
+MAX_ITERATIONS = 100000
     
 
 # gets k random indexes in a list
@@ -97,11 +97,11 @@ def multipoint_xover(parent_a, parent_b, p=1):
 
 def intermediate_xover(parent_a, parent_b, alpha = 0.5):
     
-    return [int(alpha * parent_a[i] + (1 - alpha) * parent_b[i]) for i in range(len(parent_a))]
+    return [[int(alpha * parent_a[i] + (1 - alpha) * parent_b[i]) for i in range(len(parent_a))]]
 
 def geometric_xover(parent_a, parent_b):
     
-    return [int((parent_a[i] * parent_b[i]) ** 0.5) for i in range(len(parent_a))]
+    return [[int((parent_a[i] * parent_b[i]) ** 0.5) for i in range(len(parent_a))]]
 
 
 # performs crossover (of individuals or cromosomes) between parents
@@ -150,8 +150,12 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
 
     while not stop_criterion(i):
         fitness_vals = fitness(simulation, population)
+        
         print(f'Iteration {i} DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        for individual in population:
+            print(individual)
         print(fitness_vals)
+        print(f'Best Solution found:{best_solution[1]} !!!!!')
 
         # saves the solution with the greatest fitness in the current generation if it is better that the stored
         # in best solution
