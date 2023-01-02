@@ -3,8 +3,10 @@ from collections import deque
 from multiprocessing.sharedctypes import copy
 from queue import Queue
 from time import sleep, time
-from turtle import _Screen
+from tokenize import Intnumber
+from turtle import _Screen, speed
 from typing import Deque
+from xml.etree.ElementTree import Comment
 from scipy.spatial import distance
 from sympy import rot_axis1
 from models.corner import corner
@@ -24,12 +26,19 @@ GRAY = (50, 50, 50)
 LIGHT_GRAY = (225,225,225)
 
 
+# relaciones:
+# vehiculo.length/calle 4m/300m 
+# vehiculo.vmax/calle 80-120km/h/300m = 22.2-33.3m/s/300m
+# vehiculo.a_max/vmax 1/11.5
+# vehiculo.b_max/vmax 1/3.60
+
 class control:
     '''class made to control hall the simulation over the map'''
 
     def __init__(self, **kwargs):
         
-        self.dt = 1/60
+        self.speed = 5
+        self.dt = self.speed * (1/300)
         
         self.roads = []
         self.road_index = {} # store the index of each road in roads list
@@ -42,8 +51,8 @@ class control:
         
         #random vehicles templates
         self.basic_vehicles = [
-            Vehicle(x=0, length= 1, width = 1, color=(30, 255,255), v_max = 100, a_max=10, b_max=32), 
-            # Vehicle(x=0, length= 1, width = 1, color=(30, 255,255), v_max = 80, a_max=1.9, b_max=3.5), 
+            Vehicle(x=0, length= 1.22, width = 1, color=(255, 30,255), v_max = 33.3, a_max=2.89, b_max=9.25), 
+            Vehicle(x=0, length= 1.22, width = 1, color=(30, 255,255), v_max = 80, a_max=2.89, b_max=9.25), 
             # Vehicle(x=0, length= 3, width = 1.5, color=(255, 30,255), v_max = 30, a_max=2.9, b_max=3),
             # Vehicle(x=0, length= 2, width = 0.85, color=(255, 255,30), v_max = 40, a_max=2.2, b_max=4),
             # Vehicle(x=0, length= 2.5, width = 1.2, color=(118,181,197), v_max = 65, a_max=4.9, b_max=1.5),
@@ -95,7 +104,7 @@ class control:
         for road_id in roads:
             self.extremeRoads.append(road_id)
     
-    def Start(self, it_amount = -1, draw = True):
+    def Start(self, observation_time = -1, it_amount = -1, draw = True):
         '''method to begin the simulation'''
         if draw : 
             pygame.init()
@@ -111,9 +120,10 @@ class control:
             self.road_car_entrance_queue.append([])
         self.it_number = 1
         
+        init_time = time()
         tprev = time() #measures time complexity
         
-        while self.it_number < it_amount or it_amount == -1:
+        while (self.it_number < it_amount or it_amount == -1) and (time() - init_time < observation_time or observation_time == -1):
             print(self.it_number)
            
             t1 = time() #measures time complexity
@@ -175,10 +185,15 @@ class control:
             # print('t4 - t3: ', t4 - t3)
             
             if draw : pygame.display.update()
+            
+            self.dt = (time() - t1) * self.speed 
             self.it_number += 1
             
             t5 = time()
-            # print('t5 - t4: ', t5 - t4)
+            
+            print('t5 - t1: ', t5 - t1)
+            
+            
         for road_id in range(len(self.roads)):
             self.road_average_time_take_cars.append(self.road_total_time_take_cars[road_id]\
                 /self.road_total_amount_cars[road_id] if self.road_total_amount_cars[road_id]  != 0 else 0)

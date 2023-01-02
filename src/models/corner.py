@@ -10,7 +10,7 @@ class corner:
         self.light_controled = light_controled #indiates wether ther is a semaphore in the corner
         self.numberOfTurns = 0  #indicate the amount of turns the green light passes throw
         self.time_tick = 0 #used to decided when to change the lights
-        self.intermediate_time = 100 #period of time where everyone is in red 
+        self.intermediate_time = 5 #period of time where everyone is in red 
         self.turns = [] #the position i stores which follow pair has the green light 
         self.times = [] #indicates the duration of each turn
         self.myturn = {} #store for each follow pair its turn number (inverse to self.turns)
@@ -56,7 +56,7 @@ class corner:
                 self.OutgoingRoads.append(out_road)
 
 
-    def addFollow(self, in_road, out_road, order = None, displace = False, time = 400):
+    def addFollow(self, in_road, out_road, order = None, displace = False, time = 40):
         '''Add a follow pair, i.e. a  pair of (in_road, out_road) indicating 
         a car can move from in_road to out_road. 
         The parameter order is used to indicate its turn in the semaphore.
