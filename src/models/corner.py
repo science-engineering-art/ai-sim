@@ -29,11 +29,11 @@ class corner:
             return
         self.time_tick += t
         if self.current_turn < 0:
-            if self.time_tick == self.intermediate_time:
-                self.time_tick = 0
+            if self.time_tick  >= self.intermediate_time:
+                self.time_tick -= self.intermediate_time
                 self.current_turn  = -self.current_turn - 1
-        elif self.times[self.current_turn] == self.time_tick:
-            self.time_tick = 0
+        elif self.times[self.current_turn] <= self.time_tick:
+            self.time_tick -= self.times[self.current_turn]
             self.current_turn += 1
             if self.current_turn == self.numberOfTurns:
                 self.current_turn = -1

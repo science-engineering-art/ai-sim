@@ -122,7 +122,7 @@ class control:
             tprev = t1 #measures time complexity
             
             for corn in self.corners:
-                corn.tick() #increments the time of each semaphore
+                corn.tick(self.dt) #increments the time of each semaphore
             
             if draw : screen.fill(LIGHT_GRAY) #repaint the background
             
