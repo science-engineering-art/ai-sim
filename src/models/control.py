@@ -179,9 +179,10 @@ class control:
             t = 0
             for i in range(len(self.roads[road_id].vehicles)):
                 c += 1
-                t += self.it_number - self.road_car_entrance_queue[road_id][i]
-            self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id] + self.dt * c)
-                                                     / (self.road_total_amount_cars[road_id] + c) if self.road_total_amount_cars[road_id] + c != 0 else 0))
+            self.road_total_time_take_cars[road_id] += self.dt * c
+            self.road_total_amount_cars[road_id] += c
+            self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id])
+                                                     / (self.road_total_amount_cars[road_id]) if self.road_total_amount_cars[road_id] != 0 else 0))
 
     def UpdateRoad(self, road):
         
@@ -301,15 +302,15 @@ class control:
     def GetDimension(self):
         dimension = 0
         for corner in self.corners:
-            dimension += (corner.numberOfTurns + 1)
+            dimension += (corner.numberOfTurns)
 
         return dimension
 
     def SetConfiguration(self, individual):
         pos = 0
         for corner in self.corners:
-            corner.intermediate_time = individual[pos]
-            pos += 1
+            # corner.intermediate_time = individual[pos]
+            # pos += 1
             for i in range(corner.numberOfTurns):
                 corner.times[i] = individual[pos]
                 pos += 1

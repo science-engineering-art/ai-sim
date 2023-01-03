@@ -1,3 +1,6 @@
+fitness: max average
+number_of_turns : 11 
+
 MAX_ITERATIONS: 50 
 
 SPEED: 20 
