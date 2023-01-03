@@ -1,4 +1,3 @@
-from models.control import control
 from templates import GridMap
 
 temp = GridMap(center_point=(700,400), 
@@ -15,13 +14,6 @@ temp.build_roads((700,400), (700,790) , 1, 1, 150)
 temp.build_intersections()
 
 temp.generate_template('map2')
-
-# print(temp.map.__dict__)
-
-# with open("map.txt", "w") as f:
-#     f.write(temp.map.json())
-
-print(temp.map)
 
 ctrl = temp.load_template('map2')
 ctrl.Start(it_amount=100000)

@@ -209,8 +209,6 @@ class BasicTemplate:
         s = ddb.at(name)
         if s.exists():
             json = s.read()
-            print(json)
-            
             ctrl = control()
 
             # add roads
@@ -221,6 +219,7 @@ class BasicTemplate:
                             road_init_point=lane['start'],
                             road_end_point=lane['end']
                         )
+                        break
 
             # add connections between roads            
             for curve in json['curves']:
@@ -229,6 +228,20 @@ class BasicTemplate:
                     road_2_id=curve['output_lane_id'],
                     curve_point=curve['curve_point']
                 )
+            
+            # create intersections
+            for x in json['intersections']:
+                for y in json['intersections'][x]:
+                    follows = json['intersections'][x][y]['follows']
+                    follows = [ tuple(f) for f in follows ] 
+                    ctrl.CreateCorner(follows)
+            
+            # add extremes roads
+            ctrl.AddExtremeRoads(json['extremes_lanes'])
+
+            ctrl.speed = 5
+            for er in ctrl.extremeRoads: #adjusting generation rate
+                ctrl.roads[er].Lambda = 800
 
             return ctrl 
 
@@ -312,8 +325,8 @@ class BasicTemplate:
             lane_id = len(self.map.lanes)
             lane = Edge(
                 id=lane_id,
-                start=(x0, y0),
-                end=(x1, y1)
+                start=(x1, y1),
+                end=(x0, y0)
             )
             self.map.lanes.append(lane)
             road.lanes.append(lane_id)
@@ -404,7 +417,9 @@ class BasicTemplate:
                     if abs(angle - angle2) < 1e-8:
                         if angle not in follows:
                             follows[angle] = []
-                        follows[angle] += [(curve_id, i) 
+                        follows[angle] += [(
+                            self.map.curves[curve_id].input_lane_id,
+                            self.map.curves[curve_id].output_lane_id, i) 
                             for _, curve_id in tmp[j]]
 
                 if angle not in follows:
@@ -445,7 +460,7 @@ class GridMap(BasicTemplate):
         self.upper_limit_y = upper_limit_y
         self.in_roads = in_roads
         self.out_roads = out_roads
-        self.width_roads = width_roads
+        self.map.width_roads = width_roads
         self.recalculate_limits()
 
     def is_valid(self, pt):
@@ -512,10 +527,6 @@ class GridMap(BasicTemplate):
                     edges.add((pt0, pt1))
 
         self.build_intersections()
-
-        # self.ctrl.speed = 10
-        # for er in self.ctrl.extremeRoads: #adjusting generation rate
-        #     self.ctrl.roads[er].Lambda = 1/150
 
 
 
