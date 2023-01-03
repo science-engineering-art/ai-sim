@@ -1,11 +1,102 @@
-from abc import abstractmethod
 import math
 import heapq
-from time import time
-from typing import Tuple
+from typing import Any, Dict, List, Tuple
+from models.road import Road
+from abc import abstractmethod
 from scipy.spatial import distance
 from models.control import control
-from models.road import Road
+from pydantic import BaseModel
+import dictdatabase as ddb
+
+
+class BaseNode:...
+
+
+class Edge(BaseModel, BaseNode):
+    id: int
+    start: Tuple[float, float]
+    end: Tuple[float, float]
+
+
+class RoadEdge(BaseModel, BaseNode):
+    lanes: List[int]
+
+
+class CurveEdge(BaseModel, BaseNode):
+    input_lane_id: int
+    output_lane_id: int
+    curve_point: Tuple[float, float]
+
+
+class IntersectionNode(BaseModel, BaseNode):
+    input_lanes: List[int]
+    out_lanes: List[int]
+    follows: List[Tuple[int, int, int]]
+
+
+class Map(BaseModel, BaseNode):
+    width_roads: float
+    lanes: List[Edge]
+    roads: List[RoadEdge]
+    intersections: Dict[Tuple[float,float], IntersectionNode] 
+    curves: List[CurveEdge]
+    extremes_lanes: List[int] 
+    
+
+def iter_fields(node: 'NodeVisitor'):
+    for field in node.__dict__:
+        try: 
+            yield field, getattr(node, field)
+        except:...
+
+
+class NodeVisitor:
+    """
+        JSON Serializer
+    """
+    def visit(self, node: 'NodeVisitor'):
+        method_name = f'visit_{type(node).__name__}'
+        visitor = getattr(self, method_name, self.generic_visit)
+        return visitor(node)
+    
+    def generic_visit(self, node: 'NodeVisitor'):
+        json = {}
+
+        for key, value in iter_fields(node):
+           
+            if isinstance(value, list):
+                json[key] = []
+                for item in value:
+                    if isinstance(item, BaseNode):
+                        json[key].append(self.visit(item))
+                    else:
+                        json[key].append(item)
+            
+            elif isinstance(value, dict):
+                if key not in json:
+                    json[key] = {}
+                for kw, item in value.items():
+                    if isinstance(item, BaseNode):
+                        if isinstance(kw, tuple):
+                            x, y = kw
+                            x, y = f"{x}", f"{y}"
+                            if x not in json[key]:
+                                json[key][x] = {}
+                            if y not in json[key][x]:
+                                json[key][x][y] = {}
+                            json[key][x][y] = self.visit(item)
+                        else:
+                            json[key][kw] = self.visit(item)
+            
+            elif isinstance(value, BaseNode):
+                json = {}
+                for kw, item in iter_fields(value):
+                    json[kw] = item
+            
+            else:
+                json[key] = value
+
+        return json
 
 
 def calculate_angle(road_in: Road) -> float:
@@ -93,18 +184,31 @@ class BasicTemplate:
 
     def __init__(self, ctrl: control):
         self.ctrl = ctrl
-        self.coord_roads_in  = {}
-        self.coord_roads_out = {}
+        self.map = Map(
+            width_roads=0,
+            lanes=[],
+            roads=[],
+            intersections={},
+            curves=[],
+            extremes_lanes=[]
+        )
 
     @abstractmethod
-    def generate_map(self):
+    def build_map(self) -> Map:
         pass
 
+    def generate_template(self, name: str):
+        self.build_map()
+
+        s = ddb.at(name)
+        if not s.exists():
+            s.create(
+                NodeVisitor().visit(self.map)
+            )
 
     def build_roads(self, start, end, inN, outN, width):
         x0, y0 = start
         x1, y1 = end
-        # print(x0, y0, x1, y1)
 
         if x0**2 + y0**2 > x1**2 + y1**2:
             x0, y0 = end
@@ -130,43 +234,85 @@ class BasicTemplate:
         x0, y0 = x0 + rX, y0 + rY
         x1, y1 = x1 + rX, y1 + rY
 
-        if start not in self.coord_roads_in:
-            self.coord_roads_in[start] = []
-        if end not in self.coord_roads_in:
-            self.coord_roads_in[end] = []
-        if start not in self.coord_roads_out:
-            self.coord_roads_out[start] = []
-        if end not in self.coord_roads_out:
-            self.coord_roads_out[end] = []
+        if start not in self.map.intersections:
+            self.map.intersections[start] = IntersectionNode(
+                input_lanes=[],
+                out_lanes=[],
+                follows=[]
+            )
+        if end not in self.map.intersections:
+            self.map.intersections[end] = IntersectionNode(
+                input_lanes=[],
+                out_lanes=[],
+                follows=[]
+            )
+        if start not in self.map.intersections:
+            self.map.intersections[start] = IntersectionNode(
+                input_lanes=[],
+                out_lanes=[],
+                follows=[]
+            )
+        if end not in self.map.intersections:
+            self.map.intersections[end] = IntersectionNode(
+                input_lanes=[],
+                out_lanes=[],
+                follows=[]
+            )
+
+        road = RoadEdge(
+            lanes=[]
+        )
 
         for _ in range(inN):
-            id = self.ctrl.AddRoad((x0, y0), (x1, y1))
+            # create road
+            lane_id = len(self.map.lanes)
+            lane = Edge(
+                id=lane_id,
+                start=(x0, y0),
+                end=(x1, y1)
+            )
+            self.map.lanes.append(lane)
+            road.lanes.append(lane_id)
+
             x0, y0 = x0 + nX, y0 + nY
             x1, y1 = x1 + nX, y1 + nY
-            self.coord_roads_in[end].append(id)
-            self.coord_roads_out[start].append(id)
-            self.ctrl.extremeRoads.append(id)
+
+            self.map.intersections[end].input_lanes.append(lane_id)
+            self.map.intersections[start].out_lanes.append(lane_id)
+            self.map.extremes_lanes.append(lane_id)
 
         for _ in range(outN):
-            id = self.ctrl.AddRoad((x1, y1), (x0, y0))
+            # create road
+            lane_id = len(self.map.lanes)
+            lane = Edge(
+                id=lane_id,
+                start=(x0, y0),
+                end=(x1, y1)
+            )
+            self.map.lanes.append(lane)
+            road.lanes.append(lane_id)
+
             x0, y0 = x0 + nX, y0 + nY
             x1, y1 = x1 + nX, y1 + nY
-            self.coord_roads_in[start].append(id)
-            self.coord_roads_out[end].append(id)
-            self.ctrl.extremeRoads.append(id)
+
+            self.map.intersections[start].input_lanes.append(lane_id)
+            self.map.intersections[end].out_lanes.append(lane_id)
+            self.map.extremes_lanes.append(lane_id)
+
+        self.map.roads.append(road)
 
     def build_intersections(self):
 
-        for x, y in self.coord_roads_in:
+        for x, y in self.map.intersections:
             follows = {}
             i = 0
-            for road_in_id in self.coord_roads_in[(x, y)]:
-                for road_out_id in self.coord_roads_out[(x, y)]:
+            for in_lane_id in self.map.intersections[(x, y)].input_lanes:
+                for out_lane_id in self.map.intersections[(x, y)].out_lanes:
 
                     print(f'{(x,y)}')
 
-                    road_in: Road = self.ctrl.roads[road_in_id]
-                    road_out: Road = self.ctrl.roads[road_out_id]
+                    road_in: Edge = self.map.lanes[in_lane_id]
+                    road_out: Edge = self.map.lanes[out_lane_id]
 
                     # check if road_in and road_out are parallel
                     if distance.euclidean(road_in.start, road_out.end) == \
@@ -191,33 +337,38 @@ class BasicTemplate:
                           road_out.start, road_out.end)
                     curve_pt = calculate_curve_point(road_in, road_out)
                     print(f'curve at {curve_pt}')
-                    self.ctrl.connect_roads(road_in_id, road_out_id, curve_pt)
+                    curve = CurveEdge(
+                        input_lane_id=in_lane_id,
+                        output_lane_id=out_lane_id,
+                        curve_point=curve_pt
+                    )
+                    curve_id = len(self.map.curves)
+                    self.map.curves.append(curve)
+                    # self.ctrl.connect_roads(road_in_id, road_out_id, curve_pt)
 
                     try:
-                        self.ctrl.extremeRoads.remove(road_out_id)
+                        self.map.extremes_lanes.remove(out_lane_id)
                     except:
-                        print(f'road_out_id {road_out_id} not in extremeRoads')
-                    
-                    
+                        print(f'road_out_id {out_lane_id} not in extremeRoads')
 
                     angle = calculate_angle(road_in)
 
                     if i not in follows:
                         follows[i] = []
 
-                    follows[i].append((angle, road_in_id, road_out_id))
+                    follows[i].append((angle, curve_id))
                 i += 1
 
             tmp = follows
             follows = {}
 
             for i in tmp:
-                angle, _, _ = tmp[i][0]
+                angle, _ = tmp[i][0]
 
                 for j in tmp:
                     if i == j: continue
                     
-                    angle2, _, _ = tmp[j][0]
+                    angle2, _ = tmp[j][0]
 
                     if angle > 180 and angle2 < 180:
                         angle %= 180
@@ -227,23 +378,23 @@ class BasicTemplate:
                     if abs(angle - angle2) < 1e-8:
                         if angle not in follows:
                             follows[angle] = []
-                        follows[angle] += [(road_in_id, road_out_id, i) 
-                            for _, road_in_id, road_out_id in tmp[j]]
+                        follows[angle] += [(curve_id, i) 
+                            for _, curve_id in tmp[j]]
 
                 if angle not in follows:
                     follows[angle] = []
-                follows[angle] += [(road_in_id, road_out_id, i) 
-                    for _, road_in_id, road_out_id in tmp[i]]
+                follows[angle] += [(
+                    self.map.curves[curve_id].input_lane_id,
+                    self.map.curves[curve_id].output_lane_id, i) 
+                    for _, curve_id in tmp[i]]
             
             tmp = follows
             follows = []
             for _, tuples in tmp.items():
                 follows += tuples
 
-            print(f'follows: {follows}')
             if len(follows) > 0:
-                self.ctrl.CreateCorner(follows)
-
+                self.map.intersections[(x, y)].follows = follows            
 
 
 class GridMap(BasicTemplate):
@@ -306,7 +457,7 @@ class GridMap(BasicTemplate):
         self.upper_limit_x = X
         self.upper_limit_y = Y
 
-    def generate_map(self):
+    def build_map(self):
 
         edges = set()
         stack = [self.center_point]
