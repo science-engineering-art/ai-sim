@@ -210,8 +210,8 @@
 	Interpretando los t\'erminos en $ s^{*} $:
 	\begin{itemize}
 		\item $ v_{i}T_{i}  $ : es la distancia de seguridad del tiempo de reacción. Es la distancia que recorre el vehículo antes de que el conductor reaccione (frene).
-		Dado que la velocidad es la distancia en el tiempo, la distancia es la velocidad por el tiempo.
-		\item $ (v_{i} \Delta v_{i})/\sqrt{(2a_{i} b_{i})} $: este es un término un poco más complicado. Es una distancia de seguridad basada en la diferencia de velocidad. Representa la distancia que tardará el vehículo en reducir la velocidad (sin chocar con el vehículo de delante), sin frenar demasiado (la deceleración debe ser inferior a $ b_{i} $).
+		Dado que la velocidad es la distancia entre el tiempo, la distancia es la velocidad por el tiempo.
+		\item $ (v_{i} \Delta v_{i})/\sqrt{(2a_{i} b_{i})} $: es una distancia de seguridad basada en la diferencia de velocidad. Representa la distancia que tardará el vehículo en reducir la velocidad (sin chocar con el vehículo de delante), sin frenar demasiado (la deceleración debe ser inferior a $ b_{i} $).
 	\end{itemize}
 	
 	\subsection{Modelo de red vial de tráfico}
@@ -254,7 +254,7 @@
 	
 	La solución será un vector que contiene enteros correspondientes a los tiempos de luz verde de cada semáforo de la intersección.
 	
-	Para realizar las operaciones de cruzamiento y mutaci\'on los tiempos se llevan a binario, teniendo as\'i m\'as d\'igitos, y por tanto posibilidades, con los que jugar y encontrar la nueva poblaci\'on.
+	Nota: Para realizar las operaciones de cruzamiento y mutaci\'on los tiempos se llevan a binario, teniendo as\'i m\'as d\'igitos, y por tanto posibilidades, con los que jugar y encontrar la nueva poblaci\'on.
 	
 	\subsubsection{Población inicial}
 	
@@ -262,7 +262,16 @@
 	
 	\subsubsection{Función de evaluación \textit{fitness}}
 	
+	Se consideraron tres formas de calcular el fitness:
+	\begin{itemize}
+		\item Seg\'un el m\'aximo tiempo de espera. 
+		\item Seg\'un el tiempo total de paso de los carros por una calle. 
+		\item Seg\'un la media ponderada, calculada sobre todas las calles, del tiempo promedio que toma a los carros cruzar una calle
+	\end{itemize}
+
 	\subsubsection{Selección de padres}
+	
+	Para escoger los padres se utiliz\'o la selección basada en el rango (no el valor numérico) de los valores de fitness de los individuos en la población. La selección basada en el rango reduce los efectos potencialmente dominantes de individuos de alto fitness, comparativamente, en la población, estableciendo una cantidad predecible y limitada de presión de selección a favor de tales individuos. Al mismo tiempo, la selección basada en el rango exagera la diferencia entre valores de fitness agrupados de forma cercana para que los mejores se puedan muestrear más.
 	
 	\subsubsection{Mutación}
 	
