@@ -1,0 +1,283 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Journal Article
+% LaTeX Template
+% Version 1.4 (15/5/16)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com) with extensive modifications by
+% Vel (vel@LaTeXTemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+%\documentclass[10pt]{article} % Single column
+
+\documentclass[twoside,twocolumn]{article} % Two column
+
+\usepackage{blindtext} % Package to generate dummy text throughout this template 
+
+\usepackage[sc]{mathpazo} % Use the Palatino font
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\linespread{1.05} % Line spacing - Palatino needs more space between lines
+\usepackage{microtype} % Slightly tweak font spacing for aesthetics
+
+\usepackage[spanish]{babel} % Language hyphenation and typographical rules
+
+\usepackage[hmarginratio=1:1,top=32mm,columnsep=20pt]{geometry} % Document margins
+\usepackage[hang, small,labelfont=bf,up,textfont=it,up]{caption} % Custom captions under/above floats in tables or figures
+\usepackage{booktabs} % Horizontal rules in tables
+
+\usepackage{lettrine} % The lettrine is the first enlarged letter at the beginning of the text
+
+\usepackage{enumitem} % Customized lists
+\setlist[itemize]{noitemsep} % Make itemize lists more compact
+
+\usepackage{abstract} % Allows abstract customization
+\renewcommand{\abstractnamefont}{\normalfont\bfseries} % Set the "Abstract" text to bold
+\renewcommand{\abstracttextfont}{\normalfont\small\itshape} % Set the abstract itself to small italic text
+
+\usepackage{titlesec} % Allows customization of titles
+\renewcommand\thesection{\Roman{section}} % Roman numerals for the sections
+\renewcommand\thesubsection{\roman{subsection}} % roman numerals for subsections
+\titleformat{\section}[block]{\large\scshape\centering}{\thesection.}{1em}{} % Change the look of the section titles
+\titleformat{\subsection}[block]{\large}{\thesubsection.}{1em}{} % Change the look of the section titles
+
+\usepackage{fancyhdr} % Headers and footers
+\pagestyle{fancy} % All pages have headers and footers
+\fancyhead{} % Blank out the default header
+\fancyfoot{} % Blank out the default footer
+\fancyhead[C]{Lenguajes de Programaci\'on: \textbf{Concurrencia}} % Custom header text
+\fancyfoot[RO,LE]{\thepage} % Custom footer text
+
+\usepackage{titling} % Customizing the title section
+
+\usepackage{hyperref} % For hyperlinks in the PDF
+
+\usepackage{graphicx} % For images
+
+\usepackage{pifont} % bullets
+
+\usepackage{amsmath}
+
+% Keywords command
+\providecommand{\keywords}[1]
+{
+	\small	
+	\vspace{0.5em}
+	\noindent \textbf{\textit{Palabras clave --- }} #1
+}
+
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\setlength{\droptitle}{-4\baselineskip} % Move the title up
+
+\pretitle{\begin{center}\Huge\bfseries} % Article title formatting
+	\posttitle{\end{center}} % Article title closing formatting
+\title{\normalsize{Proyecto Final Inteligencia Artificial - Simulaci\'on}\\
+	\Huge\bfseries Traffic Lights Optimization\\
+} % Article title
+\author{% 
+	\normalsize\textsc{Integrantes:}\\
+	\normalsize\textsc{Leandro Rodr\'iquez Llosa}\\
+	\normalsize\textsc{Laura V. Riera P\'erez}\\ 
+	\normalsize\textsc{Marcos M. Tirador del Riego} \\[2ex]
+	\normalsize\textsc{Grupo: C-311} \\[2ex]
+	\small Tercer a\~no. Ciencias de la Computaci\'on. \\ % institution
+	\small Facultad de Matem\'atica y Computaci\'on, Universidad de La Habana, Cuba \\ % institution
+}
+\date{\footnotesize Enero 2023 } % Leave empty to omit a date
+
+
+% Abstract configurations
+\renewenvironment{abstract}
+{\small
+	\begin{center}
+		\bfseries \abstractname\vspace{-.5em}\vspace{0pt}
+	\end{center}
+	\list{}{
+		\setlength{\leftmargin}{1.5cm}%
+		\setlength{\rightmargin}{\leftmargin}%
+	}%
+	\item\relax}
+{\endlist}
+
+
+\usepackage{todonotes} % \TODO
+\usepackage{listings} % Code listings
+\usepackage{xcolor}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\newcommand{\csl}[1]{\colorbox{backcolour}{\texttt{#1}}}
+
+\newcommand{\imgcaption}[2]{\tiny \textbf{Figura #1.} #2.}
+
+\newcommand{\mgc}[2][]{\colorbox{backcolour}{\texttt{\_\_#2\_\_#1}}}
+
+\newcommand{\mgccapt}[1]{\texttt{\_\_#1\_\_}}
+
+% Hyperlinks configurations
+\hypersetup{
+	colorlinks=true,
+	linkcolor=black,
+	filecolor=magenta,      
+	urlcolor=cyan,
+	pdftitle={Overleaf Example},
+	pdfpagemode=FullScreen,
+}
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+	% Print the title
+	\maketitle
+	
+	%----------------------------------------------------------------------------------------
+	%	ARTICLE CONTENTS
+	%----------------------------------------------------------------------------------------
+	
+	
+	\section{Repositorio del proyecto}
+	
+	\begin{center}
+		\href{https://github.com/science-engineering-art/traffic-lights}{https://github.com/science-engineering-art/traffic-lights}
+	\end{center}
+	
+	\section{Descripción}
+	
+	En todo el mundo, la congestión del tráfico sigue siendo un problema importante en la mayoría de las ciudades, debido al creciente número de vehículos privados,  de mercancías y de transporte público. Este fenómeno afecta, sobre todo en horas pico, a los usuarios de la red vial, los cuales pierden mucho tiempo en la carretera;  además de incidir de manera negativa en el medio ambiente pues los carros se encuentran más tiempo encendidos liberando gases a la atmósfera.
+	
+	\vspace{0.5em}
+	Se puede pensar en varias soluciones para este problema:
+	\begin{enumerate}
+		\item Construcción de nuevas carreteras: Muchas veces esto no es posible debido a las condiciones geográficas, y más importante aún, es muy costoso, por lo que en general no es una solución viable.
+		\item Mejora del sistema de señalización vial: Es más sensata pues se relaciona inteligentemente con la infraestructura existente. Es de especial interés la mejora de los semáforos ya que estos controlan el flujo de la red vial de la ciudad. En estos podemos tener:
+		\begin{itemize}
+			\item Plan de luces fijo (Estático): se fijan los tiempos de verde y rojo en cada línea de luces de una intersección así como su secuencia una sola vez teniendo en cuenta las previsiones de tráfico, y estas no cambian.
+			\item Controladores de tiempo real (Dinámicos): en técnicas de tiempo real, el sistema debe ser capaz de adaptarse inmediatamente (o muy brevemente) a las condiciones del tráfico. Dicho sistema posee algoritmos que permiten controlar el tráfico, los cuales reciben información sobre el estado del tráfico, que ha sido recolectada por los sensores colocados en cada carril, y reacalculan la duración y la sincronización de la luces para minimizar la congestión, es decir, para minimizar el tiempo promedio de espera en las luces, y la duración de colas.
+		\end{itemize} 
+	\end{enumerate}
+
+	\subsection{Objetivo}
+	
+	Creación de un algoritmo de control que determine de la secuencia de fases y el tiempo de de luz verde óptimos en los semáforos de las intersecciones, con el fin de hacer más fluido el tráfico y minimizar las colas.
+	
+	\section{Simulación}
+	
+	\subsection{Modelo microscópico}
+	
+	Para modelar el flujo del tráfico se utiliza un modelo microscópico, en donde se representan los vehículos de forma independiente y se intenta replicar el comportamiento de un conductor. En consecuencia, debe ser un sistema multiagente, es decir, cada vehículo opera por sí mismo utilizando información de su entorno.
+	
+	Cada vehículo est\'a identificado por un número i. El i-ésimo vehículo sigue al (i-1)-ésimo vehículo. Para el i-ésimo vehículo, se denota por $ x_{i} $ su posición a lo largo del camino, $ v_{i} $ su velocidad y $ l_{i} $ su longitud. Sean, adem\'as, $ s_{i} $ la distancia parachoques a parachoques y $ \Delta v_{i} $ la diferencia de velocidad entre el i-ésimo vehículo y el vehículo que le precede (vehículo número i-1).
+	\begin{center}
+		$ s_{i} = x_{i} - x_{i-1} - l_{i} $
+	
+		$ \Delta v_{i} = v_{i} - v_{i-1} $
+	\end{center}
+	
+	\subsection{Modelo Conductor Inteligente}
+	
+	El Modelo de Conductor Inteligente describe la aceleración del i-ésimo vehículo en función de sus variables y las del vehículo que le precede. La ecuación dinámica se define como:
+	
+	\begin{center}
+		$  \dfrac{dv_{i}}{dt} = a_{i} \left(1 - \left(\dfrac{v_{i}}{v_{0,i}}\right)^{\delta} - \left(\dfrac{s^{*}(v_{i}, \Delta v_{i})}{s_{i}}\right)^{2}\right)$
+		
+		\vspace{0.5em}
+		$ s^{*}(v_{i}, \Delta v_{i}) =  s_{0,i} + v_{i}T_{i} + \dfrac{(v_{i} \Delta v_{i})}{\sqrt{(2a_{i} b_{i})}}$
+	\end{center}
+	donde:
+	\begin{itemize}
+		\item $ s_{0,i} $ : es la distancia mínima deseada entre el vehículo i e i-1.
+		\item $ v_{0,i} $ : es la velocidad máxima deseada del vehículo i.
+		\item $\delta$ : es el exponente de la aceleración y controla la “suavidad” de la aceleración.
+		\item $ T_{i} $  : es el tiempo de reacción del conductor del i-ésimo vehículo.
+		\item $ a_{i} $ : es la aceleración máxima del vehículo i.
+		\item $ b_{i} $ : es la desaceleración cómoda para el vehículo i.
+		\item $ s^{*} $ : es la distancia real deseada entre el vehículo i e i-1.
+	\end{itemize}
+	
+	Interpretando los t\'erminos en $ s^{*} $:
+	\begin{itemize}
+		\item $ v_{i}T_{i}  $ : es la distancia de seguridad del tiempo de reacción. Es la distancia que recorre el vehículo antes de que el conductor reaccione (frene).
+		Dado que la velocidad es la distancia en el tiempo, la distancia es la velocidad por el tiempo.
+		\item $ (v_{i} \Delta v_{i})/\sqrt{(2a_{i} b_{i})} $: este es un término un poco más complicado. Es una distancia de seguridad basada en la diferencia de velocidad. Representa la distancia que tardará el vehículo en reducir la velocidad (sin chocar con el vehículo de delante), sin frenar demasiado (la deceleración debe ser inferior a $ b_{i} $).
+	\end{itemize}
+	
+	\subsection{Modelo de red vial de tráfico}
+	
+	Para modelar la red vial se utiliza un grafo dirigido, donde las aristas representan las calles (cuadras) y los vértices las intersecciones. Cada vehículo tiene un camino que consta de múltiples calles. Se aplica el Modelo Conductor Inteligente para vehículos en la misma calle. Cuando un vehículo llega al final de la calle, se retira de la misma y es añadido a la siguiente.
+	
+	\subsection{Generación de vehículos}
+	
+	Para la generación de vehículos se utiliza la distribución de Poisson. Esta es una distribución de probabilidad discreta, describe situaciones en las cuales los clientes llegan de manera independiente durante un cierto intervalo de tiempo y el número de llegadas depende de la magnitud del intervalo.
+	
+ 	\begin{center}
+		$ p(x) = f(x, \lambda) = \dfrac{\lambda^{x} \cdot e^{-\lambda}}{k!} $		
+ 	\end{center}
+ 
+	\subsection{Semáforos}
+	
+	Los sem\'aforos tienen dos zonas en los que los veh\'iculos se comportan de forma diferente:
+	\begin{itemize}
+		\item Zona de ralentización: Zona en la que los vehículos reducen su velocidad máxima utilizando un factor de ralentización.
+		\begin{center}
+			$ v_{0,i} := \alpha v_{0,i} \text{donde} \alpha < 1$
+		\end{center}
+		\item Zona de parada: Zona en la que se detienen los vehículos. Esto se logra utilizando una fuerza de amortiguamiento a través de la siguiente ecuación dinámica:
+		\begin{center}
+			$ \dfrac{dv_{i}}{dt} = -b_{i} \dfrac{v_{i}}{v_{0,i}} $
+		\end{center}
+	\end{itemize}
+	
+	\subsection{Curvas de Bézier}
+	
+	Una curva de Bézier es una curva polinomial que aproxima a una serie de puntos llamados "puntos de control". Esta curva puede ser de cualquier grado, y podemos decir que de una curva de grado n aproxima a  n + 1 puntos de control. 
+	
+	Entonces para producir una curva en nuestro mapa se crean las calles (rectas) y se utilizan las curvas de B\'ezier como un spline de suavizado.
+	 
+	\section{Inteligencia Artificial}
+	
+	\subsection{Algoritmo genético}
+	
+	\subsubsection{Solución}
+	
+	La solución será un vector que contiene enteros correspondientes a los tiempos de luz verde de cada semáforo de la intersección.
+	
+	Para realizar las operaciones de cruzamiento y mutaci\'on los tiempos se llevan a binario, teniendo as\'i m\'as d\'igitos, y por tanto posibilidades, con los que jugar y encontrar la nueva poblaci\'on.
+	
+	\subsubsection{Población inicial}
+	
+	La población inicial se hallará de manera aleatoria, en donde cada uno de los valores de tiempo de luz verde estará entre el tiempo promedio que le toma a un carro pasar por la intersección y el tiempo máximo que un vehículo puede estar esperando. 
+	
+	\subsubsection{Función de evaluación \textit{fitness}}
+	
+	\subsubsection{Selección de padres}
+	
+	\subsubsection{Mutación}
+	
+	La funci\'on de mutaci\'on recibe una poblaci\'on y un factor de mutaci\'on, que representa el porciento de la poblaci\'on a ser mutada. Para mutar un individuo, se escogen n de sus genes y en estos se niegan m de sus bits (ambos n y m se escogen de forma aleatoria).
+	
+	\subsubsection{Cruzamiento}
+	
+	\begin{itemize}
+		\item  \textbf{Cruce por puntos m\'ultiples:} Se seleccionan p puntos random y los segmentos (resultado de picar los individuos por dichos puntos) alternos de los individuos se intercambian para obtener nuevos descendientes.
+		\item \textbf{Cruce geom\'etrico:} Operador independiente de la representación definido sobre la distancia del espacio de búsqueda. Los descendientes deben estar en el segmento entre los individuos.
+		\item \textbf{Intermediate crossover:} Crea los descendientes mediante un promedio ponderado de los dos individuos en apareamiento.
+	\end{itemize}
+	
+	%\section{Tests}
+	
+\end{document}
+
+
