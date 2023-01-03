@@ -269,6 +269,12 @@ def test_storage_iteration(f, population, fitness_vals, i):
         print(individual)
     f.write(f"\n")
     f.write(f"fitness: {fitness_vals} \n\n")
+    
+    f.write(f'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Best Solution of this population: \n')
+    j = fitness_vals.index(max(fitness_vals))
+    f.write(f'{population[j]}')
+    f.write(f'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!With a fitness of : \n')
+    f.write(f'{fitness_vals[j]}\n\n')
 
 def test_storage_init(max_iterations, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, speed, xover_method, weight_method, eval_method, obs_time):
     
