@@ -25,13 +25,6 @@ GREEN = (0, 255, 0)
 GRAY = (50, 50, 50)
 LIGHT_GRAY = (225, 225, 225)
 
-
-# relaciones:
-# vehiculo.length/calle 4m/300m
-# vehiculo.vmax/calle 80-120km/h/300m = 22.2-33.3m/s/300m
-# vehiculo.a_max/vmax 1/11.5
-# vehiculo.b_max/vmax 1/3.60
-
 class control:
     '''class made to control hall the simulation over the map'''
 
@@ -52,16 +45,14 @@ class control:
 
         # random vehicles templates
         self.basic_vehicles = [
-            Vehicle(x=0, length=1.22, width=1, color=(30, 255, 255),
-                    v_max=33.3, a_max=2.89, b_max=9.25),
-            # Vehicle(x=0, length= 1.22, width = 1, color=(30, 255,255), v_max = 80, a_max=2.89, b_max=9.25),
-            # Vehicle(x=0, length= 3, width = 1.5, color=(255, 30,255), v_max = 30, a_max=2.9, b_max=3),
-            # Vehicle(x=0, length= 2, width = 0.85, color=(255, 255,30), v_max = 40, a_max=2.2, b_max=4),
-            # Vehicle(x=0, length= 2.5, width = 1.2, color=(118,181,197), v_max = 65, a_max=4.9, b_max=1.5),
-            # Vehicle(x=0, length= 2.5, width = 1.2, color=(135,62,35), v_max = 50, a_max=2.9, b_max=2.5),
+            Vehicle(x=0, length=1.22, width=1, color=(30, 255, 255),_max=33.3, a_max=2.89, b_max=9.25),
+            Vehicle(x=0, length= 1.0, width = 1.5, color=(255, 30,255), v_max = 22.2, a_max=2.9, b_max=9),
+            Vehicle(x=0, length= 1.4, width = 0.85, color=(255, 255,30), v_max = 27.7, a_max=2.2, b_max=10),
+            Vehicle(x=0, length= 1.1, width = 1.2, color=(118,181,197), v_max = 25, a_max=3.5, b_max=8.7),
+            Vehicle(x=0, length= 0.9, width = 1.2, color=(135,62,35), v_max = 30.5, a_max=2.6, b_max=10.09),
         ]
 
-        # fitness prperties
+        # fitness properties
         self.road_max_queue = []
         self.road_car_entrance_queue = []
         self.road_total_amount_cars = []
@@ -169,16 +160,12 @@ class control:
             if draw:
                 pygame.display.update()
 
-            # print(self.dt)
             self.dt = (time() - t1) * self.speed
             self.it_number += 1
 
         # fitness.................................
         for road_id in range(len(self.roads)):
-            c = 0
-            t = 0
-            for i in range(len(self.roads[road_id].vehicles)):
-                c += 1
+            c = len(self.roads[road_id].vehicles)
             self.road_total_time_take_cars[road_id] += self.dt * c
             self.road_total_amount_cars[road_id] += c
             self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id])
@@ -212,9 +199,6 @@ class control:
             if len(self.road_car_entrance_queue[road_id]) > 0:
                 # fitness.................................
                 self.road_total_amount_cars[road_id] += 1
-                # self.road_total_time_take_cars[road_id] += self.it_number + \
-                    # 1 - self.road_car_entrance_queue[road_id][0]
-                # fitness.................................
                 self.road_car_entrance_queue[road_id].pop(0)
 
         if red != None:
