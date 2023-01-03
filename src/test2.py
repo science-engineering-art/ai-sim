@@ -17,4 +17,5 @@ temp.build_roads((700,400), (700,790) , 1, 1, 150)
 temp.build_intersections()
 print(ctrl.extremeRoads)
 
+ctrl.speed = 20
 ctrl.Start(it_amount=100000)
