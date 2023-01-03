@@ -135,7 +135,7 @@ def eval_individual_in_simulation(simulation, individual, speed, obs_time):
             fitness_val = max(
                 fitness_val, ctrl.road_average_time_take_cars[road_id])
     # I use the opposite value because we wish to diminish the time it takes for the cars
-    return -fitness_val * ctrl.dt
+    return -fitness_val
 
 
 # gives a fitness value to each individual of the population
