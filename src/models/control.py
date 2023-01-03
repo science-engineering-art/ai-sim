@@ -121,7 +121,6 @@ class control:
         self.it_number = 1
 
         init_time = time()
-
         while (self.it_number < it_amount or it_amount == -1) and (time() - init_time < observation_time or observation_time == -1):
 
             t1 = time()  # measures time complexity
@@ -170,6 +169,7 @@ class control:
             if draw:
                 pygame.display.update()
 
+            # print(self.dt)
             self.dt = (time() - t1) * self.speed
             self.it_number += 1
 
@@ -179,11 +179,15 @@ class control:
             t = 0
             for i in range(len(self.roads[road_id].vehicles)):
                 c += 1
-                t += self.it_number - self.road_car_entrance_queue[road_id][i]
-            self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id] + t)
-                                                     / (self.road_total_amount_cars[road_id] + c) if self.road_total_amount_cars[road_id] + c != 0 else 0))
+            self.road_total_time_take_cars[road_id] += self.dt * c
+            self.road_total_amount_cars[road_id] += c
+            self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id])
+                                                     / (self.road_total_amount_cars[road_id]) if self.road_total_amount_cars[road_id] != 0 else 0))
 
     def UpdateRoad(self, road):
+        
+        road_id = self.roads.index(road)
+        
         delete_amout = 0  # amount of of cars that move to other roads
         for i in range(len(road.vehicles)):
             car = road.vehicles[i]
@@ -198,15 +202,18 @@ class control:
 
         red = road.vehicles.popleft() if len(
             road.vehicles) > 0 and road.vehicles[0].color == RED else None
+        
+        self.road_total_time_take_cars[road_id] += self.dt * len(road.vehicles)
+            
+            
         for i in range(delete_amout):  # remove the cars moving out from the road
             road.vehicles.popleft()
 
-            road_id = self.roads.index(road)
             if len(self.road_car_entrance_queue[road_id]) > 0:
                 # fitness.................................
                 self.road_total_amount_cars[road_id] += 1
-                self.road_total_time_take_cars[road_id] += self.it_number + \
-                    1 - self.road_car_entrance_queue[road_id][0]
+                # self.road_total_time_take_cars[road_id] += self.it_number + \
+                    # 1 - self.road_car_entrance_queue[road_id][0]
                 # fitness.................................
                 self.road_car_entrance_queue[road_id].pop(0)
 
@@ -302,8 +309,8 @@ class control:
     def SetConfiguration(self, individual):
         pos = 0
         for corner in self.corners:
-            corner.intermediate_time = individual[pos]
-            pos += 1
+            corner.time_tick = individual[pos]
+            pos+=1
             for i in range(corner.numberOfTurns):
                 corner.times[i] = individual[pos]
                 pos += 1

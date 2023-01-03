@@ -32,7 +32,8 @@ CI = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff
 FC = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2))
 
 normal = 1/50
-ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * 5, normal * 5, normal, normal, normal])
+factor = 20
+ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * factor, normal * factor, normal, normal, normal])
 
 #curvas desde la izquiera
 ctrl.connect_roads(AB, BE, (pos_x[1] + h_diff / 2, pos_y[2]))
@@ -88,27 +89,39 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     
 
 print(ctrl.GetDimension())
-t1 = 5
-t2 = 40
-ctrl.SetConfiguration([t1, t2, t2, t2, t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
-# ctrl.SetConfiguration([49, 46, 93, 47, 10, 25, 36, 67, 19, 15, 92, 13, 40, 83, 45])
+t1 = 0
+t2 = 30
+ctrl.SetConfiguration([80, t2, t2, t2, t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
+# ctrl.SetConfiguration([t2 for _ in range(11)])
+# ctrl.SetConfiguration([81, 67, 7, 43, 25, 20, 53, 48, 85, 83, 29])
+# ctrl.SetConfiguration([19, 89, 27, 44, 4, 38, 11, 40, 11, 10, 52, 56, 59, 27, 59]    )
 
-ctrl.speed = 10
-ctrl.Start(observation_time = 20, draw=True)
+rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
+
+ctrl.speed = 5
+ctrl.Start(observation_time = 10, draw=True)
 
 to_print_1 = []
 to_print_2 = []
+to_print_3 = []
+to_print_4 = []
 
 my_roads = []
-rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
 str_rr = ['AB', 'BA', 'BE', 'BC', 'CB', 'CD', 'DC','FC', 'CI', 'IG', 'IH', 'IJ', 'JI', 'KJ', 'LJ', 'JB']
 for i in range(16):
     road_id = rr[i]
     to_print_1.append(f'{str_rr[i]} : {ctrl.road_max_queue[road_id]}')
-    to_print_2.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id] * ctrl.dt}')
+    to_print_2.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id]}')
+    to_print_3.append(f'{str_rr[i]} : {ctrl.road_total_time_take_cars[road_id]}')
+    to_print_4.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id] * ctrl.road_total_amount_cars[road_id]**2}')
 
 
 print('max queue')
 print(to_print_1)
 print('ave time')
 print(to_print_2)
+print('total time')
+print('total time')
+print(to_print_3)
+print('new fitt')
+print(to_print_4)

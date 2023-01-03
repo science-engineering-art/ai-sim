@@ -1,7 +1,13 @@
 import random
+from matplotlib.bezier import find_bezier_t_intersecting_with_closedpath
+from matplotlib.font_manager import weight_dict
 from numpy import Inf, sort
 import os
 import sys
+
+from sklearn import cross_decomposition
+
+from models.control import control
 
 MAX_ITERATIONS = 100
 
@@ -43,14 +49,30 @@ def mutate_random(population_set, mutation_probability, maximum_waiting_time, av
                     average_passing_time, maximum_waiting_time)
     return population_set
 
+
+def get_weights_fit_proportional(pop_len, order, fitness_set):
+    
+    total = sum(fitness_set)
+    weigths = [x/total for x in fitness_set]
+    return weigths
+
+def get_weights_by_ranking(pop_len, order, fitness_set, s = 1.8):
+    
+    weights = [0 for _ in range(pop_len)]
+    for i in range(pop_len):
+        weights[order[i]] = (2 - s)/pop_len + (2*(i)*(s-1)
+                                               )/(pop_len * (pop_len - 1))
+    return weights
+
+GET_WEIGHTS_FIT_PROPORTIONAL = 0
+GET_WEIGHTS_BY_RANKING = 1
+
 # Assign to each individual a probability of being a parent based on the ranking based on fitness.
 # Then the two arrays of parents are selected randomly from the population according to the
 # probabilities assigned. It is considered here that the new population must be equally large
 # to the current one, that the best_amount best individual will prevale and that each couple
 # of parents produce two children.
-
-
-def select_parents_ranked(population_set, fitness_set, bests_amount=2, s=1.8):
+def select_parents(population_set, fitness_set, bests_amount=2, weight_method = GET_WEIGHTS_BY_RANKING):
 
     pop_len = len(population_set)
     parents_amount = (pop_len - bests_amount)//2
@@ -59,10 +81,9 @@ def select_parents_ranked(population_set, fitness_set, bests_amount=2, s=1.8):
         bests_amount -= 1
 
     order = sorted(range(pop_len), key=lambda i: fitness_set[i])
-    weights = [0 for _ in range(pop_len)]
-    for i in range(pop_len):
-        weights[order[i]] = (2 - s)/pop_len + (2*(i)*(s-1)
-                                               )/(pop_len * (pop_len - 1))
+    
+    weight_methods = (get_weights_fit_proportional, get_weights_by_ranking)
+    weights = weight_methods[weight_method](pop_len, order, fitness_set)
 
     parents = [[], []]
     parents_a_indexes = random.choices(population=range(
@@ -80,6 +101,9 @@ def select_parents_ranked(population_set, fitness_set, bests_amount=2, s=1.8):
              for i in range(1, bests_amount + 1)]  # two best parents
     return bests, parents
 
+MULTIPOINT_XOVER = 0
+INTERMEDIATE_XOVER = 1
+GEOMETRIC_XOVER = 2
 
 # random crossover points are selected and the alternating segments of the individuals are swapped to get new offsprings.
 def multipoint_xover(parent_a, parent_b, p=1):
@@ -105,44 +129,77 @@ def multipoint_xover(parent_a, parent_b, p=1):
 
 def intermediate_xover(parent_a, parent_b, alpha=0.5):
 
-    return [[int(alpha * parent_a[i] + (1 - alpha) * parent_b[i]) for i in range(len(parent_a))]]
+    return [[int(alpha * parent_a[i] + (1 - alpha) * parent_b[i]) for i in range(len(parent_a))], random.choice([parent_a, parent_b])]
 
 
 def geometric_xover(parent_a, parent_b):
 
-    return [[int((parent_a[i] * parent_b[i]) ** 0.5) for i in range(len(parent_a))]]
+    return [[int((parent_a[i] * parent_b[i]) ** 0.5) for i in range(len(parent_a))], random.choice([parent_a, parent_b])]
 
 
 # performs crossover (of individuals or cromosomes) between parents
-def xover(parent_a, parent_b):
+def xover(parent_a, parent_b, xover_method = MULTIPOINT_XOVER):
+    crossover_methods = [multipoint_xover, intermediate_xover, geometric_xover]
     new_population = []
     for i in range(len(parent_a)):
-        new_population += multipoint_xover(parent_a[i], parent_b[i])
+        new_population += crossover_methods[xover_method](parent_a[i], parent_b[i])
     return new_population
 
 # evaluates an individual in the simulation returning queue size in relation to waiting time
 
 
-def eval_individual_in_simulation(simulation, individual, speed, obs_time):
+def eval_individual_in_simulation_max_average(simulation, individual, speed, obs_time):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
     ctrl.speed = speed
     ctrl.Start(observation_time=obs_time, draw=False)
-    fitness_val = -1
+    fitness_val =-1
     for road_id in range(len(ctrl.roads)):
         if not ctrl.is_curve[road_id]:
             # we use the max between average time a car takes in every semaphore
             fitness_val = max(
                 fitness_val, ctrl.road_average_time_take_cars[road_id])
     # I use the opposite value because we wish to diminish the time it takes for the cars
-    return -fitness_val * ctrl.dt
+    return -fitness_val
 
+def eval_individual_in_simulation_total(simulation, individual, speed, obs_time):
+    ctrl = simulation.get_new_control_object()
+    ctrl.SetConfiguration(individual)
+    ctrl.speed = speed
+    ctrl.Start(observation_time=obs_time, draw=False)
+    fitness_val = 0
+    for road_id in range(len(ctrl.roads)):
+        if not ctrl.is_curve[road_id]:
+            fitness_val += ctrl.road_total_time_take_cars[road_id]
+    # I use the opposite value because we wish to diminish the time it takes for the cars
+    return -fitness_val
+
+def eval_individual_in_simulation_weigthed_mean(simulation, individual, speed, obs_time):
+    ctrl = simulation.get_new_control_object()
+    ctrl.SetConfiguration(individual)
+    ctrl.speed = speed
+    ctrl.Start(observation_time=obs_time, draw=False)
+    fitness_val = 0
+    sumsq = 0
+    for road_id in range(len(ctrl.roads)):
+        if not ctrl.is_curve[road_id]:
+            fitness_val += ctrl.road_average_time_take_cars[road_id] * ctrl.road_total_amount_cars[road_id]**2
+            sumsq += ctrl.road_total_amount_cars[road_id]**2
+    # I use the opposite value because we wish to diminish the time it takes for the cars
+    return -fitness_val / sumsq
+
+
+EVAL_INDIVIDUAL_IN_SIMULATION_MAX_AVERAGE = 0
+EVAL_INDIVIDUAL_IN_SIMULATION_TOTAL = 1
+EVAL_INDIVIDUAL_IN_SIMULATION_WEIGTHED_MEAN = 2
 
 # gives a fitness value to each individual of the population
-def fitness(simulation, population, speed, obs_time):
+def fitness(simulation, population, speed, obs_time, eval_method = EVAL_INDIVIDUAL_IN_SIMULATION_TOTAL):
     fitness = []
+    
+    eval = [eval_individual_in_simulation_max_average, eval_individual_in_simulation_total, eval_individual_in_simulation_weigthed_mean ]
     for individual in population:
-        fitness.append(eval_individual_in_simulation(
+        fitness.append(eval[eval_method](
             simulation, individual, speed, obs_time))
     return fitness
 
@@ -155,7 +212,9 @@ def stop_criterion(i):
 # main method of the genetic algorithm
 
 
-def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, speed, obs_time, max_iterations=100):
+def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, 
+                      speed, obs_time, max_iterations=100, xover_method = MULTIPOINT_XOVER,
+                      weight_method = GET_WEIGHTS_BY_RANKING, eval_method = EVAL_INDIVIDUAL_IN_SIMULATION_TOTAL):
     # init
     population = init_population(
         pop_size, number_of_turns, maximum_waiting_time, average_passing_time)
@@ -172,7 +231,7 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
     else:
         tests_path = tests_path.replace('src/models', 'tests/')
 
-    file_name = f'test_{max_iterations}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}'
+    file_name = f'test_{max_iterations}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}_{speed}'
     ls = os.listdir(tests_path)
     print(ls)
 
@@ -189,6 +248,9 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
 
     f = open(tests_path + file_name, "w")
 
+    f.write(f"xover_method: {xover_method} \n\n")
+    f.write(f"weight_method: {weight_method} \n\n")
+    f.write(f"eval_method: {eval_method} \n\n")
     f.write(f"MAX_ITERATIONS: {max_iterations} \n\n")
     f.write(f"SPEED: {speed} \n\n")
     f.write(f"OBSERVATION_TIME: {obs_time} \n\n")
@@ -202,7 +264,7 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
             print(individual)
         f.write(f"\n")
 
-        fitness_vals = fitness(simulation, population, speed, obs_time)
+        fitness_vals = fitness(simulation, population, speed, obs_time, eval_method = eval_method)
         print(fitness_vals)
 
         f.write(f"fitness: {fitness_vals} \n\n")
@@ -219,13 +281,13 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
             f'Iteration {i} DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 
         # gets best solutions to create new population with cromosomes in binary
-        bests, parents = select_parents_ranked(population, fitness_vals)
+        bests, parents = select_parents(population, fitness_vals, weight_method=weight_method)
 
         new_population = []
         # storing parents (best solutions in the current generation) for the next
         new_population += bests
         # crossovering parents
-        new_population += xover(parents[0], parents[1])
+        new_population += xover(parents[0], parents[1], xover_method = xover_method)
         # mutating some individuals
         new_population = mutate_random(
             new_population, 1/number_of_turns, maximum_waiting_time, average_passing_time)
