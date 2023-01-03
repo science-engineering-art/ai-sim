@@ -32,7 +32,7 @@ CI = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff
 FC = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2))
 
 normal = 1/50
-factor = 20
+factor = 5
 ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * factor, normal * factor, normal, normal, normal])
 
 #curvas desde la izquiera
@@ -94,8 +94,8 @@ ctrl.SetConfiguration([t1, t2, t2, t2, t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, 
 
 rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
 
-ctrl.speed = 5
-ctrl.Start(observation_time = 20, draw=True)
+ctrl.speed = 10
+ctrl.Start(observation_time = 100, draw=True)
 
 to_print_1 = []
 to_print_2 = []
