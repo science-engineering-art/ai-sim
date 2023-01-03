@@ -1,5 +1,10 @@
 !!!!!!!!!!!!!!!!!Last Test Including Intermediates Times in Individual!!!!!!!!!!!!!!!
 
+simulation time: 3h
+xover_method: 0 
+weight_method: 1 
+eval_method: 0 
+
 MAX_ITERATIONS: 50 
 
 SPEED: 20 

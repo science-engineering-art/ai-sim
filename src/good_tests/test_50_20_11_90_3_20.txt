@@ -1,4 +1,10 @@
-fitness: max average
+
+xover_method: 0 
+weight_method: 1 
+eval_method: 0 
+
+simulation time: 3h
+
 number_of_turns : 11 
 
 MAX_ITERATIONS: 50 
