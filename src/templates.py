@@ -182,8 +182,7 @@ def calculate_curve_point(road_a: Road, road_b: Road):
 
 class BasicTemplate:
 
-    def __init__(self, ctrl: control):
-        self.ctrl = ctrl
+    def __init__(self):
         self.map = Map(
             width_roads=0,
             lanes=[],
@@ -198,13 +197,40 @@ class BasicTemplate:
         pass
 
     def generate_template(self, name: str):
-        self.build_map()
+        # self.build_map()
 
         s = ddb.at(name)
         if not s.exists():
             s.create(
                 NodeVisitor().visit(self.map)
             )
+
+    def load_template(self, name: str):
+        s = ddb.at(name)
+        if s.exists():
+            json = s.read()
+            print(json)
+            
+            ctrl = control()
+
+            # add roads
+            for id in range(len(json['lanes'])):
+                for lane in json['lanes']:
+                    if lane['id'] == id:
+                        ctrl.AddRoad(
+                            road_init_point=lane['start'],
+                            road_end_point=lane['end']
+                        )
+
+            # add connections between roads            
+            for curve in json['curves']:
+                ctrl.connect_roads(
+                    road_1_id=curve['input_lane_id'],
+                    road_2_id=curve['output_lane_id'],
+                    curve_point=curve['curve_point']
+                )
+
+            return ctrl 
 
     def build_roads(self, start, end, inN, outN, width):
         x0, y0 = start
@@ -400,7 +426,6 @@ class BasicTemplate:
 class GridMap(BasicTemplate):
 
     def __init__(self, 
-        ctrl: control, 
         center_point: Tuple[float, float], 
         len_roads: float, 
         lower_limit_x: float = 0, 
@@ -411,7 +436,7 @@ class GridMap(BasicTemplate):
         out_roads: int = 2,
         width_roads: float = 0.5
     ):
-        super().__init__(ctrl)
+        super().__init__()
         self.center_point = center_point
         self.len_roads = len_roads
         self.lower_limit_x = lower_limit_x
@@ -441,11 +466,6 @@ class GridMap(BasicTemplate):
             if y > self.lower_limit_y: y -= self.len_roads
             if X < self.upper_limit_x: X += self.len_roads
             if Y < self.upper_limit_y: Y += self.len_roads
-            print(x, y, X, Y)
-            print(x > self.lower_limit_x) 
-            print(y > self.lower_limit_y)
-            print(X < self.upper_limit_x)
-            print(Y < self.upper_limit_y)
         else:
             x += self.len_roads
             X -= self.len_roads
@@ -493,7 +513,10 @@ class GridMap(BasicTemplate):
 
         self.build_intersections()
 
-        self.ctrl.speed = 10
-        for er in self.ctrl.extremeRoads: #adjusting generation rate
-            self.ctrl.roads[er].Lambda = 1/150
+        # self.ctrl.speed = 10
+        # for er in self.ctrl.extremeRoads: #adjusting generation rate
+        #     self.ctrl.roads[er].Lambda = 1/150
+
+
+
 

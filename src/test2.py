@@ -1,9 +1,7 @@
 from models.control import control
 from templates import GridMap
 
-ctrl = control()
-
-temp = GridMap(ctrl, (700,400), 
+temp = GridMap(center_point=(700,400), 
     len_roads=600, lower_limit_x=10, 
     lower_limit_y=10, upper_limit_x=1380, 
     upper_limit_y=790, in_roads=1,
@@ -16,8 +14,7 @@ temp.build_roads((10,400) , (700,400) , 1, 1, 150)
 temp.build_roads((700,400), (700,790) , 1, 1, 150)
 temp.build_intersections()
 
-temp.generate_template('map')
-
+temp.generate_template('map2')
 
 # print(temp.map.__dict__)
 
@@ -26,4 +23,5 @@ temp.generate_template('map')
 
 print(temp.map)
 
+ctrl = temp.load_template('map2')
 ctrl.Start(it_amount=100000)
