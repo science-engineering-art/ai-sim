@@ -9,7 +9,7 @@ class corner:
         self.current_turn = -1 #indicate which road has the green light 
         self.light_controled = light_controled #indiates wether ther is a semaphore in the corner
         self.numberOfTurns = 0  #indicate the amount of turns the green light passes throw
-        self.time_tick = 0 #used to decided when to change the lights
+        self.time_tick = 0 #used to decided when to change the lights / its initial time is used to shyncronize the semaphores
         self.intermediate_time = 3 #period of time where everyone is in red 
         self.turns = [] #the position i stores which follow pair has the green light 
         self.times = [] #indicates the duration of each turn

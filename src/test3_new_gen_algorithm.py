@@ -20,7 +20,7 @@ GET_WEIGHTS_BY_RANKING = 1
 simulation = Simulation_test_3()
 
 pop_size = 10
-number_of_turns = 11
+number_of_turns = simulation.get_new_control_object().GetDimension()
 maximum_waiting_time = 90
 average_passing_time = 3
 speed = 20

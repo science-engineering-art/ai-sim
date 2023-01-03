@@ -302,15 +302,15 @@ class control:
     def GetDimension(self):
         dimension = 0
         for corner in self.corners:
-            dimension += (corner.numberOfTurns)
+            dimension += (corner.numberOfTurns + 1)
 
         return dimension
 
     def SetConfiguration(self, individual):
         pos = 0
         for corner in self.corners:
-            # corner.intermediate_time = individual[pos]
-            # pos += 1
+            corner.time_tick = individual[pos]
+            pos+=1
             for i in range(corner.numberOfTurns):
                 corner.times[i] = individual[pos]
                 pos += 1
