@@ -15,6 +15,15 @@ temp.build_roads((700,10) , (700,400) , 1, 1, 150)
 temp.build_roads((10,400) , (700,400) , 1, 1, 150)
 temp.build_roads((700,400), (700,790) , 1, 1, 150)
 temp.build_intersections()
-print(ctrl.extremeRoads)
+
+temp.generate_template('map')
+
+
+# print(temp.map.__dict__)
+
+# with open("map.txt", "w") as f:
+#     f.write(temp.map.json())
+
+print(temp.map)
 
 ctrl.Start(it_amount=100000)
