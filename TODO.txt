@@ -1,4 +1,0 @@
--Poner varios templates de carros con diferentes largos, anchos, colores, y sobre todo velocidades y aceleraciones maxima. (en control.basic_vehicles)
--Pensar la posibilidad de modificar los generadores de random, para que las elecciones no sean uniformes (aplicar un poquito de teoria de simulacion si es posible).
--Testear todo muchas veces con valores pequennos para probar diferentes approaches para la seleccion del fitness, de los padres, de las mutaciones, de los cruzamientos etc. Y cuando este mas o menos en taya algunas (o muchas veces) con valores grandes, aunque demore (lo que dijo krl el de SRI).
--Tratar de hacer que las velocidades se correspondan con velocidades reales de vehiculos en la calle.

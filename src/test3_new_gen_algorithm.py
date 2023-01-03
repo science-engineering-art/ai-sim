@@ -1,7 +1,7 @@
 from pyexpat import model
 from matplotlib.hatch import HorizontalHatch
 from models.control import control
-import models.genetic_algorithm_marcos as gam
+import models.genetic_algorithm as gam
 # import models.genetic_algorithm as ga
 from models.simulation import Simulation, Simulation_test_3
 
@@ -19,13 +19,13 @@ GET_WEIGHTS_BY_RANKING = 1
 
 simulation = Simulation_test_3()
 
-pop_size = 10
+pop_size = 4
 number_of_turns = simulation.get_new_control_object().GetDimension()
 maximum_waiting_time = 90
 average_passing_time = 3
 speed = 20
 obs_time = 1
-max_iterations = 10
+max_iterations = 3
 
 gam.genetic_algorithm(simulation, pop_size, number_of_turns,
                       maximum_waiting_time, average_passing_time, speed, obs_time, max_iterations,

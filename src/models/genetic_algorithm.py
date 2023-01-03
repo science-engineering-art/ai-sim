@@ -1,8 +1,24 @@
 import random
+import os
+import sys
 from numpy import Inf
 
-MAX_ITERATIONS = 10000
+from sklearn import cross_decomposition
 
+from models.control import control
+
+MAX_ITERATIONS = 100
+
+EVAL_INDIVIDUAL_IN_SIMULATION_MAX_AVERAGE = 0
+EVAL_INDIVIDUAL_IN_SIMULATION_TOTAL = 1
+EVAL_INDIVIDUAL_IN_SIMULATION_WEIGTHED_MEAN = 2
+
+GET_WEIGHTS_FIT_PROPORTIONAL = 0
+GET_WEIGHTS_BY_RANKING = 1
+
+MULTIPOINT_XOVER = 0
+INTERMEDIATE_XOVER = 1
+GEOMETRIC_XOVER = 2
 
 # gets k random indexes in a list
 def get_random_indexes(input_list, k=-1):
@@ -10,22 +26,6 @@ def get_random_indexes(input_list, k=-1):
         k = random.randint(1, len(input_list))
     return list(set(random.choices(range(len(input_list)),
                                    k=k)))
-
-
-# converts each cromosome from int to binary
-def encode_population(population_set):
-    encoded_population_set = []
-    for individual in population_set:
-        encoded_population_set.append([bin(i)[2:] for i in individual])
-    return encoded_population_set
-
-
-# converts each cromosome from binary to int
-def decode_population(population_set):
-    decoded_population_set = []
-    for individual in population_set:
-        decoded_population_set.append([int(i, 2) for i in individual])
-    return decoded_population_set
 
 
 # initialites the population with random values between the average passing time (time that takes a car to cross a road)
@@ -40,128 +40,70 @@ def init_population(pop_size, number_of_turns, maximum_waiting_time, average_pas
             individual.append(random.randint(
                 average_passing_time, maximum_waiting_time))
 
-            # individual.append(random.randint(average_passing_time, maximum_waiting_time),  # green time
-            #                   random.randint(average_passing_time, maximum_waiting_time))  # red time
-
         population_set.append(individual)
 
     return population_set
 
-
-# evaluates an individual in the simulation returning queue size in relation to waiting time
-def eval_individual_in_simulation(simulation, individual):
-    ctrl = simulation.get_new_control_object()
-    ctrl.SetConfiguration(individual)
-    ctrl.Start(it_amount=10000, draw=False)
-    fitness_val = -1
-    for road_id in range(len(ctrl.road_max_queue)):
-        if not ctrl.is_curve[road_id]:
-            # we use the max between average time a car takes in every semaphore
-            fitness_val = max(
-                fitness_val, ctrl.road_average_time_take_cars[road_id])
-    # I use the opposite value because we wish to diminish the time it takes for the cars
-    return -fitness_val
+# mutates k individuals according to the mutation probability of replace a gen by a random
+# valid number
+def mutate_random(population_set, mutation_probability, maximum_waiting_time, average_passing_time):
+    for individual in population_set:
+        for i in range(len(individual)):
+            r = random.random()
+            if r < mutation_probability:
+                individual[i] = random.randint(
+                    average_passing_time, maximum_waiting_time)
+    return population_set
 
 
-# gives a fitness value to each individual of the population
-def fitness(population, simulation):
-    fitness = []
-    for individual in population:
-        fitness.append(eval_individual_in_simulation(simulation, individual))
-    return fitness
+def get_weights_fit_proportional(pop_len, order, fitness_set):
+    
+    total = sum(fitness_set)
+    weigths = [x/total for x in fitness_set]
+    return weigths
+
+def get_weights_by_ranking(pop_len, order, fitness_set, s = 1.8):
+    
+    weights = [0 for _ in range(pop_len)]
+    for i in range(pop_len):
+        weights[order[i]] = (2 - s)/pop_len + (2*(i)*(s-1)
+                                               )/(pop_len * (pop_len - 1))
+    return weights
 
 
-# to mutate an individual (encoded) it randomly takes k indexes in n cromosomes (also random)
-# and changes '1's to '0's and '0's to '1's in them
-def mutate_individual(individual):
-    mutated_ind = []
-    indexes = get_random_indexes(individual)
-    for i in range(len(individual)):
-        if i in indexes:
-            cromosome = list(individual[i])
-            for j in get_random_indexes(cromosome):
-                cromosome[j] = '0' if cromosome[j] == '1' else '1'
-            individual[i] = "".join(cromosome)
-        mutated_ind.append(individual[i])
-    return mutated_ind
+# Assign to each individual a probability of being a parent based on weight_method criteria.
+# Then the two arrays of parents are selected randomly from the population according to the
+# probabilities assigned. It is considered here that the new population must be equally large
+# to the current one, that the best_amount best individual will prevale and that each couple
+# of parents produce two children.
+def select_parents(population_set, fitness_set, bests_amount=2, weight_method = GET_WEIGHTS_BY_RANKING):
 
+    pop_len = len(population_set)
+    parents_amount = (pop_len - bests_amount)//2
+    if (pop_len - bests_amount) % 2 != 0:
+        parents_amount += 1
+        bests_amount -= 1
 
-# mutates k individuals according to the mutation rate required (%)
-def mutate(encoded_pop_set, mutation_rate):
-    mutated_pop = []
-    indexes = get_random_indexes(encoded_pop_set, k=int(
-        mutation_rate*len(encoded_pop_set)))
-    for i in range(len(encoded_pop_set)):
-        if i in indexes:
-            mutated_pop.append(mutate_individual(encoded_pop_set[i]))
-        else:
-            mutated_pop.append(encoded_pop_set[i])
-    return mutated_pop
+    order = sorted(range(pop_len), key=lambda i: fitness_set[i])
+    
+    weight_methods = (get_weights_fit_proportional, get_weights_by_ranking)
+    weights = weight_methods[weight_method](pop_len, order, fitness_set)
 
+    parents = [[], []]
+    parents_a_indexes = random.choices(population=range(
+        pop_len), k=parents_amount, weights=weights)
+    for p_a in parents_a_indexes:
+        record = weights[p_a]
+        weights[p_a] = 0
+        parents[1].append(random.choices(
+            population=population_set, k=1, weights=weights)[0])
+        weights[p_a] = record
+    parents[0] = [population_set[parents_a_indexes[i]]
+                  for i in range(parents_amount)]
 
-# selects the individuals from the current population whose fitness value is greater than the average fitness value
-# then, it separates them into two lists equally sized (if the number of individuals chosen is not even,
-# the minimum of them is removed)
-def select_parents(population_set, fitness_set):
-    # avg = 0
-    # for fitness in fitness_set:
-    #     avg += fitness
-    # avg = avg / len(fitness_set)
-    # print(avg)
-    # parents = []
-    # parents_fitness = []
-    # for i in range(len(population_set)):
-    #     if fitness_set[i] >= avg:
-    #         parents.append(population_set[i])
-    #         parents_fitness.append(fitness_set[i])
-
-    harmonic_mean = 0
-    for fitness in fitness_set:
-        harmonic_mean += fitness ** (-1)
-    harmonic_mean = (harmonic_mean / len(fitness_set)) ** (-1)
-    print(harmonic_mean)
-
-    parents = []
-    parents_fitness = []
-    for i in range(len(population_set)):
-        if fitness_set[i] >= harmonic_mean:
-            parents.append(population_set[i])
-            parents_fitness.append(fitness_set[i])
-
-    # patch to guarantee parents len is at least two
-    if len(parents) == 1:
-        if fitness_set[0] >= harmonic_mean:
-            parents.append(population_set[1])
-            parents_fitness.append(fitness_set[1])
-        else:
-            parents.append(population_set[0])
-            parents_fitness.append(fitness_set[0])
-
-    if len(parents) % 2 != 0:
-        i = parents_fitness.index(min(parents_fitness))
-        parents.remove(parents[i])
-        parents_fitness.remove(parents_fitness[i])
-
-    # get lists of parents best to worse
-    index_fitness = []
-    for i in range(len(parents_fitness)):
-        index_fitness.append((parents_fitness[i], i))
-
-    index_fitness = sorted(index_fitness)
-
-    parents_a = []
-    parents_b = []
-    last = parents_a
-    for i in range(len(index_fitness)):
-        if last == parents_a:
-            parents_a.append(parents[index_fitness[i][1]])
-        else:
-            parents_b.append(parents[index_fitness[i][1]])
-        last = parents_a if last == parents_b else parents_b
-
-    return parents, [parents_a, parents_b]
-    # return parents, [parents[0:len(parents)//2], parents[len(parents)//2:]]
-
+    bests = [population_set[order[pop_len - i]]
+             for i in range(1, bests_amount + 1)]  # two best parents
+    return bests, parents
 
 # random crossover points are selected and the alternating segments of the individuals are swapped to get new offsprings.
 def multipoint_xover(parent_a, parent_b, p=1):
@@ -175,40 +117,97 @@ def multipoint_xover(parent_a, parent_b, p=1):
 
     for i in points:
         offsprings[0] += last[1][last[0]:i]
-        offsprings[1] += parent_b[last[0]:i] if last[1] == parent_a else parent_a[last[0]:i]
+        offsprings[1] += parent_b[last[0]                                  
+            :i] if last[1] == parent_a else parent_a[last[0]:i]
         last = (i, parent_b if last[1] == parent_a else parent_a)
     offsprings[0] += last[1][last[0]:]
-    offsprings[1] += parent_b[last[0]:] if last[1] == parent_a else parent_a[last[0]:]
+    offsprings[1] += parent_b[last[0]                              
+        :] if last[1] == parent_a else parent_a[last[0]:]
 
     return offsprings
 
 
-# it uses multi point crossover as described above, but this time with cromosomes instead of individuals
-def cromosome_xover(parent_a, parent_b):
-    offsprings = [[], []]
-    for i in range(len(parent_a)):      # TODO: decide what cromosomes are xover
-        cr_offsprings = multipoint_xover(parent_a[i], parent_b[i])
-        for j in range(2):
-            offsprings[j].append("".join(cr_offsprings[j]))
-    return offsprings
+def intermediate_xover(parent_a, parent_b, alpha=0.5):
+
+    return [[int(alpha * parent_a[i] + (1 - alpha) * parent_b[i]) for i in range(len(parent_a))], random.choice([parent_a, parent_b])]
+
+
+def geometric_xover(parent_a, parent_b):
+
+    return [[int((parent_a[i] * parent_b[i]) ** 0.5) for i in range(len(parent_a))], random.choice([parent_a, parent_b])]
 
 
 # performs crossover (of individuals or cromosomes) between parents
-def xover(parent_a, parent_b):
-    # TODO: decide when to xover cromosomes and when individuals
+def xover(parent_a, parent_b, xover_method = MULTIPOINT_XOVER):
+    crossover_methods = [multipoint_xover, intermediate_xover, geometric_xover]
     new_population = []
     for i in range(len(parent_a)):
-        new_population += multipoint_xover(parent_a[i], parent_b[i])
+        new_population += crossover_methods[xover_method](parent_a[i], parent_b[i])
     return new_population
 
+# evaluates an individual in the simulation returning queue size in relation to waiting time
 
-# algorithm stops after a fixed number of iterations
-def stop_criterion(i):
-    return i >= MAX_ITERATIONS
+
+def eval_individual_in_simulation_max_average(simulation, individual, speed, obs_time):
+    ctrl = simulation.get_new_control_object()
+    ctrl.SetConfiguration(individual)
+    ctrl.speed = speed
+    ctrl.Start(observation_time=obs_time, draw=False)
+    fitness_val =-1
+    for road_id in range(len(ctrl.roads)):
+        if not ctrl.is_curve[road_id]:
+            # We use the max between average time a car takes in every semaphore
+            fitness_val = max(
+                fitness_val, ctrl.road_average_time_take_cars[road_id])
+            
+    # We use the opposite value because we wish to diminish the time it takes for the cars
+    return -fitness_val
+
+def eval_individual_in_simulation_total(simulation, individual, speed, obs_time):
+    ctrl = simulation.get_new_control_object()
+    ctrl.SetConfiguration(individual)
+    ctrl.speed = speed
+    ctrl.Start(observation_time=obs_time, draw=False)
+    fitness_val = 0
+    for road_id in range(len(ctrl.roads)):
+        if not ctrl.is_curve[road_id]:
+            fitness_val += ctrl.road_total_time_take_cars[road_id]
+    
+    # We use the opposite value because we wish to diminish the time it takes for the cars
+    return -fitness_val
+
+def eval_individual_in_simulation_weigthed_mean(simulation, individual, speed, obs_time):
+    ctrl = simulation.get_new_control_object()
+    ctrl.SetConfiguration(individual)
+    ctrl.speed = speed
+    ctrl.Start(observation_time=obs_time, draw=False)
+    fitness_val = 0
+    sumsq = 0
+    for road_id in range(len(ctrl.roads)):
+        if not ctrl.is_curve[road_id]:
+            fitness_val += ctrl.road_average_time_take_cars[road_id] * ctrl.road_total_amount_cars[road_id]**2
+            sumsq += ctrl.road_total_amount_cars[road_id]**2
+   
+    # We use the opposite value because we wish to diminish the time it takes for the cars
+    return -fitness_val / sumsq
+
+
+
+# gives a fitness value to each individual of the population
+def fitness(simulation, population, speed, obs_time, eval_method = EVAL_INDIVIDUAL_IN_SIMULATION_TOTAL):
+    fitness = []
+    
+    eval = [eval_individual_in_simulation_max_average, eval_individual_in_simulation_total, eval_individual_in_simulation_weigthed_mean ]
+    for individual in population:
+        fitness.append(eval[eval_method](
+            simulation, individual, speed, obs_time))
+    return fitness
 
 
 # main method of the genetic algorithm
-def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time):
+def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, 
+                      speed, obs_time, max_iterations=100, xover_method = MULTIPOINT_XOVER,
+                      weight_method = GET_WEIGHTS_BY_RANKING, eval_method = EVAL_INDIVIDUAL_IN_SIMULATION_TOTAL):
     # init
     population = init_population(
         pop_size, number_of_turns, maximum_waiting_time, average_passing_time)
@@ -219,64 +218,88 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
     # best solution found
     best_solution = ([], -Inf)  # (solution, fitness value)
 
-    while not stop_criterion(i):
-        fitness = fitness(population, simulation)
+    f = test_storage_init(max_iterations, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, 
+                          speed, xover_method, weight_method, eval_method, obs_time)
+
+    while i < max_iterations:
+        
+        fitness_vals = fitness(simulation, population, speed, obs_time, eval_method = eval_method)
+        test_storage_iteration(f, population, fitness_vals, i)
+        
+        print(fitness_vals)
 
         # saves the solution with the greatest fitness in the current generation if it is better that the stored
         # in best solution
-        max_f = max(fitness)
+        max_f = max(fitness_vals)
         if max_f > best_solution[1]:
-            best_solution = (population[fitness.index(max_f)], max_f)
+            best_solution = (population[fitness_vals.index(max_f)], max_f)
+            f.write(f'Better solution FOUND!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! \n')
+            f.write(f'best solution: {best_solution} \n\n')
+
+        print(
+            f'Iteration {i} DONE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 
         # gets best solutions to create new population with cromosomes in binary
-        best_solutions, parents = select_parents(
-            encode_population(population), fitness)
+        bests, parents = select_parents(population, fitness_vals, weight_method=weight_method)
 
         new_population = []
         # storing parents (best solutions in the current generation) for the next
-        new_population += best_solutions
+        new_population += bests
         # crossovering parents
-        new_population += xover(parents[0], parents[1])
-
-        # making sure new population is the same size as the old one
-        while len(new_population) < len(population):
-            indexes = get_random_indexes(range(len(new_population)))
-            to_mutate = []
-            for i in indexes:
-                to_mutate.append(new_population[i])
-            new_population += mutate(to_mutate, 1)
-
-        if len(new_population) > len(population):
-            new_population = new_population[0:len(population)]
-
+        new_population += xover(parents[0], parents[1], xover_method = xover_method)
         # mutating some individuals
-        mutation_rate = random.random()
-        new_population = mutate(new_population, mutation_rate)
-
-        # sets cromosomes back to decimal
-        new_population = decode_population(new_population)
+        new_population = mutate_random(
+            new_population, 1/number_of_turns, maximum_waiting_time, average_passing_time)
 
         population = new_population
         i += 1
 
+    f.write(f"Genetic algorithm ENDED!!!!!!!!!! \n")
+    f.write(f'Final solution: {best_solution}')
+    f.close()
+    
     return best_solution[0]
 
+def test_storage_iteration(f, population, fitness_vals, i):
+    
+    f.write(f"Generation {i} \n\n")
+    f.write(f"Population: \n")
+    for individual in population:
+        f.write(f"{individual} \n")
+        print(individual)
+    f.write(f"\n")
+    f.write(f"fitness: {fitness_vals} \n\n")
 
-# pop = [[1, 4, 5, 10], [11, 5, 2, 1], [
-#     5, 8, 4, 15], [3, 2, 54, 1], [7, 8, 23, 5]]
-# fitness = [1, 9, 5, 8, 90]
-# bin_p = encode_population(pop)
-# print(bin_p)
-# print(mutate(bin_p, 0.5))
-# print(bin_p)
-# print(get_random_indexes([1, 2, 3, 4, 5], 1))
-# print(multipoint_xover("100", "202"))
+def test_storage_init(max_iterations, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, speed, xover_method, weight_method, eval_method, obs_time):
+    
+    tests_path = os.path.dirname(__file__)
+    if sys.platform.startswith('win'):
+        tests_path = tests_path.replace('src\\models', 'tests\\')
+    else:
+        tests_path = tests_path.replace('src/models', 'tests/')
 
-# print(select_parents(pop, fitness))
+    file_name = f'test_{max_iterations}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}_{speed}'
+    ls = os.listdir(tests_path)
+    print(ls)
 
-# a = [1, -9, -90, 3, 2]
-# print(a.index(min(a)))
-# a.remove(a[a.index(min(a))])
-# print(a)
+    test_number = 0
+    for file in ls:
+        if file.startswith(file_name):
+            test_number += 1
 
-# print(cromosome_xover(bin_p[0], bin_p[1]))
+    if test_number != 0:
+        file_name += f'_({test_number})'
+    file_name += '.txt'
+
+    print(file_name)
+
+    f = open(tests_path + file_name, "w")
+
+    f.write(f"xover_method: {xover_method} \n\n")
+    f.write(f"weight_method: {weight_method} \n\n")
+    f.write(f"eval_method: {eval_method} \n\n")
+    f.write(f"MAX_ITERATIONS: {max_iterations} \n\n")
+    f.write(f"SPEED: {speed} \n\n")
+    f.write(f"OBSERVATION_TIME: {obs_time} \n\n")
+    
+    return f
