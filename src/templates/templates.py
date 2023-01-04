@@ -433,7 +433,7 @@ class GridMap(BasicTemplate):
                         ((pt0[1] <= self.lower_limit_y or pt0[1] >= self.upper_limit_y) and (pt1[1] <= self.lower_limit_y or pt1[1] >= self.upper_limit_y)): 
                         continue
 
-                    self.build_roads(pt0, pt1, self.in_roads, self.out_roads, self.width_roads)
+                    self.build_roads(pt0, pt1, self.in_roads, self.out_roads, self.map.width_roads)
                     heapq.heappush(stack, pt)
                     edges.add((pt0, pt1))
 
