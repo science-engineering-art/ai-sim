@@ -1,103 +1,14 @@
 import math
 import heapq
-from typing import Any, Dict, List, Tuple
+from typing import Tuple
+import dictdatabase as ddb
+from ast import NodeVisitor
 from models.road import Road
 from abc import abstractmethod
 from scipy.spatial import distance
 from models.control import control
-from pydantic import BaseModel
-import dictdatabase as ddb
-
-
-class BaseNode:...
-
-
-class Edge(BaseModel, BaseNode):
-    id: int
-    start: Tuple[float, float]
-    end: Tuple[float, float]
-
-
-class RoadEdge(BaseModel, BaseNode):
-    lanes: List[int]
-
-
-class CurveEdge(BaseModel, BaseNode):
-    input_lane_id: int
-    output_lane_id: int
-    curve_point: Tuple[float, float]
-
-
-class IntersectionNode(BaseModel, BaseNode):
-    input_lanes: List[int]
-    out_lanes: List[int]
-    follows: List[Tuple[int, int, int]]
-
-
-class Map(BaseModel, BaseNode):
-    width_roads: float
-    lanes: List[Edge]
-    roads: List[RoadEdge]
-    intersections: Dict[Tuple[float,float], IntersectionNode] 
-    curves: List[CurveEdge]
-    extremes_lanes: List[int] 
-    
-
-def iter_fields(node: 'NodeVisitor'):
-    for field in node.__dict__:
-        try: 
-            yield field, getattr(node, field)
-        except:...
-
-
-class NodeVisitor:
-    """
-        JSON Serializer
-    """
-    def visit(self, node: 'NodeVisitor'):
-        method_name = f'visit_{type(node).__name__}'
-        visitor = getattr(self, method_name, self.generic_visit)
-        return visitor(node)
-    
-    def generic_visit(self, node: 'NodeVisitor'):
-        json = {}
-
-        for key, value in iter_fields(node):
-           
-            if isinstance(value, list):
-                json[key] = []
-                for item in value:
-                    if isinstance(item, BaseNode):
-                        json[key].append(self.visit(item))
-                    else:
-                        json[key].append(item)
-            
-            elif isinstance(value, dict):
-                if key not in json:
-                    json[key] = {}
-                for kw, item in value.items():
-                    if isinstance(item, BaseNode):
-                        if isinstance(kw, tuple):
-                            x, y = kw
-                            x, y = f"{x}", f"{y}"
-                            if x not in json[key]:
-                                json[key][x] = {}
-                            if y not in json[key][x]:
-                                json[key][x][y] = {}
-                            json[key][x][y] = self.visit(item)
-                        else:
-                            json[key][kw] = self.visit(item)
-            
-            elif isinstance(value, BaseNode):
-                json = {}
-                for kw, item in iter_fields(value):
-                    json[kw] = item
-            
-            else:
-                json[key] = value
-
-        return json
-
+from templates.models import CurveEdge, Edge, IntersectionNode, Map, RoadEdge
+     
 
 def calculate_angle(road_in: Road) -> float:
     x0, y0 = road_in.start
@@ -527,7 +438,3 @@ class GridMap(BasicTemplate):
                     edges.add((pt0, pt1))
 
         self.build_intersections()
-
-
-
-

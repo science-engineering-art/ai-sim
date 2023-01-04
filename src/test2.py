@@ -1,4 +1,4 @@
-from templates import GridMap
+from templates.templates import GridMap
 
 temp = GridMap(center_point=(700,400), 
     len_roads=600, lower_limit_x=10, 

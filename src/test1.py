@@ -1,5 +1,5 @@
 from models.control import control
-from templates import GridMap
+from templates.templates import GridMap
 
 temp = GridMap(center_point=(700,400), 
     len_roads=92, lower_limit_x=10, 
