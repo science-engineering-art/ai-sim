@@ -1,6 +1,7 @@
 import math
 import heapq
 from typing import Tuple
+from copy import deepcopy
 import dictdatabase as ddb
 from models.road import Road
 from abc import abstractmethod
@@ -91,7 +92,7 @@ def calculate_curve_point(road_a: Road, road_b: Road):
     return (x, y) 
 
 
-class BasicTemplate:
+class BasicMapBuilder:
 
     def __init__(self):
         self.map = Map(
@@ -104,59 +105,10 @@ class BasicTemplate:
         )
 
     @abstractmethod
-    def build_map(self):
+    def build_map(self) -> Map:
         pass
 
-    def generate_template(self, name: str):
-        self.build_map()
-
-        s = ddb.at(name)
-        if not s.exists():
-            s.create(
-                NodeVisitor().visit(self.map)
-            )
-
-    def load_template(self, name: str):
-        s = ddb.at(name)
-        if s.exists():
-            json = s.read()
-            ctrl = control()
-
-            # add roads
-            for id in range(len(json['lanes'])):
-                for lane in json['lanes']:
-                    if lane['id'] == id:
-                        ctrl.AddRoad(
-                            road_init_point=lane['start'],
-                            road_end_point=lane['end']
-                        )
-                        break
-
-            # add connections between roads            
-            for curve in json['curves']:
-                ctrl.connect_roads(
-                    road_1_id=curve['input_lane_id'],
-                    road_2_id=curve['output_lane_id'],
-                    curve_point=curve['curve_point']
-                )
-            
-            # create intersections
-            for x in json['intersections']:
-                for y in json['intersections'][x]:
-                    follows = json['intersections'][x][y]['follows']
-                    follows = [ tuple(f) for f in follows ] 
-                    ctrl.CreateCorner(follows)
-            
-            # add extremes roads
-            ctrl.AddExtremeRoads(json['extremes_lanes'])
-
-            ctrl.speed = 5
-            for er in ctrl.extremeRoads: #adjusting generation rate
-                ctrl.roads[er].Lambda = 1/150
-
-            return ctrl 
-
-    def build_roads(self, start, end, inN, outN, width):
+    def __build_roads(self, start, end, inN, outN, width):
         x0, y0 = start
         x1, y1 = end
 
@@ -251,7 +203,7 @@ class BasicTemplate:
 
         self.map.roads.append(road)
 
-    def build_intersections(self):
+    def __build_intersections(self):
 
         for x, y in self.map.intersections:
             follows = {}
@@ -349,7 +301,7 @@ class BasicTemplate:
                 self.map.intersections[(x, y)].follows = follows            
 
 
-class GridMap(BasicTemplate):
+class GridMapBuilder(BasicMapBuilder):
 
     def __init__(self, 
         center_point: Tuple[float, float], 
@@ -362,7 +314,32 @@ class GridMap(BasicTemplate):
         out_roads: int = 2,
         width_roads: float = 0.5
     ):
+
+        def recalculate_limits():
+            x, y = self.center_point
+            X, Y = self.center_point
+
+            while x > self.lower_limit_x or \
+                y > self.lower_limit_y or \
+                X < self.upper_limit_x or \
+                Y < self.upper_limit_y:
+                if x > self.lower_limit_x: x -= self.len_roads
+                if y > self.lower_limit_y: y -= self.len_roads
+                if X < self.upper_limit_x: X += self.len_roads
+                if Y < self.upper_limit_y: Y += self.len_roads
+            else:
+                x += self.len_roads
+                X -= self.len_roads
+                y += self.len_roads
+                Y -= self.len_roads
+            
+            self.lower_limit_x = x
+            self.lower_limit_y = y
+            self.upper_limit_x = X
+            self.upper_limit_y = Y
+
         super().__init__()
+
         self.center_point = center_point
         self.len_roads = len_roads
         self.lower_limit_x = lower_limit_x
@@ -372,38 +349,16 @@ class GridMap(BasicTemplate):
         self.in_roads = in_roads
         self.out_roads = out_roads
         self.map.width_roads = width_roads
-        self.recalculate_limits()
 
-    def is_valid(self, pt):
-        return pt[0] >= self.lower_limit_x and \
-               pt[0] <= self.upper_limit_x and \
-               pt[1] >= self.lower_limit_y and \
-               pt[1] <= self.upper_limit_y
+        recalculate_limits()
 
-    def recalculate_limits(self):
-        x, y = self.center_point
-        X, Y = self.center_point
+    def build_map(self) -> Map:
 
-        while x > self.lower_limit_x or \
-              y > self.lower_limit_y or \
-              X < self.upper_limit_x or \
-              Y < self.upper_limit_y:
-            if x > self.lower_limit_x: x -= self.len_roads
-            if y > self.lower_limit_y: y -= self.len_roads
-            if X < self.upper_limit_x: X += self.len_roads
-            if Y < self.upper_limit_y: Y += self.len_roads
-        else:
-            x += self.len_roads
-            X -= self.len_roads
-            y += self.len_roads
-            Y -= self.len_roads
-        
-        self.lower_limit_x = x
-        self.lower_limit_y = y
-        self.upper_limit_x = X
-        self.upper_limit_y = Y
-
-    def build_map(self):
+        def is_valid(pt):
+            return pt[0] >= self.lower_limit_x and \
+                pt[0] <= self.upper_limit_x and \
+                pt[1] >= self.lower_limit_y and \
+                pt[1] <= self.upper_limit_y
 
         edges = set()
         stack = [self.center_point]
@@ -417,11 +372,11 @@ class GridMap(BasicTemplate):
                 (vX, vY + self.len_roads), 
                 (vX, vY - self.len_roads)
             ]
-
+            
             for pt in pts:
                 if ((vX, vY), pt) not in edges and (pt, (vX, vY)) not in edges \
-                    and self.is_valid(pt):
-
+                    and is_valid(pt):
+                    
                     pt0 = (vX, vY)
                     pt1 = pt
         
@@ -429,12 +384,74 @@ class GridMap(BasicTemplate):
                         pt0 = pt
                         pt1 = (vX, vY)
 
-                    if  ((pt0[0] <= self.lower_limit_x or pt0[0] >= self.upper_limit_x) and (pt1[0] <= self.lower_limit_x or pt1[0] >= self.upper_limit_x)) or \
-                        ((pt0[1] <= self.lower_limit_y or pt0[1] >= self.upper_limit_y) and (pt1[1] <= self.lower_limit_y or pt1[1] >= self.upper_limit_y)): 
+                    if ((pt0[0] <= self.lower_limit_x or pt0[0] >= self.upper_limit_x) and \
+                        (pt1[0] <= self.lower_limit_x or pt1[0] >= self.upper_limit_x)) or \
+                       ((pt0[1] <= self.lower_limit_y or pt0[1] >= self.upper_limit_y) and \
+                        (pt1[1] <= self.lower_limit_y or pt1[1] >= self.upper_limit_y)): 
                         continue
 
-                    self.build_roads(pt0, pt1, self.in_roads, self.out_roads, self.map.width_roads)
+                    self._BasicMapBuilder__build_roads(
+                        pt0, pt1, self.in_roads, self.out_roads, self.map.width_roads)
+                    
                     heapq.heappush(stack, pt)
                     edges.add((pt0, pt1))
 
-        self.build_intersections()
+        self._BasicMapBuilder__build_intersections()
+
+        return deepcopy(self.map)
+
+
+class TemplateIO:
+
+    def __init__(self, builder: BasicMapBuilder):
+        self.builder = builder
+
+    def generate_template(self, name: str):
+        map = self.builder.build_map()
+
+        s = ddb.at(name)
+        if not s.exists():
+            s.create(
+                NodeVisitor().visit(map)
+            )
+
+    def load_template(self, name: str):
+        s = ddb.at(name)
+        if s.exists():
+            json = s.read()
+            ctrl = control()
+
+            # add roads
+            for id in range(len(json['lanes'])):
+                for lane in json['lanes']:
+                    if lane['id'] == id:
+                        ctrl.AddRoad(
+                            road_init_point=lane['start'],
+                            road_end_point=lane['end']
+                        )
+                        break
+
+            # add connections between roads            
+            for curve in json['curves']:
+                ctrl.connect_roads(
+                    road_1_id=curve['input_lane_id'],
+                    road_2_id=curve['output_lane_id'],
+                    curve_point=curve['curve_point']
+                )
+            
+            # create intersections
+            for x in json['intersections']:
+                for y in json['intersections'][x]:
+                    follows = json['intersections'][x][y]['follows']
+                    follows = [ tuple(f) for f in follows ] 
+                    ctrl.CreateCorner(follows)
+            
+            # add extremes roads
+            ctrl.AddExtremeRoads(json['extremes_lanes'])
+
+            ctrl.speed = 5
+            for er in ctrl.extremeRoads: #adjusting generation rate
+                ctrl.roads[er].Lambda = 1/150
+
+            return ctrl 
+
