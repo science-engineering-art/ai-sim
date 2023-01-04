@@ -2,11 +2,11 @@ import math
 import heapq
 from typing import Tuple
 import dictdatabase as ddb
-from ast import NodeVisitor
 from models.road import Road
 from abc import abstractmethod
 from scipy.spatial import distance
 from models.control import control
+from templates.visitor import NodeVisitor
 from templates.models import CurveEdge, Edge, IntersectionNode, Map, RoadEdge
      
 
@@ -108,7 +108,7 @@ class BasicTemplate:
         pass
 
     def generate_template(self, name: str):
-        # self.build_map()
+        self.build_map()
 
         s = ddb.at(name)
         if not s.exists():
@@ -152,7 +152,7 @@ class BasicTemplate:
 
             ctrl.speed = 5
             for er in ctrl.extremeRoads: #adjusting generation rate
-                ctrl.roads[er].Lambda = 800
+                ctrl.roads[er].Lambda = 1/150
 
             return ctrl 
 
