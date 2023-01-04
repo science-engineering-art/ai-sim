@@ -193,7 +193,7 @@ class BasicTemplate:
         )
 
     @abstractmethod
-    def build_map(self) -> Map:
+    def build_map(self):
         pass
 
     def generate_template(self, name: str):

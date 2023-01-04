@@ -25,6 +25,10 @@ class corner:
         (the turns sucession is -1, 0, -2, 1, 2, -3 ...., where the
         negatives indicate everyone is in red)
         '''
+            
+        if self.numberOfTurns == 0:
+            return
+        # print(self.numberOfTurns)
         if not self.light_controled:
             return
         self.time_tick += t
