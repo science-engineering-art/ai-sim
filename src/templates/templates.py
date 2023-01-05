@@ -299,6 +299,7 @@ class BasicMapBuilder:
 
         return (x, y) 
 
+
 class GridMapBuilder(BasicMapBuilder):
 
     def __init__(self, 
@@ -369,7 +370,7 @@ class GridMapBuilder(BasicMapBuilder):
         # add the frequency of vehicles in each road
         for road in self.map.roads:
             for i in road.lanes:
-                self.map.lanes[i].lambda_ = random.uniform(0, 0.5)
+                self.map.lanes[i].lambda_ = random.uniform(0, 0.15)
                 print(f'\n{self.map.lanes[i]}\n')
 
         return deepcopy(self.map)
@@ -403,6 +404,7 @@ class GridMapBuilder(BasicMapBuilder):
                 pt[1] >= self.lower_limit_y and \
                 pt[1] <= self.upper_limit_y
 
+
 class TemplateIO:
 
     def __init__(self, builder: BasicMapBuilder):
@@ -424,14 +426,12 @@ class TemplateIO:
             ctrl = control()
 
             # add roads
-            # for id in range(len(json['lanes'])):
             for lane in json['lanes']:
-                    # if lane['id'] == id:
                 ctrl.AddRoad(
                     road_init_point=lane['start'],
-                    road_end_point=lane['end']
+                    road_end_point=lane['end'],
+                    lambda_=lane['lambda_'],
                 )
-                        # break
 
             # add connections between roads            
             for curve in json['curves']:
@@ -452,8 +452,5 @@ class TemplateIO:
             ctrl.AddExtremeRoads(json['extremes_lanes'])
 
             ctrl.speed = 5
-            for er in ctrl.extremeRoads: #adjusting generation rate
-                ctrl.roads[er].Lambda = 1/150
 
             return ctrl 
-

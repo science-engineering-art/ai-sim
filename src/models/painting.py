@@ -16,7 +16,7 @@ class Painting:
     def draw_road(screen, road : Road, color):
         x, y = road.start
         l = road.length
-        h = 1
+        h = 4
         
         d_x = lambda v1,v2 : (v1*l*road.angle_cos + v2*h*road.angle_sin)/2
         d_y = lambda v1,v2 : (v1*l*road.angle_sin - v2*h*road.angle_cos)/2

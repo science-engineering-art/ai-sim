@@ -86,7 +86,7 @@ class control:
             road: Road = self.roads[road_id]
 
             r = random.random()
-            if r > poisson(road.Lambda, self.dt, 1):
+            if r > poisson(road.lambda_, self.dt, 1):
                 continue
 
             # select uniformly the vehicle template (i.e. color, length, speed)
@@ -102,7 +102,7 @@ class control:
         for i in range(len(roads)):
             road_id = roads[i]
             if lambdas != None:
-                self.roads[road_id].Lambda = lambdas[i]
+                self.roads[road_id].lambda_ = lambdas[i]
             self.extremeRoads.append(road_id)
 
     def Start(self, observation_time=-1, it_amount=-1, draw=True):
@@ -248,10 +248,10 @@ class control:
         self.road_car_entrance_queue[next_road_curve_id].append(self.it_number)
         return next_road
 
-    def AddRoad(self, road_init_point, road_end_point):
+    def AddRoad(self, road_init_point, road_end_point, lambda_):
         '''Adds a nex road to the simulation'''
 
-        road = Road(road_init_point, road_end_point)
+        road = Road(road_init_point, road_end_point, lambda_)
         road_id = len(self.roads)
         self.roads.append(road)
         self.is_curve.append(False)
