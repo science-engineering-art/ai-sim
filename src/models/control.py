@@ -34,7 +34,6 @@ LIGHT_GRAY = (225, 225, 225)
 
 class control:
     '''class made to control hall the simulation over the map'''
-
     def __init__(self, **kwargs):
 
         self.speed = 5  # how many simulation second will pass for every real life second
