@@ -1,5 +1,6 @@
 import math
 import heapq
+import random
 from typing import Tuple
 from copy import deepcopy
 import dictdatabase as ddb
@@ -88,7 +89,7 @@ class BasicMapBuilder:
             # create road
             lane_id = len(self.map.lanes)
             lane = Edge(
-                id=lane_id,
+                lambda_=0,
                 start=(x0, y0),
                 end=(x1, y1)
             )
@@ -106,7 +107,7 @@ class BasicMapBuilder:
             # create road
             lane_id = len(self.map.lanes)
             lane = Edge(
-                id=lane_id,
+                lambda_=0,
                 start=(x1, y1),
                 end=(x0, y0)
             )
@@ -298,7 +299,6 @@ class BasicMapBuilder:
 
         return (x, y) 
 
-
 class GridMapBuilder(BasicMapBuilder):
 
     def __init__(self, 
@@ -312,30 +312,6 @@ class GridMapBuilder(BasicMapBuilder):
         out_roads: int = 2,
         width_roads: float = 0.5
     ):
-
-        def recalculate_limits():
-            x, y = self.center_point
-            X, Y = self.center_point
-
-            while x > self.lower_limit_x or \
-                y > self.lower_limit_y or \
-                X < self.upper_limit_x or \
-                Y < self.upper_limit_y:
-                if x > self.lower_limit_x: x -= self.len_roads
-                if y > self.lower_limit_y: y -= self.len_roads
-                if X < self.upper_limit_x: X += self.len_roads
-                if Y < self.upper_limit_y: Y += self.len_roads
-            else:
-                x += self.len_roads
-                X -= self.len_roads
-                y += self.len_roads
-                Y -= self.len_roads
-            
-            self.lower_limit_x = x
-            self.lower_limit_y = y
-            self.upper_limit_x = X
-            self.upper_limit_y = Y
-
         super().__init__()
 
         self.center_point = center_point
@@ -348,15 +324,9 @@ class GridMapBuilder(BasicMapBuilder):
         self.out_roads = out_roads
         self.map.width_roads = width_roads
 
-        recalculate_limits()
+        self.__recalculate_limits()
 
     def build_map(self) -> Map:
-
-        def is_valid(pt):
-            return pt[0] >= self.lower_limit_x and \
-                pt[0] <= self.upper_limit_x and \
-                pt[1] >= self.lower_limit_y and \
-                pt[1] <= self.upper_limit_y
 
         edges = set()
         stack = [self.center_point]
@@ -373,7 +343,7 @@ class GridMapBuilder(BasicMapBuilder):
             
             for pt in pts:
                 if ((vX, vY), pt) not in edges and (pt, (vX, vY)) not in edges \
-                    and is_valid(pt):
+                    and self.__is_valid(pt):
                     
                     pt0 = (vX, vY)
                     pt1 = pt
@@ -396,8 +366,42 @@ class GridMapBuilder(BasicMapBuilder):
 
         self._BasicMapBuilder__build_intersections()
 
-        return deepcopy(self.map)
+        # add the frequency of vehicles in each road
+        for road in self.map.roads:
+            for i in road.lanes:
+                self.map.lanes[i].lambda_ = random.uniform(0, 0.5)
+                print(f'\n{self.map.lanes[i]}\n')
 
+        return deepcopy(self.map)
+    
+    def __recalculate_limits(self):
+            x, y = self.center_point
+            X, Y = self.center_point
+
+            while x > self.lower_limit_x or \
+                y > self.lower_limit_y or \
+                X < self.upper_limit_x or \
+                Y < self.upper_limit_y:
+                if x > self.lower_limit_x: x -= self.len_roads
+                if y > self.lower_limit_y: y -= self.len_roads
+                if X < self.upper_limit_x: X += self.len_roads
+                if Y < self.upper_limit_y: Y += self.len_roads
+            else:
+                x += self.len_roads
+                X -= self.len_roads
+                y += self.len_roads
+                Y -= self.len_roads
+            
+            self.lower_limit_x = x
+            self.lower_limit_y = y
+            self.upper_limit_x = X
+            self.upper_limit_y = Y
+
+    def __is_valid(self, pt):
+            return pt[0] >= self.lower_limit_x and \
+                pt[0] <= self.upper_limit_x and \
+                pt[1] >= self.lower_limit_y and \
+                pt[1] <= self.upper_limit_y
 
 class TemplateIO:
 

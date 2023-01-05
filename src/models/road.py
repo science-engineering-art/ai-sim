@@ -17,7 +17,7 @@ class Road:
         self.end_conn = None #it may be another road or a corner
         
         # default value of amount of vehicle transiting per second 
-        self.Lambda = 1/50 # which is equivalent of 72 veh/h
+        self.lambda_ = 1/50 # which is equivalent of 72 veh/h
         self.__dict__.update(args)
 
     def get_curve_road(init_point, end_point, inclination_point, steps = 15):

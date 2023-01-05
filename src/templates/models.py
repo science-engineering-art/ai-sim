@@ -2,32 +2,32 @@ from pydantic import BaseModel
 from typing import Dict, List, Tuple
 
 
-class BaseNode:...
+class BaseNode(BaseModel):...
 
 
-class Edge(BaseModel, BaseNode):
-    id: int
+class Edge(BaseNode):
+    lambda_: float
     start: Tuple[float, float]
     end: Tuple[float, float]
 
 
-class RoadEdge(BaseModel, BaseNode):
+class RoadEdge(BaseNode):
     lanes: List[int]
 
 
-class CurveEdge(BaseModel, BaseNode):
+class CurveEdge(BaseNode):
     input_lane_id: int
     output_lane_id: int
     curve_point: Tuple[float, float]
 
 
-class IntersectionNode(BaseModel, BaseNode):
+class IntersectionNode(BaseNode):
     input_lanes: List[int]
     out_lanes: List[int]
     follows: List[Tuple[int, int, int]]
 
 
-class Map(BaseModel, BaseNode):
+class Map(BaseNode):
     width_roads: float
     lanes: List[Edge]
     roads: List[RoadEdge]
