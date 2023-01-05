@@ -11,87 +11,6 @@ from templates.visitor import NodeVisitor
 from templates.models import CurveEdge, Edge, IntersectionNode, Map, RoadEdge
      
 
-def calculate_angle(road_in: Road) -> float:
-    x0, y0 = road_in.start
-    x1, y1 = road_in.end
-
-    if (x0**2 + y0**2) > (x1**2 + y1**2):
-        tmp = x0, y0
-        x0, y0 = x1, y1
-        x1, y1 = tmp
-
-    print(f'x0: {x0}, y0: {y0}, x1: {x1}, y1: {y1}')
-
-    co = y1 - y0
-    ca = x1 - x0
-
-    if ca == 0 and co != 0:
-        return 90.0
-
-    h = (co**2 + ca**2)**0.5
-    
-    print(f'co: {co}, ca: {ca}, h: {h}')
-    try: 
-        angle = math.acos((co**2 + ca**2 - h**2) / (2 * co * ca))
-        angle = math.degrees(angle)
-    except:
-        print('error 1')
-
-    try: 
-        angle = math.acos((co**2 + h**2 - ca**2) / (2 * co * h))
-        angle = math.degrees(angle)
-    except:
-        print('error 2')
-
-    try:
-        angle = math.acos((h**2 + ca**2 - co**2) / (2 * h * ca))
-        angle = math.degrees(angle)
-    except:
-        print('error 3')
-
-    return angle
-
-
-def calculate_curve_point(road_a: Road, road_b: Road):
-    '''calculates the point where the curve should be created'''
-    xa_0, ya_0 = road_a.start
-    xa_1, ya_1 = road_a.end
-    xb_0, yb_0 = road_b.start
-    xb_1, yb_1 = road_b.end
-
-    try:
-        m_a = (ya_1 - ya_0) / (xa_1 - xa_0)
-    except ZeroDivisionError:
-        ...
-
-    try:
-        m_b = (yb_1 - yb_0) / (xb_1 - xb_0)
-    except ZeroDivisionError:
-        ...
-
-    n_a = 0
-    if xa_1 - xa_0 == 0:
-        x = xa_0
-        m_a = 0
-    elif xb_1 - xb_0 == 0:
-        x = xb_0
-        m_a = 0
-    else:
-        n_a = ya_0 - xa_0*m_a
-        n_b = yb_0 - xb_0*m_b
-        x = (n_b - n_a) / (m_a - m_b)
-
-    y = 0
-    if ya_1 - ya_0 == 0:
-        y = ya_0
-    elif yb_1 - yb_0 == 0:
-        y = yb_0
-    else:
-        y = m_a * x + n_a
-
-    return (x, y) 
-
-
 class BasicMapBuilder:
 
     def __init__(self):
@@ -237,7 +156,7 @@ class BasicMapBuilder:
                     print(f'connect {road_in.end} to {road_out.start}')
                     print(road_in.start, road_in.end,
                           road_out.start, road_out.end)
-                    curve_pt = calculate_curve_point(road_in, road_out)
+                    curve_pt = BasicMapBuilder.__calculate_curve_point(road_in, road_out)
                     print(f'curve at {curve_pt}')
                     curve = CurveEdge(
                         input_lane_id=in_lane_id,
@@ -253,7 +172,7 @@ class BasicMapBuilder:
                     except:
                         print(f'road_out_id {out_lane_id} not in extremeRoads')
 
-                    angle = calculate_angle(road_in)
+                    angle = BasicMapBuilder.__calculate_angle(road_in)
 
                     if i not in follows:
                         follows[i] = []
@@ -299,6 +218,85 @@ class BasicMapBuilder:
 
             if len(follows) > 0:
                 self.map.intersections[(x, y)].follows = follows            
+
+    def __calculate_angle(road_in: Road) -> float:
+        x0, y0 = road_in.start
+        x1, y1 = road_in.end
+
+        if (x0**2 + y0**2) > (x1**2 + y1**2):
+            tmp = x0, y0
+            x0, y0 = x1, y1
+            x1, y1 = tmp
+
+        print(f'x0: {x0}, y0: {y0}, x1: {x1}, y1: {y1}')
+
+        co = y1 - y0
+        ca = x1 - x0
+
+        if ca == 0 and co != 0:
+            return 90.0
+
+        h = (co**2 + ca**2)**0.5
+        
+        print(f'co: {co}, ca: {ca}, h: {h}')
+        try: 
+            angle = math.acos((co**2 + ca**2 - h**2) / (2 * co * ca))
+            angle = math.degrees(angle)
+        except:
+            print('error 1')
+
+        try: 
+            angle = math.acos((co**2 + h**2 - ca**2) / (2 * co * h))
+            angle = math.degrees(angle)
+        except:
+            print('error 2')
+
+        try:
+            angle = math.acos((h**2 + ca**2 - co**2) / (2 * h * ca))
+            angle = math.degrees(angle)
+        except:
+            print('error 3')
+
+        return angle
+
+    def __calculate_curve_point(road_a: Road, road_b: Road):
+        '''calculates the point where the curve should be created'''
+        xa_0, ya_0 = road_a.start
+        xa_1, ya_1 = road_a.end
+        xb_0, yb_0 = road_b.start
+        xb_1, yb_1 = road_b.end
+
+        try:
+            m_a = (ya_1 - ya_0) / (xa_1 - xa_0)
+        except ZeroDivisionError:
+            ...
+
+        try:
+            m_b = (yb_1 - yb_0) / (xb_1 - xb_0)
+        except ZeroDivisionError:
+            ...
+
+        n_a = 0
+        if xa_1 - xa_0 == 0:
+            x = xa_0
+            m_a = 0
+        elif xb_1 - xb_0 == 0:
+            x = xb_0
+            m_a = 0
+        else:
+            n_a = ya_0 - xa_0*m_a
+            n_b = yb_0 - xb_0*m_b
+            x = (n_b - n_a) / (m_a - m_b)
+
+        y = 0
+        if ya_1 - ya_0 == 0:
+            y = ya_0
+        elif yb_1 - yb_0 == 0:
+            y = yb_0
+        else:
+            y = m_a * x + n_a
+
+        return (x, y) 
 
 
 class GridMapBuilder(BasicMapBuilder):
@@ -422,14 +420,14 @@ class TemplateIO:
             ctrl = control()
 
             # add roads
-            for id in range(len(json['lanes'])):
-                for lane in json['lanes']:
-                    if lane['id'] == id:
-                        ctrl.AddRoad(
-                            road_init_point=lane['start'],
-                            road_end_point=lane['end']
-                        )
-                        break
+            # for id in range(len(json['lanes'])):
+            for lane in json['lanes']:
+                    # if lane['id'] == id:
+                ctrl.AddRoad(
+                    road_init_point=lane['start'],
+                    road_end_point=lane['end']
+                )
+                        # break
 
             # add connections between roads            
             for curve in json['curves']:
