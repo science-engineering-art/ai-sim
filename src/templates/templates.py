@@ -9,6 +9,7 @@ from abc import abstractmethod
 from scipy.spatial import distance
 from models.control import control
 from templates.visitor import NodeVisitor
+from models.draw_control import draw_control
 from templates.models import CurveEdge, Edge, IntersectionNode, Map, RoadEdge
      
 
@@ -423,7 +424,8 @@ class TemplateIO:
         s = ddb.at(name)
         if s.exists():
             json = s.read()
-            ctrl = control()
+            draw = draw_control()
+            ctrl = draw.ctrl
 
             # add roads
             for lane in json['lanes']:
@@ -453,4 +455,4 @@ class TemplateIO:
 
             ctrl.speed = 5
 
-            return ctrl 
+            return draw 

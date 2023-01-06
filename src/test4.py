@@ -1,7 +1,6 @@
-from models.control import control
-from templates.templates import GridMap
+from templates.templates import GridMapBuilder, TemplateIO
 
-template = GridMap(
+temp = GridMapBuilder(
     center_point=(700, 400), 
     len_roads=92, 
     lower_limit_x=0,
@@ -12,6 +11,7 @@ template = GridMap(
     out_roads= 2,
     width_roads= 4
 )
-template.generate_template('map4')
-ctrl: control = template.load_template('map4')
-ctrl.Start(observation_time=10, draw=False)
+temp = TemplateIO(temp)
+temp.generate_template('map4')
+draw = temp.load_template('map4')
+draw.Start(it_amount=100000)

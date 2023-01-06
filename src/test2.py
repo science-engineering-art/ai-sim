@@ -13,5 +13,5 @@ temp = GridMapBuilder(
 )
 temp = TemplateIO(temp)
 temp.generate_template('map2')
-ctrl = temp.load_template('map2')
-ctrl.Start(it_amount=100000)
+draw = temp.load_template('map2')
+draw.Start(it_amount=100000)
