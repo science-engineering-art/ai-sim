@@ -205,7 +205,6 @@ class control:
     def UpdateAllVehiclesInRoad(self, road):
         for i in range(len(road.vehicles)):
             vehicle = road.vehicles[i]
-            vehicle.update(dt = self.dt)
             lead = None
             if i != 0:
                 lead = road.vehicles[i - 1]
@@ -225,7 +224,7 @@ class control:
             
             road.vehicles.popleft()
             vehicle.x = 0
-            self.NextRoad(vehicle, road)
+            self.nav.NextRoad(vehicle, road)
             
         # fitness.................................
         red = road.vehicles.popleft() if len(
@@ -237,23 +236,6 @@ class control:
         if red != None:
             road.vehicles.appendleft(red)
 
-
-    def NextRoad(self, vehicle: Vehicle, road: Road):
-
-        if not road.end_conn:  # if nothing is associated with the end of the road
-            return  # means the road end in the edge of the map
-
-        # we uniformily random select
-        # the next road from the corner that can be reached from the current one
-        
-        road_id = self.roads.index(road)
-        next_road_id = random.choice(
-            road.end_conn.follow[self.road_index[road]])
-
-        next_road_connec: connection_road = self.our_connection[(road_id, next_road_id)]
-        next_road_connec.roads[0].vehicles.append(vehicle)
-        
-        return next_road_connec
 
     def AddRoad(self, road_init_point, road_end_point, lambda_ = 1/50):
         '''Adds a nex road to the simulation'''

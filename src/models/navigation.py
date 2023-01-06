@@ -40,4 +40,23 @@ class navigation():
             roads_id.append(road_id)
 
         return cars, roads_id
+    
+    def NextRoad(self, vehicle: Vehicle, road: Road):
+    
+        if not road.end_conn:  # if nothing is associated with the end of the road
+            return  # means the road end in the edge of the map
+        ctrl = self.ctrl
+        # we uniformily random select
+        # the next road from the corner that can be reached from the current one
+        
+        road_id = ctrl.roads.index(road)
+        next_road_id = random.choice(
+            road.end_conn.follow[ctrl.road_index[road]])
+
+        next_road_connec: ctrl.connection_road = ctrl.our_connection[(road_id, next_road_id)]
+        next_road_connec.roads[0].vehicles.append(vehicle)
+        
+        return next_road_connec
+    
+    
         
