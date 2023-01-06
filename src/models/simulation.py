@@ -16,7 +16,7 @@ class Simulation_test_3(Simulation):
         v_diff = 20
         road_width = 10
         
-        ctrl = control()
+        ctrl = metaeh_control()
         # pos_x, pos_y, end_y, start_x, curv = 700, 410, 900, 0, 5
 
         AB = ctrl.AddRoad((pos_x[0], pos_y[2]), (pos_x[1], pos_y[2]))
