@@ -126,7 +126,7 @@ class control:
                 if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id):
                     # add a 'semaphore car' to vehicles
                     road.vehicles.appendleft(
-                        Vehicle(road.length - 1, 3, 1, color=RED, v=0, stopped = True))
+                        Vehicle(road.length, 3, 1, color=RED, v=0, stopped = True))
                 # update the state of each vehicle in the road
                 self.UpdateRoad(road)
 
@@ -189,9 +189,12 @@ class control:
             for i in range(len(c_road.roads)):
                 road = c_road.roads[i]
                 self.UpdateAllVehiclesInRoad(road)
+                
+                red = road.vehicles.popleft() if len(
+                                    road.vehicles) > 0 and road.vehicles[0].color == RED else None
                 while len(road.vehicles) > 0:
                     vehicle = road.vehicles[0]
-                    if vehicle.x < road.length:
+                    if vehicle.x <= road.length:
                         break
                     
                     road.vehicles.popleft()
@@ -200,6 +203,9 @@ class control:
                     if i != len(c_road.roads) - 1:
                         to = c_road.roads[i + 1]
                     to.vehicles.append(vehicle)
+                    
+                if red != None:
+                    road.vehicles.appendleft(red)
 
     
     def UpdateAllVehiclesInRoad(self, road):
@@ -217,9 +223,11 @@ class control:
         
         self.UpdateAllVehiclesInRoad(road)
         
+        red = road.vehicles.popleft() if len(
+            road.vehicles) > 0 and road.vehicles[0].color == RED else None
         while len(road.vehicles) > 0:
             vehicle = road.vehicles[0]
-            if vehicle.x < road.length:
+            if vehicle.x <= road.length:
                 break
             
             road.vehicles.popleft()
@@ -227,8 +235,6 @@ class control:
             self.nav.NextRoad(vehicle, road)
             
         # fitness.................................
-        red = road.vehicles.popleft() if len(
-            road.vehicles) > 0 and road.vehicles[0].color == RED else None
         self.road_total_time_take_cars[road_id] += self.dt * len(road.vehicles)
         if len(self.road_car_entrance_queue[road_id]) > 0:
             self.road_total_amount_cars[road_id] += 1
