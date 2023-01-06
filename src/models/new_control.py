@@ -1,7 +1,3 @@
-
-
-
-
 from copy import deepcopy
 import random 
 from models.A_star import A_star
@@ -14,9 +10,6 @@ from models.vehicle import Vehicle
 class new_control(control):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
-    # def UpdateAll(self):
-    #     super().UpdateAll(self)
         
         
     def AddRoutedVehicle(self, from_road_id, to_road_id):
