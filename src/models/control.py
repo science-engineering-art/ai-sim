@@ -156,8 +156,13 @@ class control:
                 break
             
             road.vehicles.pop(0)
-            vehicle.x = 0
-            self.nav.NextRoad(vehicle, road)
+            next_road_connec = self.nav.NextRoad(vehicle, road)
+            if len(next_road_connec.roads[0].vehicles) > 0 and next_road_connec.roads[0].vehicles[0].x < \
+                    next_road_connec.roads[0].vehicles[0].length:
+                vehicle.x = 0
+                next_road_connec.roads[0].vehicles.append(vehicle)
+            else:
+                vehicle.v = 0
             
         if red != None:
             road.vehicles.insert(0,red)

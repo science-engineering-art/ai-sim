@@ -59,7 +59,6 @@ class navigation():
             road.end_conn.follow[ctrl.road_index[road]])
 
         next_road_connec: ctrl.connection_road = ctrl.our_connection[(road_id, next_road_id)]
-        next_road_connec.roads[0].vehicles.append(vehicle)
         
         return next_road_connec
     
