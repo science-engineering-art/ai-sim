@@ -1,13 +1,10 @@
 
-from collections import deque
 from multiprocessing.sharedctypes import copy
-from queue import Queue
-from time import sleep, time
+from time import  time
 from tokenize import Intnumber
 from typing import Deque
 from xml.etree.ElementTree import Comment
-from scipy.spatial import distance
-from sympy import rot_axis1
+from models.connection_road import connection_road
 from models.corner import corner
 from models.vehicle import Vehicle
 from models.road import Road
@@ -15,9 +12,8 @@ import random
 from copy import deepcopy
 from models.painting import *
 from pygame.locals import *
-from pygame import gfxdraw
 import pygame
-import math
+from math import e, factorial
 
 RED = (255, 0, 0)
 BLUE = (0, 255, 255)
@@ -41,12 +37,11 @@ class control:
         self.dt = self.speed * (1/300)
 
         self.roads = []
+        self.c_roads = []
         self.road_index = {}  # store the index of each road in roads list
         self.running = True
         self.vehicles = []
         self.corners = []
-        self.curves = {}  # stores for each connection the road conforming its curve
-        self.is_curve = []  # Determines wheter a road represents a curve/auxiliar road
         self.extremeRoads = []  # roads who start at the edge of the map
 
         # random vehicles templates
@@ -60,7 +55,7 @@ class control:
             # Vehicle(x=0, length= 2.5, width = 1.2, color=(135,62,35), v_max = 50, a_max=2.9, b_max=2.5),
         ]
 
-        # fitness prperties
+        # fitness properties
         self.road_max_queue = []
         self.road_car_entrance_queue = []
         self.road_total_amount_cars = []
@@ -71,8 +66,6 @@ class control:
 
     def NewRandomVehicle(self):
         '''Creates a random vehicle with probability prob'''
-
-        from math import e, factorial
 
         def poisson(Lambda: float, t: float, x: int):
             Lambda *= t
@@ -208,12 +201,9 @@ class control:
         for i in range(delete_amout):  # remove the cars moving out from the road
             road.vehicles.popleft()
 
+            # fitness.................................
             if len(self.road_car_entrance_queue[road_id]) > 0:
-                # fitness.................................
                 self.road_total_amount_cars[road_id] += 1
-                # self.road_total_time_take_cars[road_id] += self.it_number + \
-                    # 1 - self.road_car_entrance_queue[road_id][0]
-                # fitness.................................
                 self.road_car_entrance_queue[road_id].pop(0)
 
         if red != None:
@@ -247,7 +237,7 @@ class control:
         self.road_car_entrance_queue[next_road_curve_id].append(self.it_number)
         return next_road
 
-    def AddRoad(self, road_init_point, road_end_point, lambda_):
+    def AddRoad(self, road_init_point, road_end_point, lambda_ = 1/50):
         '''Adds a nex road to the simulation'''
 
         road = Road(road_init_point, road_end_point, lambda_)
@@ -261,29 +251,14 @@ class control:
         '''connects to roads with a curve using an external point to create the curve
         and return the indexes of the curve's sub-roads'''
 
+
         road_1: Road = self.roads[road_1_id]
         road_2: Road = self.roads[road_2_id]
-        road_locations = [
-            *Road.get_curve_road(road_1.end, road_2.start, curve_point)]
-        roads_2 = [Road(r_loc[0], r_loc[1]) for r_loc in road_locations]
-
-        # the next road of each road of the curve is assigned
-        for i in range(0, len(road_locations) - 1):
-            roads_2[i].end_conn = roads_2[i+1]
-        roads_2[len(road_locations) - 1].end_conn = road_2
-
-        # compute indexes
-        return_val = []
-        for road in roads_2:
-            self.road_index[road] = len(self.roads)
-            return_val.append(len(self.roads))
-            self.roads.append(road)
-            self.is_curve.append(True)
-
-        # assign to each follow pair, the first sub-road of the corresponding curve
-        self.curves[(road_1_id, road_2_id)] = return_val
-
-        return return_val
+        
+        c_road = connection_road(road_1, road_2, curve_point)
+        self.c_roads.append(c_road)
+        
+        return len(self.c_roads - 1) #return the position/id
 
     def CreateCorner(self, follows):
         '''Create a new corner given a list of follow pairs'''

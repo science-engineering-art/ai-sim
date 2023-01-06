@@ -25,14 +25,10 @@ class Vehicle:
         self.s0 = 4
         self.T = 1
 
-        self.stopped = False
-
         self.__dict__.update(kwargs)
 
     def update(self, dt = 1/60, lead: 'Vehicle' = None):
         
-        if self.stopped: return
-
         if self.v + self.a * dt < 0:
             self.x -= 1/2*self.v**2/self.a
             self.v = 0
