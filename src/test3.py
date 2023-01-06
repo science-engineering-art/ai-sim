@@ -98,8 +98,8 @@ ctrl.SetConfiguration([80, t2, t2, t2, t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, 
 
 rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
 
-ctrl.speed = 0.5
-ctrl.Start(observation_time = 10, draw=True)
+ctrl.speed = 5
+ctrl.Start(observation_time = 100, draw=True)
 
 to_print_1 = []
 to_print_2 = []

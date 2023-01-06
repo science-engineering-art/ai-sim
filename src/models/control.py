@@ -1,11 +1,14 @@
 
+from functools import reduce
 from multiprocessing.sharedctypes import copy
+from ntpath import join
 from time import  time
 from tokenize import Intnumber
 from typing import Deque
 from xml.etree.ElementTree import Comment
 
 from h11 import ConnectionClosed
+from pandas import concat
 from models.connection_road import connection_road
 from models.corner import corner
 from models.vehicle import Vehicle
@@ -140,27 +143,19 @@ class control:
 
             for road_id in range(len(self.roads)):  # for each road....
                 road = self.roads[road_id]
-                if draw:
-                    Painting.draw_road(screen, road, GRAY)  # repaint it
                 # if it has a semaphore in red...
                 if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id):
                     # add a 'semaphore car' to vehicles
                     road.vehicles.appendleft(
-                        Vehicle(road.length, 3, 1, color=RED, v=0, stopped = True))
+                        Vehicle(road.length - 1, 3, 1, color=RED, v=0, stopped = True))
                 # update the state of each vehicle in the road
                 self.UpdateRoad(road)
 
-            for road in self.roads:
-                for car in road.vehicles:
-                    if draw:
-                        # repaint all the cars
-                        Painting.draw_vehicle(screen, road, car)
-
-                if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
-                    self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)],
-                                                                      len(road.vehicles))  # fitness.................................
-                    road.vehicles.popleft()  # remove all the semaphores in red
-
+            self.UpdateConnectionRoads()
+            
+            self.DrawAllRoads(draw, screen)
+            self.DrawAllRoadsCars(draw, screen)
+            
             if draw:
                 pygame.display.update()
 
@@ -179,21 +174,51 @@ class control:
             self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id])
                                                      / (self.road_total_amount_cars[road_id]) if self.road_total_amount_cars[road_id] != 0 else 0))
 
+    def DrawAllRoads(self, draw, screen):
+        for road in self.roads:
+            if draw:
+                Painting.draw_road(screen, road, GRAY)  # repaint it
+                
+        for c_road in self.c_roads:
+            for road in c_road.roads:
+                if draw:
+                    Painting.draw_road(screen, road, GRAY)  # repaint it
+    def DrawAllRoadsCars(self, draw, screen):
+    
+        for road in self.roads:
+            for car in road.vehicles:
+                if draw:
+                    # repaint all the cars
+                    Painting.draw_vehicle(screen, road, car)
+
+            if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
+                self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)],
+                                                                len(road.vehicles))  # fitness.................................
+                road.vehicles.popleft()  # remove all the semaphores in red
+        for c_road in self.c_roads:
+            for road in c_road.roads:
+                for car in road.vehicles:
+                    if draw:
+                        # repaint all the cars
+                        Painting.draw_vehicle(screen, road, car)
+
+            
+
     def UpdateConnectionRoads(self):
-        for c_road in self.connect_roads:
+        for c_road in self.c_roads:
             c_road:connection_road
             for i in range(len(c_road.roads)):
-                road = c_road[i]
+                road = c_road.roads[i]
                 self.UpdateAllVehiclesInRoad(road)
                 while len(road.vehicles) > 0:
                     vehicle = road.vehicles[0]
                     if vehicle.x < road.length:
                         break
                     
-                    road.vehicles.pop(0)
+                    road.vehicles.popleft()
                     vehicle.x = 0
                     to = c_road.to_road
-                    if i != len(c_road.roads):
+                    if i != len(c_road.roads) - 1:
                         to = c_road.roads[i + 1]
                     to.vehicles.append(vehicle)
 
@@ -211,16 +236,15 @@ class control:
     def UpdateRoad(self, road):
         
         road_id = self.roads.index(road)
-        delete_amout = 0  # amount of of cars that move to other roads
         
-        self.UpdateAllVehiclesInRoad
+        self.UpdateAllVehiclesInRoad(road)
         
         while len(road.vehicles) > 0:
             vehicle = road.vehicles[0]
             if vehicle.x < road.length:
                 break
             
-            road.vehicles.pop(0)
+            road.vehicles.popleft()
             vehicle.x = 0
             self.NextRoad(vehicle, road)
             
@@ -250,11 +274,7 @@ class control:
         next_road_connec: connection_road = self.our_connection[(road_id, next_road_id)]
         next_road_connec.roads[0].vehicles.append(vehicle)
         
-        curve_road_id =  self.roads.index(next_road_connec.roads[0])
-        
-        # fitness.................................
-        self.road_car_entrance_queue[curve_road_id].append(self.it_number)
-        return curve_road_id
+        return next_road_connec
 
     def AddRoad(self, road_init_point, road_end_point, lambda_ = 1/50):
         '''Adds a nex road to the simulation'''
@@ -262,7 +282,6 @@ class control:
         road = Road(road_init_point, road_end_point, lambda_)
         road_id = len(self.roads)
         self.roads.append(road)
-        self.is_curve.append(False)
         self.road_index[road] = road_id
         return road_id
 
@@ -280,7 +299,7 @@ class control:
         
         self.our_connection[(road_1_id, road_2_id)] = c_road
         
-        return len(self.c_roads - 1) #return the position/id
+        return len(self.c_roads) - 1 #return the position/id
 
     def CreateCorner(self, follows):
         '''Create a new corner given a list of follow pairs'''
