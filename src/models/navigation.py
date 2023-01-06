@@ -1,13 +1,7 @@
-
-
-
-
-from collections import deque
+import random
 from copy import deepcopy
 from math import e, factorial
-import random
-from pygame import init
-from models.road import Road
+from collections import deque
 from models.vehicle import Vehicle
 
 class navigation():
@@ -59,23 +53,30 @@ class navigation():
         else:
             # we select the next corner road that can be reached from the current one, 
             # taking into account the flow of cars on each of these roads
-            maxx_id = (-1, -1)
-            reordered_options = deepcopy(road.end_conn.follow[ctrl.road_index[road]])
-            random.shuffle(reordered_options)
-            _break = False
-            for i in reordered_options:
-                _, prob = maxx_id
-                if prob < ctrl.roads[i].lambda_:  # if the probability is higher than the previous one
-                    maxx_id = (i, ctrl.roads[i].lambda_)
-                if random.random() < navigation.__poisson(ctrl.roads[i].lambda_, ctrl.dt, 1):
-                    next_road_id = i
-                    _break = True
-                    print(f'!!!!!!!!!!!!!!!\n break:{_break} BREAK\n!!!!!!!!!!!!!!!')
-                    break
-            else:
-                # by default we select the one that is most likely to occur
-                print(f'!!!!!!!!!!!!!!!\nbreak:{_break} DEFAULT\n!!!!!!!!!!!!!!!')
-                next_road_id = maxx_id[0]
+
+            next_road_id = random.choices(
+                population=road.end_conn.follow[ctrl.road_index[road]], 
+                weights=[navigation.__poisson(ctrl.roads[i].lambda_, ctrl.dt, 1) 
+                    for i in road.end_conn.follow[ctrl.road_index[road]]],
+                k = 1)[0]
+                        
+            # maxx_id = (-1, -1)
+            # reordered_options = deepcopy(road.end_conn.follow[ctrl.road_index[road]])
+            # random.shuffle(reordered_options)
+            # for i in reordered_options:
+            #     _, prob = maxx_id
+            #     if prob < ctrl.roads[i].lambda_:  # if the probability is higher than the previous one
+            #         maxx_id = (i, ctrl.roads[i].lambda_)
+            #     if random.random() < navigation.__poisson(ctrl.roads[i].lambda_, ctrl.dt, 1):
+            #         next_road_id = i
+            #         # _break = True
+            #         # print(f'!!!!!!!!!!!!!!!\n break:{_break} BREAK\n!!!!!!!!!!!!!!!')
+            #         break
+            # else:
+            #     # by default we select the one that is most likely to occur
+            #     # print(f'!!!!!!!!!!!!!!!\nbreak:{_break} DEFAULT\n!!!!!!!!!!!!!!!')
+            #     next_road_id = maxx_id[0]
+
             vehicle.path.append(ctrl.roads[next_road_id])
 
         next_road_connec  = ctrl.our_connection[(road_id, next_road_id)]
