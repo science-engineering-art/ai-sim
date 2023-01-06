@@ -98,8 +98,8 @@ t2 = 30
 
 rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
 print(ctrl.roads[AB].length)
-ctrl.speed = 5
-draw.Start(observation_time = 100)
+ctrl.speed = 20
+draw.Start(observation_time = 1000)
 
 to_print_1 = []
 to_print_2 = []

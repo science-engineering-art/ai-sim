@@ -65,7 +65,7 @@ class metaeh_control(control):
         self.posprocess_fitness_properties
 
     def preprocess_fitness_properties(self):
-        for road_id in range(len(self.roads)):
+        for _ in range(len(self.roads)):
             self.road_total_amount_cars.append(0)
             self.road_total_time_take_cars.append(0)
             self.road_average_time_take_cars.append(0)

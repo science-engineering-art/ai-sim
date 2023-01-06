@@ -24,7 +24,6 @@ class navigation():
             if r > navigation.__poisson(road.lambda_, self.ctrl.dt, 1):
                 continue
 
-            s = deque()
             # select uniformly the vehicle template (i.e. color, length, speed)
             car: Vehicle = deepcopy(random.choice(self.ctrl.basic_vehicles))
             
