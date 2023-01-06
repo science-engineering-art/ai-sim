@@ -247,7 +247,7 @@ class control:
         self.road_car_entrance_queue[next_road_curve_id].append(self.it_number)
         return next_road
 
-    def AddRoad(self, road_init_point, road_end_point, lambda_):
+    def AddRoad(self, road_init_point, road_end_point, lambda_ = 1/50):
         '''Adds a nex road to the simulation'''
 
         road = Road(road_init_point, road_end_point, lambda_)
