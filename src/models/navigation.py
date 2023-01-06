@@ -15,6 +15,7 @@ class navigation():
     def __init__(self, ctrl):
         self.cars = []
         self. ctrl = ctrl
+        
     
     def NewRandomVehicle(self):
         '''Creates a random vehicle with probability prob'''
@@ -40,26 +41,33 @@ class navigation():
             if len(road.vehicles) > 0 and road.vehicles[len(road.vehicles) - 1].x < car.length:
                 continue
             road.vehicles.append(car)
+            car.path = [road]; car.current_road_in_path = 0
             self.cars.append(car)
             cars.append(car)
             roads_id.append(road_id)
 
         return cars, roads_id
     
-    def NextRoad(self, vehicle: Vehicle, road: Road):
+    def NextRoad(self, vehicle: Vehicle):
+
+        road = vehicle.path[vehicle.current_road_in_path]
     
         if not road.end_conn:  # if nothing is associated with the end of the road
             return  # means the road end in the edge of the map
+        
         ctrl = self.ctrl
-        # we uniformily random select
-        # the next road from the corner that can be reached from the current one
+        road_id = ctrl.road_index[road]
         
-        road_id = ctrl.roads.index(road)
-        next_road_id = random.choice(
-            road.end_conn.follow[ctrl.road_index[road]])
+        if vehicle.current_road_in_path < len(vehicle.path) - 1:
+            next_road_id =  ctrl.road_index[vehicle.path[vehicle.current_road_in_path + 1]]
+        else:
+            # we uniformily random select
+            # the next road from the corner that can be reached from the current one
+            next_road_id = random.choice(
+                road.end_conn.follow[ctrl.road_index[road]])
+            vehicle.path.append(ctrl.roads[next_road_id])
 
-        next_road_connec: ctrl.connection_road = ctrl.our_connection[(road_id, next_road_id)]
-        
+        next_road_connec  = ctrl.our_connection[(road_id, next_road_id)]
         return next_road_connec
     
     

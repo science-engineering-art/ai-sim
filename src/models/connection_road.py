@@ -13,6 +13,12 @@ class connection_road():
         self.roads = [Road(r_loc[0], r_loc[1]) for r_loc in road_locations]
         self.from_road = road_1
         self.to_road = road_2
+        
+    def CarsTurning(self):
+        for road in self.roads:
+            if len(road.vehicles):
+                return True
+        return False
 
     def get_curve_road(init_point, end_point, inclination_point, steps = 15):
         points = connection_road.create_curve_road_points(init_point, end_point, inclination_point, steps)
