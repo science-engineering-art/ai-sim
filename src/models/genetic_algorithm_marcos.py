@@ -152,13 +152,12 @@ def eval_individual_in_simulation_max_average(simulation, individual, speed, obs
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
     ctrl.speed = speed
-    ctrl.Start(observation_time=obs_time, draw=False)
+    ctrl.Start(observation_time=obs_time)
     fitness_val =-1
     for road_id in range(len(ctrl.roads)):
-        if not ctrl.is_curve[road_id]:
-            # we use the max between average time a car takes in every semaphore
-            fitness_val = max(
-                fitness_val, ctrl.road_average_time_take_cars[road_id])
+        # we use the max between average time a car takes in every semaphore
+        fitness_val = max(
+           fitness_val, ctrl.road_average_time_take_cars[road_id])
     # I use the opposite value because we wish to diminish the time it takes for the cars
     return -fitness_val
 
@@ -166,11 +165,10 @@ def eval_individual_in_simulation_total(simulation, individual, speed, obs_time)
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
     ctrl.speed = speed
-    ctrl.Start(observation_time=obs_time, draw=False)
+    ctrl.Start(observation_time=obs_time)
     fitness_val = 0
     for road_id in range(len(ctrl.roads)):
-        if not ctrl.is_curve[road_id]:
-            fitness_val += ctrl.road_total_time_take_cars[road_id]
+        fitness_val += ctrl.road_total_time_take_cars[road_id]
     # I use the opposite value because we wish to diminish the time it takes for the cars
     return -fitness_val
 
@@ -178,13 +176,12 @@ def eval_individual_in_simulation_weigthed_mean(simulation, individual, speed, o
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
     ctrl.speed = speed
-    ctrl.Start(observation_time=obs_time, draw=False)
+    ctrl.Start(observation_time=obs_time)
     fitness_val = 0
     sumsq = 0
     for road_id in range(len(ctrl.roads)):
-        if not ctrl.is_curve[road_id]:
-            fitness_val += ctrl.road_average_time_take_cars[road_id] * ctrl.road_total_amount_cars[road_id]**2
-            sumsq += ctrl.road_total_amount_cars[road_id]**2
+        fitness_val += ctrl.road_average_time_take_cars[road_id] * ctrl.road_total_amount_cars[road_id]**2
+        sumsq += ctrl.road_total_amount_cars[road_id]**2
     # I use the opposite value because we wish to diminish the time it takes for the cars
     return -fitness_val / sumsq
 

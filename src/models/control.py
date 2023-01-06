@@ -128,6 +128,8 @@ class control:
                     to = c_road.to_road
                     if i != len(c_road.roads) - 1:
                         to = c_road.roads[i + 1]
+                    else:
+                        vehicle.current_road_in_path += 1
                     to.vehicles.append(vehicle)
                     
                 if red != None:
@@ -150,18 +152,33 @@ class control:
         red = road.vehicles.pop(0) if len(
             road.vehicles) > 0 and road.vehicles[0].color == RED else None
         
+        if len(road.vehicles) > 0 and self.VehicleCanTurn(road.vehicles[0], road):
+            road.vehicles[0].stopped = False
+        
         while len(road.vehicles) > 0:
             vehicle = road.vehicles[0]
-            if vehicle.x <= road.length:
+            if vehicle.x <= road.length or vehicle.stopped:
                 break
             
-            road.vehicles.pop(0)
-            vehicle.x = 0
-            self.nav.NextRoad(vehicle, road)
+            next_road_connec : connection_road = self.nav.NextRoad(vehicle)
+            if self.VehicleCanTurn(vehicle, road):
+                road.vehicles.pop(0)
+                if next_road_connec:
+                    vehicle.x = 0
+                    next_road_connec.roads[0].vehicles.append(vehicle)
+            else:
+                vehicle.stopped = True
             
         if red != None:
             road.vehicles.insert(0,red)
 
+    def VehicleCanTurn(self, vehicle, road):
+        next_road_connec : connection_road = self.nav.NextRoad(vehicle)
+        if not next_road_connec:
+            return True
+        to_road = next_road_connec.to_road
+        return  (len(to_road.vehicles) == 0 or to_road.vehicles[len(to_road.vehicles) - 1].x >= \
+            to_road.vehicles[len(to_road.vehicles) - 1].length)
 
     def AddRoad(self, road_init_point, road_end_point, lambda_ = 1/50):
         '''Adds a nex road to the simulation'''

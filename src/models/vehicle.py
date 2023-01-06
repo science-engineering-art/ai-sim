@@ -14,6 +14,7 @@ class Vehicle:
         self.length = length
         self.width = width
         
+        self.current_road_in_path = -1
         self.path = path
         self.v = 0
         self.v_max = 16.67
