@@ -91,7 +91,7 @@ class draw_control():
                 Painting.draw_vehicle(screen, road, car)
 
             if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
-                road.vehicles.popleft()  # remove all the semaphores in red
+                road.vehicles.pop(0)  # remove all the semaphores in red
                 
         for c_road in self.ctrl.c_roads:
             for road in c_road.roads:

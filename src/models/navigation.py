@@ -2,6 +2,7 @@
 
 
 
+from collections import deque
 from copy import deepcopy
 from math import e, factorial
 import random
@@ -32,9 +33,13 @@ class navigation():
             if r > poisson(road.lambda_, self.ctrl.dt, 1):
                 continue
 
+            s = deque()
             # select uniformly the vehicle template (i.e. color, length, speed)
             car: Vehicle = deepcopy(random.choice(self.ctrl.basic_vehicles))
-            road.vehicles.appendleft(car)
+            
+            if len(road.vehicles) > 0 and road.vehicles[len(road.vehicles) - 1].x < car.length:
+                continue
+            road.vehicles.append(car)
             self.cars.append(car)
             cars.append(car)
             roads_id.append(road_id)

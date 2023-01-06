@@ -105,7 +105,7 @@ class control:
         for road_id in range(len(self.roads)):  # for each road....
             road = self.roads[road_id]
             if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id):
-                road.vehicles.appendleft(Vehicle(road.length, 3, 1, color=RED, v=0, stopped = True))
+                road.vehicles.insert(0,Vehicle(road.length, 3, 1, color=RED, v=0, stopped = True))
             self.UpdateRoad(road)
 
         self.UpdateConnectionRoads()
@@ -117,14 +117,14 @@ class control:
                 road = c_road.roads[i]
                 self.UpdateAllVehiclesInRoad(road)
                 
-                red = road.vehicles.popleft() if len(
+                red = road.vehicles.pop(0) if len(
                                     road.vehicles) > 0 and road.vehicles[0].color == RED else None
                 while len(road.vehicles) > 0:
                     vehicle = road.vehicles[0]
                     if vehicle.x <= road.length:
                         break
                     
-                    road.vehicles.popleft()
+                    road.vehicles.pop(0)
                     vehicle.x = 0
                     to = c_road.to_road
                     if i != len(c_road.roads) - 1:
@@ -132,7 +132,7 @@ class control:
                     to.vehicles.append(vehicle)
                     
                 if red != None:
-                    road.vehicles.appendleft(red)
+                    road.vehicles.insert(0,red)
 
     
     def UpdateAllVehiclesInRoad(self, road):
@@ -148,7 +148,7 @@ class control:
         
         self.UpdateAllVehiclesInRoad(road)
         
-        red = road.vehicles.popleft() if len(
+        red = road.vehicles.pop(0) if len(
             road.vehicles) > 0 and road.vehicles[0].color == RED else None
         
         while len(road.vehicles) > 0:
@@ -156,12 +156,12 @@ class control:
             if vehicle.x <= road.length:
                 break
             
-            road.vehicles.popleft()
+            road.vehicles.pop(0)
             vehicle.x = 0
             self.nav.NextRoad(vehicle, road)
             
         if red != None:
-            road.vehicles.appendleft(red)
+            road.vehicles.insert(0,red)
 
 
     def AddRoad(self, road_init_point, road_end_point, lambda_ = 1/50):
