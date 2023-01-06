@@ -1,6 +1,7 @@
 from abc import ABC
 # from msilib.schema import Control
 from models.control import control
+from models.metaheuristic_control import metaeh_control
 
 # @abstract
 class Simulation(ABC):

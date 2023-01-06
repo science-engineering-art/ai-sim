@@ -40,7 +40,7 @@ class metaeh_control(control):
     '''class made to control hall the simulation over the map'''
     def __init__(self, **kwargs):
 
-        super().__init__(kwargs)
+        super().__init__()
             
         # fitness properties
         self.road_total_amount_cars = []
@@ -73,18 +73,18 @@ class metaeh_control(control):
     
     def posprocess_fitness_properties(self):
         for road_id in range(len(self.roads)):
-            self.road_average_time_take_cars[raod_id] = self.road_total_time_take_cars[road_id] / 
-                self.road_average_time_take_cars[road_id] if self.road_average_time_take_cars[road_id] != 0
-                    else : 0
+            self.road_average_time_take_cars[road_id] = self.road_total_time_take_cars[road_id] /            \
+                self.road_average_time_take_cars[road_id] if self.road_average_time_take_cars[road_id] != 0  \
+                    else 0
         
     def UpdateFitnessProp(self):
-        for road_id in range(len(self.roads))
+        for road_id in range(len(self.roads)):
             road = self.roads[road_id]
-            self.road_total_time_take_cars += self.dt * len(road.vehicles)
+            self.road_total_time_take_cars[road_id] += self.dt * len(road.vehicles)
             for vehicle in road.vehicles:
                 if vehicle == self.ref_car[road_id]:
                     break
-                self.road_total_amount_cars += 1
+                self.road_total_amount_cars[road_id] += 1
             if len(road.vehicles) > 0 :
                 self.ref_car[road_id] = road.vehicles[len(road.vehicles) - 1]
 
