@@ -97,7 +97,7 @@ ctrl.SetConfiguration([80, t2, t2, t2, t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, 
 # ctrl.SetConfiguration([19, 89, 27, 44, 4, 38, 11, 40, 11, 10, 52, 56, 59, 27, 59]    )
 
 rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
-
+print(ctrl.roads[AB].length)
 ctrl.speed = 5
 ctrl.Start(observation_time = 100, draw=True)
 

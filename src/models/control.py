@@ -9,6 +9,7 @@ from xml.etree.ElementTree import Comment
 
 from h11 import ConnectionClosed
 from pandas import concat
+from sklearn.preprocessing import scale
 from models.connection_road import connection_road
 from models.corner import corner
 from models.navigation import navigation
@@ -42,6 +43,8 @@ class control:
         # time step in each iteration of while cycle in Start
         self.dt = self.speed * (1/300)
 
+        self.scale = 300
+        self.roads_width = 1
         self.roads = []
         self.c_roads = []
         self.our_connection = {}
@@ -53,15 +56,28 @@ class control:
 
         # random vehicles templates
         self.basic_vehicles = [
-            Vehicle(x=0, length=1.22, width=1, color=(30, 255, 255),
-                    v_max=33.3, a_max=2.89, b_max=9.25),
-            # Vehicle(x=0, length= 1.22, width = 1, color=(30, 255,255), v_max = 80, a_max=2.89, b_max=9.25),
-            # Vehicle(x=0, length= 3, width = 1.5, color=(255, 30,255), v_max = 30, a_max=2.9, b_max=3),
-            # Vehicle(x=0, length= 2, width = 0.85, color=(255, 255,30), v_max = 40, a_max=2.2, b_max=4),
-            # Vehicle(x=0, length= 2.5, width = 1.2, color=(118,181,197), v_max = 65, a_max=4.9, b_max=1.5),
-            # Vehicle(x=0, length= 2.5, width = 1.2, color=(135,62,35), v_max = 50, a_max=2.9, b_max=2.5),
+            Vehicle(x=0, length=4*self.scale/300, width=self.roads_width,
+                    color=(30, 255, 255), b_max = 9.25*self.scale / 300,
+                    v_max=29.8*self.scale/300, a_max=2.89*self.scale/300),
+            Vehicle(x=0, length=3.5*self.scale/300, width=self.roads_width,
+                    color=(255, 30,255), b_max = 10.25*self.scale / 300,
+                    v_max=28.3*self.scale/300, a_max=2.5*self.scale/300),
+            Vehicle(x=0, length=4.2*self.scale/300, width=self.roads_width,
+                    color=(255, 255,30), b_max = 12.25*self.scale / 300,
+                    v_max=22.2*self.scale/300, a_max=2*self.scale/300),
+            Vehicle(x=0, length=4.5*self.scale/300, width=self.roads_width,
+                    color=(118,181,197), b_max = 8.9*self.scale / 300,
+                    v_max=33.3*self.scale/300, a_max=3.1*self.scale/300),
+            Vehicle(x=0, length=2.7*self.scale/300, width=self.roads_width,
+                    color=(135,62,35), b_max = 8.5*self.scale / 300,
+                    v_max=22.7*self.scale/300, a_max=3.3*self.scale/300)
         ]
-        
+        # Vehicle(x=0, length= 1.22, width = 1, color=(30, 255,255), v_max = 80, a_max=2.89, b_max=9.25),
+        # Vehicle(x=0, length= 3, width = 1.5, color=(255, 30,255), v_max = 30, a_max=2.9, b_max=3),
+        # Vehicle(x=0, length= 2, width = 0.85, color=(255, 255,30), v_max = 40, a_max=2.2, b_max=4),
+        # Vehicle(x=0, length= 2.5, width = 1.2, color=(118,181,197), v_max = 65, a_max=4.9, b_max=1.5),
+        # Vehicle(x=0, length= 2.5, width = 1.2, color=(135,62,35), v_max = 50, a_max=2.9, b_max=2.5),
+         
         self.nav = navigation(self)
 
         # fitness properties
