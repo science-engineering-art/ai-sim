@@ -42,9 +42,9 @@ class control:
         self.speed = 5  # how many simulation second will pass for every real life second
         # time step in each iteration of while cycle in Start
         self.dt = self.speed * (1/300)
+
         self.scale = 300
         self.roads_width = 1
-
         self.roads = []
         self.c_roads = []
         self.our_connection = {}
@@ -75,6 +75,13 @@ class control:
          
         self.nav = navigation(self)
 
+        # fitness properties
+        self.road_max_queue = []
+        self.road_car_entrance_queue = []
+        self.road_total_amount_cars = []
+        self.road_total_time_take_cars = []
+        self.road_average_time_take_cars = []
+
         self.__dict__.update(kwargs)
 
 
@@ -86,8 +93,20 @@ class control:
                 self.roads[road_id].lambda_ = lambdas[i]
             self.extremeRoads.append(road_id)
 
-    def Start(self, observation_time=-1, it_amount=-1):
+    def Start(self, observation_time=-1, it_amount=-1, draw=True):
         '''method to begin the simulation'''
+        if draw:
+            pygame.init()
+            screen = pygame.display.set_mode((1400, 800))
+            pygame.display.update()
+
+        # presetting the fitness properties
+        for road in self.roads:
+            self.road_max_queue.append(0)
+            self.road_total_amount_cars.append(0)
+            self.road_total_time_take_cars.append(0)
+            self.road_car_entrance_queue.append([])
+        self.it_number = 1
 
         init_time = time()
         while (self.it_number < it_amount or it_amount == -1) and (time() - init_time < observation_time or observation_time == -1):
@@ -97,18 +116,83 @@ class control:
             for corn in self.corners:
                 corn.tick(self.dt)  # increments the time of each semaphore
 
-            self.nav.NewRandomVehicle()  # generates a new random vehicle
+            if draw:
+                screen.fill(LIGHT_GRAY)  # repaint the background
+
+            _, roads_id = self.nav.NewRandomVehicle()  # generates a new random vehicle
+            if len(roads_id) > 0:
+                for road_id in roads_id:
+                    # fitness.................................
+                    self.road_car_entrance_queue[road_id].append(
+                        self.it_number)
+
+            if draw:
+                for event in pygame.event.get():  # check if exiting
+                    if event.type == QUIT:
+                        pygame.quit()
 
             for road_id in range(len(self.roads)):  # for each road....
                 road = self.roads[road_id]
+                # if it has a semaphore in red...
                 if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id):
-                    road.vehicles.appendleft(Vehicle(road.length, 3, 1, color=RED, v=0, stopped = True))
+                    # add a 'semaphore car' to vehicles
+                    road.vehicles.appendleft(
+                        Vehicle(road.length, 3, 1, color=RED, v=0, stopped = True))
+                # update the state of each vehicle in the road
                 self.UpdateRoad(road)
 
             self.UpdateConnectionRoads()
+            
+            self.DrawAllRoads(draw, screen)
+            self.DrawAllRoadsCars(draw, screen)
+            
+            if draw:
+                pygame.display.update()
 
+            # print(self.dt)
             self.dt = (time() - t1) * self.speed
+            self.it_number += 1
 
+        # fitness.................................
+        for road_id in range(len(self.roads)):
+            c = 0
+            t = 0
+            for i in range(len(self.roads[road_id].vehicles)):
+                c += 1
+            self.road_total_time_take_cars[road_id] += self.dt * c
+            self.road_total_amount_cars[road_id] += c
+            self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id])
+                                                     / (self.road_total_amount_cars[road_id]) if self.road_total_amount_cars[road_id] != 0 else 0))
+
+    def DrawAllRoads(self, draw, screen):
+        for road in self.roads:
+            if draw:
+                Painting.draw_road(screen, road, GRAY)  # repaint it
+                
+        for c_road in self.c_roads:
+            for road in c_road.roads:
+                if draw:
+                    Painting.draw_road(screen, road, GRAY)  # repaint it
+    def DrawAllRoadsCars(self, draw, screen):
+    
+        for road in self.roads:
+            for car in road.vehicles:
+                if draw:
+                    # repaint all the cars
+                    Painting.draw_vehicle(screen, road, car)
+
+            if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
+                self.road_max_queue[self.roads.index(road)] = max(self.road_max_queue[self.roads.index(road)],
+                                                                len(road.vehicles))  # fitness.................................
+                road.vehicles.popleft()  # remove all the semaphores in red
+        for c_road in self.c_roads:
+            for road in c_road.roads:
+                for car in road.vehicles:
+                    if draw:
+                        # repaint all the cars
+                        Painting.draw_vehicle(screen, road, car)
+
+            
 
     def UpdateConnectionRoads(self):
         for c_road in self.c_roads:
@@ -146,11 +230,12 @@ class control:
 
     def UpdateRoad(self, road):
         
+        road_id = self.roads.index(road)
+        
         self.UpdateAllVehiclesInRoad(road)
         
         red = road.vehicles.popleft() if len(
             road.vehicles) > 0 and road.vehicles[0].color == RED else None
-        
         while len(road.vehicles) > 0:
             vehicle = road.vehicles[0]
             if vehicle.x <= road.length:
@@ -160,6 +245,11 @@ class control:
             vehicle.x = 0
             self.nav.NextRoad(vehicle, road)
             
+        # fitness.................................
+        self.road_total_time_take_cars[road_id] += self.dt * len(road.vehicles)
+        if len(self.road_car_entrance_queue[road_id]) > 0:
+            self.road_total_amount_cars[road_id] += 1
+            self.road_car_entrance_queue[road_id].pop(0)
         if red != None:
             road.vehicles.appendleft(red)
 
@@ -201,3 +291,19 @@ class control:
             else:
                 corn.addFollow(follow[0], follow)
             self.roads[follow[0]].end_conn = corn
+
+    def GetDimension(self):
+        dimension = 0
+        for corner in self.corners:
+            dimension += (corner.numberOfTurns + 1)
+
+        return dimension
+
+    def SetConfiguration(self, individual):
+        pos = 0
+        for corner in self.corners:
+            corner.time_tick = individual[pos]
+            pos+=1
+            for i in range(corner.numberOfTurns):
+                corner.times[i] = individual[pos]
+                pos += 1
