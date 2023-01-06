@@ -1,5 +1,6 @@
 from matplotlib.hatch import HorizontalHatch
 from models.control import control
+from models.draw_control import draw_control
 from models.simulation import Simulation_test_3
 
 pos_x = [100, 450, 800, 1150]
@@ -7,7 +8,8 @@ pos_y = [100, 300, 500, 700]
 h_diff = 20
 v_diff = 20
 road_width = 10
-ctrl = control()
+draw = draw_control()
+ctrl = draw.ctrl
 
 AB = ctrl.AddRoad((pos_x[0], pos_y[2]), (pos_x[1], pos_y[2]))
 LJ = ctrl.AddRoad((pos_x[0], pos_y[1]), (pos_x[1], pos_y[1]))
@@ -88,40 +90,38 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     (CI, IH, 1), (CI, IG, 1), (CI, IJ, 1)])
     
 
-print(ctrl.GetDimension())
 t1 = 0
 t2 = 30
-ctrl.SetConfiguration([80, t2, t2, t2, t1, t2, t2, t2,  t1, t2, t2, t2, t1, t2, t2])
 # ctrl.SetConfiguration([t2 for _ in range(11)])
 # ctrl.SetConfiguration([81, 67, 7, 43, 25, 20, 53, 48, 85, 83, 29])
 # ctrl.SetConfiguration([19, 89, 27, 44, 4, 38, 11, 40, 11, 10, 52, 56, 59, 27, 59]    )
 
 rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
-
+print(ctrl.roads[AB].length)
 ctrl.speed = 5
-ctrl.Start(observation_time = 10, draw=True)
+draw.Start(observation_time = 100)
 
 to_print_1 = []
 to_print_2 = []
 to_print_3 = []
 to_print_4 = []
 
-my_roads = []
-str_rr = ['AB', 'BA', 'BE', 'BC', 'CB', 'CD', 'DC','FC', 'CI', 'IG', 'IH', 'IJ', 'JI', 'KJ', 'LJ', 'JB']
-for i in range(16):
-    road_id = rr[i]
-    to_print_1.append(f'{str_rr[i]} : {ctrl.road_max_queue[road_id]}')
-    to_print_2.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id]}')
-    to_print_3.append(f'{str_rr[i]} : {ctrl.road_total_time_take_cars[road_id]}')
-    to_print_4.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id] * ctrl.road_total_amount_cars[road_id]**2}')
+# my_roads = []
+# str_rr = ['AB', 'BA', 'BE', 'BC', 'CB', 'CD', 'DC','FC', 'CI', 'IG', 'IH', 'IJ', 'JI', 'KJ', 'LJ', 'JB']
+# for i in range(16):
+#     road_id = rr[i]
+#     to_print_1.append(f'{str_rr[i]} : {ctrl.road_max_queue[road_id]}')
+#     to_print_2.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id]}')
+#     to_print_3.append(f'{str_rr[i]} : {ctrl.road_total_time_take_cars[road_id]}')
+#     to_print_4.append(f'{str_rr[i]} : {ctrl.road_average_time_take_cars[road_id] * ctrl.road_total_amount_cars[road_id]**2}')
 
 
-print('max queue')
-print(to_print_1)
-print('ave time')
-print(to_print_2)
-print('total time')
-print('total time')
-print(to_print_3)
-print('new fitt')
-print(to_print_4)
+# print('max queue')
+# print(to_print_1)
+# print('ave time')
+# print(to_print_2)
+# print('total time')
+# print('total time')
+# print(to_print_3)
+# print('new fitt')
+# print(to_print_4)
