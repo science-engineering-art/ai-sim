@@ -11,6 +11,7 @@ from h11 import ConnectionClosed
 from pandas import concat
 from models.connection_road import connection_road
 from models.corner import corner
+from models.navigation import navigation
 from models.vehicle import Vehicle
 from models.road import Road
 import random
@@ -60,6 +61,8 @@ class control:
             # Vehicle(x=0, length= 2.5, width = 1.2, color=(118,181,197), v_max = 65, a_max=4.9, b_max=1.5),
             # Vehicle(x=0, length= 2.5, width = 1.2, color=(135,62,35), v_max = 50, a_max=2.9, b_max=2.5),
         ]
+        
+        self.nav = navigation(self)
 
         # fitness properties
         self.road_max_queue = []
@@ -70,30 +73,6 @@ class control:
 
         self.__dict__.update(kwargs)
 
-    def NewRandomVehicle(self):
-        '''Creates a random vehicle with probability prob'''
-
-        def poisson(Lambda: float, t: float, x: int):
-            Lambda *= t
-            return Lambda**x * (e**(-Lambda)) / factorial(x)
-
-        cars = []
-        roads_id = []
-
-        for road_id in self.extremeRoads:
-            road: Road = self.roads[road_id]
-
-            r = random.random()
-            if r > poisson(road.lambda_, self.dt, 1):
-                continue
-
-            # select uniformly the vehicle template (i.e. color, length, speed)
-            car: Vehicle = deepcopy(random.choice(self.basic_vehicles))
-            road.vehicles.append(car)
-            cars.append(car)
-            roads_id.append(road_id)
-
-        return cars, roads_id
 
     def AddExtremeRoads(self, roads, lambdas=None):
         '''establish the extreme roads'''
@@ -129,7 +108,7 @@ class control:
             if draw:
                 screen.fill(LIGHT_GRAY)  # repaint the background
 
-            _, roads_id = self.NewRandomVehicle()  # generates a new random vehicle
+            _, roads_id = self.nav.NewRandomVehicle()  # generates a new random vehicle
             if len(roads_id) > 0:
                 for road_id in roads_id:
                     # fitness.................................
