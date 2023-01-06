@@ -4,6 +4,8 @@ from time import  time
 from tokenize import Intnumber
 from typing import Deque
 from xml.etree.ElementTree import Comment
+
+from h11 import ConnectionClosed
 from models.connection_road import connection_road
 from models.corner import corner
 from models.vehicle import Vehicle
@@ -38,6 +40,7 @@ class control:
 
         self.roads = []
         self.c_roads = []
+        self.our_connection = {}
         self.road_index = {}  # store the index of each road in roads list
         self.running = True
         self.vehicles = []
@@ -143,7 +146,7 @@ class control:
                 if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id):
                     # add a 'semaphore car' to vehicles
                     road.vehicles.appendleft(
-                        Vehicle(road.length, 3, 1, color=RED, v=0))
+                        Vehicle(road.length, 3, 1, color=RED, v=0, stopped = True))
                 # update the state of each vehicle in the road
                 self.UpdateRoad(road)
 
@@ -176,66 +179,82 @@ class control:
             self.road_average_time_take_cars.append(((self.road_total_time_take_cars[road_id])
                                                      / (self.road_total_amount_cars[road_id]) if self.road_total_amount_cars[road_id] != 0 else 0))
 
-    def UpdateRoad(self, road):
-        
-        road_id = self.roads.index(road)
-        
-        delete_amout = 0  # amount of of cars that move to other roads
+    def UpdateConnectionRoads(self):
+        for c_road in self.connect_roads:
+            c_road:connection_road
+            for i in range(len(c_road.roads)):
+                road = c_road[i]
+                self.UpdateAllVehiclesInRoad(road)
+                while len(road.vehicles) > 0:
+                    vehicle = road.vehicles[0]
+                    if vehicle.x < road.length:
+                        break
+                    
+                    road.vehicles.pop(0)
+                    vehicle.x = 0
+                    to = c_road.to_road
+                    if i != len(c_road.roads):
+                        to = c_road.roads[i + 1]
+                    to.vehicles.append(vehicle)
+
+    
+    def UpdateAllVehiclesInRoad(self, road):
         for i in range(len(road.vehicles)):
-            car = road.vehicles[i]
+            vehicle = road.vehicles[i]
+            vehicle.update(dt = self.dt)
             lead = None
             if i != 0:
                 lead = road.vehicles[i - 1]
-            if car.color != RED:  # be careful do not update the semaphore car
-                car.update(dt=self.dt, lead=lead)
-            if car.x > road.length:  # if the car position is out of the road
-                delete_amout += 1  # remove the car from this road
-                self.NextRoad(car, road)  # and add it in the next one
+            vehicle.update(dt=self.dt, lead=lead)
+            
 
+    def UpdateRoad(self, road):
+        
+        road_id = self.roads.index(road)
+        delete_amout = 0  # amount of of cars that move to other roads
+        
+        self.UpdateAllVehiclesInRoad
+        
+        while len(road.vehicles) > 0:
+            vehicle = road.vehicles[0]
+            if vehicle.x < road.length:
+                break
+            
+            road.vehicles.pop(0)
+            vehicle.x = 0
+            self.NextRoad(vehicle, road)
+            
+        # fitness.................................
         red = road.vehicles.popleft() if len(
             road.vehicles) > 0 and road.vehicles[0].color == RED else None
-        
         self.road_total_time_take_cars[road_id] += self.dt * len(road.vehicles)
-            
-            
-        for i in range(delete_amout):  # remove the cars moving out from the road
-            road.vehicles.popleft()
-
-            # fitness.................................
-            if len(self.road_car_entrance_queue[road_id]) > 0:
-                self.road_total_amount_cars[road_id] += 1
-                self.road_car_entrance_queue[road_id].pop(0)
-
+        if len(self.road_car_entrance_queue[road_id]) > 0:
+            self.road_total_amount_cars[road_id] += 1
+            self.road_car_entrance_queue[road_id].pop(0)
         if red != None:
             road.vehicles.appendleft(red)
+
 
     def NextRoad(self, vehicle: Vehicle, road: Road):
 
         if not road.end_conn:  # if nothing is associated with the end of the road
             return  # means the road end in the edge of the map
 
-        vehicle.x = 0
-        if type(road.end_conn) == Road:  # if the road is followed by other road
-            # simply add the vehicle to that road
-            road.end_conn.vehicles.append(vehicle)
-            next_road_id = self.roads.index(road.end_conn)
-            # fitness.................................
-            self.road_car_entrance_queue[next_road_id].append(self.it_number)
-            return road.end_conn
-
-        # in other case the road ends in a cornen, in which case we uniformily random select
+        # we uniformily random select
         # the next road from the corner that can be reached from the current one
+        
+        road_id = self.roads.index(road)
         next_road_id = random.choice(
             road.end_conn.follow[self.road_index[road]])
 
-        # if the road is in a corner it may have a curve associated
-        next_road_curve_id = self.curves[(
-            self.road_index[road], next_road_id)][0]
-        next_road: Road = self.roads[next_road_curve_id]
-        next_road.vehicles.append(vehicle)
+        next_road_connec: connection_road = self.our_connection[(road_id, next_road_id)]
+        next_road_connec.roads[0].vehicles.append(vehicle)
+        
+        curve_road_id =  self.roads.index(next_road_connec.roads[0])
+        
         # fitness.................................
-        self.road_car_entrance_queue[next_road_curve_id].append(self.it_number)
-        return next_road
+        self.road_car_entrance_queue[curve_road_id].append(self.it_number)
+        return curve_road_id
 
     def AddRoad(self, road_init_point, road_end_point, lambda_ = 1/50):
         '''Adds a nex road to the simulation'''
@@ -255,8 +274,11 @@ class control:
         road_1: Road = self.roads[road_1_id]
         road_2: Road = self.roads[road_2_id]
         
+        
         c_road = connection_road(road_1, road_2, curve_point)
         self.c_roads.append(c_road)
+        
+        self.our_connection[(road_1_id, road_2_id)] = c_road
         
         return len(self.c_roads - 1) #return the position/id
 

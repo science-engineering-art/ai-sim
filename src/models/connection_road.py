@@ -11,13 +11,9 @@ class connection_road():
             *connection_road.get_curve_road(road_1.end, road_2.start, curve_point)]
         
         self.roads = [Road(r_loc[0], r_loc[1]) for r_loc in road_locations]
+        self.from_road = road_1
+        self.to_road = road_2
 
-        # the next road of each road of the curve is assigned
-        for i in range(0, len(road_locations) - 1):
-            self.roads[i].end_conn = self.roads[i+1]
-        
-    
-    
     def get_curve_road(init_point, end_point, inclination_point, steps = 15):
         points = connection_road.create_curve_road_points(init_point, end_point, inclination_point, steps)
     
