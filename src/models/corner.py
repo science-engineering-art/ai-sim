@@ -121,6 +121,7 @@ class corner:
         if not self.light_controled: return True
         
         if out_road == None:
+            return self.current_turn == self.myturn[(in_road, self.follow[in_road][0])] 
             for out_road in self.follow[in_road]:
                 if self.current_turn != self.myturn[(in_road, out_road)]:
                     return False

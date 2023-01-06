@@ -88,27 +88,27 @@ class control:
 
     def Start(self, observation_time=-1, it_amount=-1):
         '''method to begin the simulation'''
-
+        self.it_number = 0
         init_time = time()
         while (self.it_number < it_amount or it_amount == -1) and (time() - init_time < observation_time or observation_time == -1):
-
             t1 = time()  # measures time complexity
+            self.UpdateAll()
+            self.dt = (time() - t1) * self.speed
+            self.it_number += 1
 
-            for corn in self.corners:
+    def UpdateAll(self):
+        for corn in self.corners:
                 corn.tick(self.dt)  # increments the time of each semaphore
 
-            self.nav.NewRandomVehicle()  # generates a new random vehicle
+        self.nav.NewRandomVehicle()  # generates a new random vehicle
 
-            for road_id in range(len(self.roads)):  # for each road....
-                road = self.roads[road_id]
-                if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id):
-                    road.vehicles.appendleft(Vehicle(road.length, 3, 1, color=RED, v=0, stopped = True))
-                self.UpdateRoad(road)
+        for road_id in range(len(self.roads)):  # for each road....
+            road = self.roads[road_id]
+            if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id):
+                road.vehicles.appendleft(Vehicle(road.length, 3, 1, color=RED, v=0, stopped = True))
+            self.UpdateRoad(road)
 
-            self.UpdateConnectionRoads()
-
-            self.dt = (time() - t1) * self.speed
-
+        self.UpdateConnectionRoads()
 
     def UpdateConnectionRoads(self):
         for c_road in self.c_roads:
