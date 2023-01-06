@@ -26,7 +26,7 @@ class navigation():
         roads_id = []
 
         for road_id in self.ctrl.extremeRoads:
-            road: Road = self.ctrl.roads[road_id]
+            road = self.ctrl.roads[road_id]
 
             r = random.random()
             if r > poisson(road.lambda_, self.ctrl.dt, 1):
@@ -34,7 +34,7 @@ class navigation():
 
             # select uniformly the vehicle template (i.e. color, length, speed)
             car: Vehicle = deepcopy(random.choice(self.ctrl.basic_vehicles))
-            road.vehicles.append(car)
+            road.vehicles.appendleft(car)
             self.cars.append(car)
             cars.append(car)
             roads_id.append(road_id)
