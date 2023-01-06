@@ -8,6 +8,7 @@ class navigation():
     
     def __init__(self, ctrl):
         self.cars = []
+        self.fixed_vehicles = []
         self. ctrl = ctrl
         
     
@@ -30,25 +31,36 @@ class navigation():
             if len(road.vehicles) > 0 and road.vehicles[len(road.vehicles) - 1].x < car.length:
                 continue
             road.vehicles.append(car)
-            car.path = [road]; car.current_road_in_path = 0
+            car.path = [road_id]; car.current_road_in_path = 0
             self.cars.append(car)
             cars.append(car)
             roads_id.append(road_id)
-
+            
+        new_fv = []
+        for vehicle in self.fixed_vehicles:
+            road = self.ctrl.roads[vehicle.path[0]]
+            l = len(road.vehicles)
+            if l == 0 or (road.vehicles[l - 1].x < road.vehicles[l - 1].length): 
+                road.vehicles.append(vehicle)
+                self.cars.append(vehicle)
+                cars.append(vehicle)
+                roads_id.append(vehicle.path[0])
+            else: new_fv.append(vehicle)
+        self.fixed_vehicles = new_fv    
+        
         return cars, roads_id
     
     def NextRoad(self, vehicle: Vehicle):
 
-        road = vehicle.path[vehicle.current_road_in_path]
+        road_id = vehicle.path[vehicle.current_road_in_path]
+        ctrl = self.ctrl
+        road = ctrl.roads[road_id]
     
         if not road.end_conn:  # if nothing is associated with the end of the road
             return  # means the road end in the edge of the map
         
-        ctrl = self.ctrl
-        road_id = ctrl.road_index[road]
-        
         if vehicle.current_road_in_path < len(vehicle.path) - 1:
-            next_road_id =  ctrl.road_index[vehicle.path[vehicle.current_road_in_path + 1]]
+            next_road_id =  vehicle.path[vehicle.current_road_in_path + 1]
         else:
             # we select the next corner road that can be reached from the current one, 
             # taking into account the flow of cars on each of these roads
@@ -76,7 +88,7 @@ class navigation():
             #     # print(f'!!!!!!!!!!!!!!!\nbreak:{_break} DEFAULT\n!!!!!!!!!!!!!!!')
             #     next_road_id = maxx_id[0]
 
-            vehicle.path.append(ctrl.roads[next_road_id])
+            vehicle.path.append(next_road_id)
 
         next_road_connec  = ctrl.our_connection[(road_id, next_road_id)]
         return next_road_connec

@@ -1,6 +1,9 @@
 from matplotlib.hatch import HorizontalHatch
+from sklearn.utils import all_estimators
+from models.A_star import A_star
 from models.control import control
 from models.draw_control import draw_control
+from models.new_control import new_control
 from models.simulation import Simulation_test_3
 
 pos_x = [100, 450, 800, 1150]
@@ -9,6 +12,7 @@ h_diff = 20
 v_diff = 20
 road_width = 10
 draw = draw_control()
+draw.ctrl = new_control()
 ctrl = draw.ctrl
 
 AB = ctrl.AddRoad((pos_x[0], pos_y[2]), (pos_x[1], pos_y[2]), 0.0138)
@@ -34,7 +38,7 @@ CI = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff
 FC = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2), 0.018)
 
 normal = 1/50
-factor = 20
+factor = 0
 ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * factor, normal * factor, normal, normal, normal])
 
 #curvas desde la izquiera
@@ -99,6 +103,13 @@ t2 = 30
 rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
 print(ctrl.roads[AB].length)
 ctrl.speed = 20
+
+# p = A_star.find_shortest_path(ctrl, init_road_id=BC, end_road_id=BE)
+# print(p)
+# for x in p:
+#     print(rr.index(x))
+
+ctrl.AddRoutedVehicle(BC, BE)
 draw.Start(observation_time = 1000)
 
 to_print_1 = []
