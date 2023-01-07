@@ -29,12 +29,6 @@ GRAY = (50, 50, 50)
 LIGHT_GRAY = (225, 225, 225)
 
 
-# relaciones:
-# vehiculo.length/calle 4m/300m
-# vehiculo.vmax/calle 80-120km/h/300m = 22.2-33.3m/s/300m
-# vehiculo.a_max/vmax 1/11.5
-# vehiculo.b_max/vmax 1/3.60
-
 class metaeh_control(control):
     '''class made to control hall the simulation over the map'''
 
