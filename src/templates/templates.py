@@ -137,27 +137,25 @@ class BasicMapBuilder:
                     road_in: Edge = self.map.lanes[in_lane_id]
                     road_out: Edge = self.map.lanes[out_lane_id]
 
-                    # check if road_in and road_out are parallel
-                    if distance.euclidean(road_in.start, road_out.end) == \
-                       distance.euclidean(road_in.end, road_out.start):
+                    # check if road_in and road_out are in the same road
+                    if abs(BasicMapBuilder.__calculate_angle(road_in) - 
+                    BasicMapBuilder.__calculate_angle(road_out)) < 5 or \
+                    (abs(BasicMapBuilder.__calculate_angle(road_in) - \
+                    BasicMapBuilder.__calculate_angle(road_out)) > 177.5 and \
+                    abs(BasicMapBuilder.__calculate_angle(road_in) - \
+                    BasicMapBuilder.__calculate_angle(road_out)) < 182.5):
                         print(
                             f'PARALLEL: {(road_in.start, road_in.end)} -- {(road_out.start, road_out.end)}')
                         continue
 
-                    x0, y0 = road_in.start[0] - \
-                        road_in.end[0], road_in.start[1] - road_in.end[1]
-                    x1, y1 = road_out.end[0] - \
-                        road_out.start[0], road_out.end[1] - road_out.start[1]
-                    sim = (x0 * x1 + y0 * y1) / \
-                        ((x0**2 + y0**2)**0.5 * (x1**2 + y1**2)**0.5)
-
-                    # check if road_in and road_out are the same road
-                    if sim == 1 or sim == -1:
+                    # turning left
+                    if abs(BasicMapBuilder.__calculate_angle(road_in) - \
+                    BasicMapBuilder.__calculate_angle(road_out)) > 185:
                         continue
 
                     print(f'connect {road_in.end} to {road_out.start}')
                     print(road_in.start, road_in.end,
-                          road_out.start, road_out.end)
+                        road_out.start, road_out.end)
                     curve_pt = BasicMapBuilder.__calculate_curve_point(road_in, road_out)
                     print(f'curve at {curve_pt}')
                     curve = CurveEdge(
@@ -167,7 +165,6 @@ class BasicMapBuilder:
                     )
                     curve_id = len(self.map.curves)
                     self.map.curves.append(curve)
-                    # self.ctrl.connect_roads(road_in_id, road_out_id, curve_pt)
 
                     try:
                         self.map.extremes_lanes.remove(out_lane_id)
