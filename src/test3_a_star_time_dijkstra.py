@@ -100,4 +100,4 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
 ctrl.speed = 40
 
 A_star.SetDraw(draw)
-print(A_star.find_shortest_path_parallel(ctrl,BC,BE,g_increment=A_star.my_g_increment_function))
+print(A_star.find_shortest_path_parallel(ctrl,BC,BE,g_increment=A_star.my_g_increment_function, h=A_star.dijkstra_base_heuristic))
