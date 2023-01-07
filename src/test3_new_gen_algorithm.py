@@ -25,7 +25,7 @@ maximum_waiting_time = 90
 average_passing_time = 3
 speed = 20
 obs_time = 1
-max_iterations = 10
+max_iterations = 100
 
 gam.genetic_algorithm(simulation, pop_size, number_of_turns,
                       maximum_waiting_time, average_passing_time, speed, obs_time, max_iterations,

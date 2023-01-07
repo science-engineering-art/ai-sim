@@ -87,6 +87,7 @@ class control:
 
     def Start(self, observation_time=-1, it_amount=-1):
         '''method to begin the simulation'''
+        
         self.it_number = 0
         init_time = time()
         while (self.it_number < it_amount or it_amount == -1) and (time() - init_time < observation_time or observation_time == -1):
@@ -95,7 +96,17 @@ class control:
             self.dt = (time() - t1) * self.speed
             self.it_number += 1
 
+
+
     def UpdateAll(self):
+        
+        def CleanRedLights():
+            for road in self.roads:
+                if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
+                    road.vehicles.pop(0)  # remove all the semaphores in red
+        
+        CleanRedLights()
+        
         for corn in self.corners:
                 corn.tick(self.dt)  # increments the time of each semaphore
 
@@ -159,7 +170,7 @@ class control:
             vehicle = road.vehicles[0]
             if vehicle.x <= road.length or vehicle.stopped:
                 break
-            
+        
             next_road_connec : connection_road = self.nav.NextRoad(vehicle)
             if self.VehicleCanTurn(vehicle, road):
                 road.vehicles.pop(0)
