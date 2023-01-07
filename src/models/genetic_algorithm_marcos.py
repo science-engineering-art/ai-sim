@@ -150,7 +150,7 @@ def xover(parent_a, parent_b, xover_method = MULTIPOINT_XOVER):
 
 def eval_individual_in_simulation_max_average(simulation, individual, speed, obs_time):
     ctrl = simulation.get_new_control_object()
-    ctrl.SetConfiguration(individual, shync = False)
+    ctrl.SetConfiguration(individual)
     ctrl.speed = speed
     ctrl.Start(observation_time=obs_time)
     fitness_val =-1

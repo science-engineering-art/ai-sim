@@ -133,7 +133,6 @@ class A_star:
     def Dikjstra(ctrl, end_road_id : Road):
         
         queue = []
-        # p = [-1 for _ in range(len(ctrl.roads))]
         f = [Inf for _ in range(len(ctrl.roads))]
         visited = [False for _ in range(len(ctrl.roads))]
         start_conn = [None for _ in range(len(ctrl.roads))] 
@@ -156,8 +155,6 @@ class A_star:
             d, road_id = heappop(queue)
             if visited[road_id]:
                 continue
-            
-            road : Road = ctrl.roads[road_id]
             
             if not start_conn[road_id]:
                 continue

@@ -79,8 +79,6 @@ class new_draw(draw_control):
         self.it_number = 0
         init_time = time()
         while vehicle.current_road_in_path < path_length - 1 or (vehicle.current_road_in_path == path_length - 1 and vehicle.x < ctrl.roads[vehicle.path[path_length - 1]].length):
-            # print(vehicle.current_road_in_path)
-            t1 = time()  # measures time complexity
             ctrl.UpdateAll()
             screen.fill(LIGHT_GRAY)  # repaint the background
             for event in pygame.event.get():  # check if exiting
@@ -105,10 +103,7 @@ class new_draw(draw_control):
         pygame.display.update()
         
         self.it_number = 0
-        init_time = time()
         while True:
-            # print(vehicle.current_road_in_path)
-            t1 = time()  # measures time complexity
             ctrl.UpdateAll()
             screen.fill(LIGHT_GRAY)  # repaint the background
             for event in pygame.event.get():  # check if exiting
