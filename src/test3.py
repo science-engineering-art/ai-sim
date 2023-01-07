@@ -3,7 +3,7 @@ from sklearn.utils import all_estimators
 from models.A_star import A_star
 from models.control import control
 from models.draw_control import draw_control
-from models.new_control import new_control
+from models.new_control import new_control, new_draw
 from models.simulation import Simulation_test_3
 
 pos_x = [100, 450, 800, 1150]
@@ -11,7 +11,7 @@ pos_y = [100, 300, 500, 700]
 h_diff = 20
 v_diff = 20
 road_width = 10
-draw = draw_control()
+draw = new_draw()
 draw.ctrl = new_control()
 ctrl = draw.ctrl
 
@@ -109,8 +109,10 @@ ctrl.speed = 20
 # for x in p:
 #     print(rr.index(x))
 
-ctrl.AddRoutedVehicle(BC, BE)
-draw.Start(observation_time = 1000)
+draw.Start(observation_time = 2)
+car = ctrl.AddRoutedVehicle(BC, CD)
+print(car.path)
+draw.ObserveVehicle(car, len(car.path))
 
 to_print_1 = []
 to_print_2 = []

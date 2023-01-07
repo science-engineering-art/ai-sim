@@ -52,6 +52,7 @@ class navigation():
     
     def NextRoad(self, vehicle: Vehicle):
 
+
         road_id = vehicle.path[vehicle.current_road_in_path]
         ctrl = self.ctrl
         road = ctrl.roads[road_id]
