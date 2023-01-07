@@ -19,12 +19,12 @@ GET_WEIGHTS_BY_RANKING = 1
 
 simulation = Simulation_test_3()
 
-pop_size = 30
+pop_size = 10
 number_of_turns = simulation.get_new_control_object().GetDimension()
 maximum_waiting_time = 90
 average_passing_time = 3
 speed = 20
-obs_time = 5
+obs_time = 1
 max_iterations = 50
 
 gam.genetic_algorithm(simulation, pop_size, number_of_turns,
