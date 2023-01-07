@@ -1,7 +1,9 @@
 import random
+from matplotlib.bezier import find_bezier_t_intersecting_with_closedpath
+from matplotlib.font_manager import weight_dict
+from numpy import Inf, sort
 import os
 import sys
-from numpy import Inf
 
 from sklearn import cross_decomposition
 
@@ -9,16 +11,6 @@ from models.control import control
 
 MAX_ITERATIONS = 100
 
-EVAL_INDIVIDUAL_IN_SIMULATION_MAX_AVERAGE = 0
-EVAL_INDIVIDUAL_IN_SIMULATION_TOTAL = 1
-EVAL_INDIVIDUAL_IN_SIMULATION_WEIGTHED_MEAN = 2
-
-GET_WEIGHTS_FIT_PROPORTIONAL = 0
-GET_WEIGHTS_BY_RANKING = 1
-
-MULTIPOINT_XOVER = 0
-INTERMEDIATE_XOVER = 1
-GEOMETRIC_XOVER = 2
 
 # gets k random indexes in a list
 def get_random_indexes(input_list, k=-1):
@@ -46,6 +38,8 @@ def init_population(pop_size, number_of_turns, maximum_waiting_time, average_pas
 
 # mutates k individuals according to the mutation probability of replace a gen by a random
 # valid number
+
+
 def mutate_random(population_set, mutation_probability, maximum_waiting_time, average_passing_time):
     for individual in population_set:
         for i in range(len(individual)):
@@ -70,8 +64,10 @@ def get_weights_by_ranking(pop_len, order, fitness_set, s = 1.8):
                                                )/(pop_len * (pop_len - 1))
     return weights
 
+GET_WEIGHTS_FIT_PROPORTIONAL = 0
+GET_WEIGHTS_BY_RANKING = 1
 
-# Assign to each individual a probability of being a parent based on weight_method criteria.
+# Assign to each individual a probability of being a parent based on the ranking based on fitness.
 # Then the two arrays of parents are selected randomly from the population according to the
 # probabilities assigned. It is considered here that the new population must be equally large
 # to the current one, that the best_amount best individual will prevale and that each couple
@@ -104,6 +100,10 @@ def select_parents(population_set, fitness_set, bests_amount=2, weight_method = 
     bests = [population_set[order[pop_len - i]]
              for i in range(1, bests_amount + 1)]  # two best parents
     return bests, parents
+
+MULTIPOINT_XOVER = 0
+INTERMEDIATE_XOVER = 1
+GEOMETRIC_XOVER = 2
 
 # random crossover points are selected and the alternating segments of the individuals are swapped to get new offsprings.
 def multipoint_xover(parent_a, parent_b, p=1):
@@ -152,46 +152,43 @@ def eval_individual_in_simulation_max_average(simulation, individual, speed, obs
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
     ctrl.speed = speed
-    ctrl.Start(observation_time=obs_time, draw=False)
+    ctrl.Start(observation_time=obs_time)
     fitness_val =-1
     for road_id in range(len(ctrl.roads)):
-        if not ctrl.is_curve[road_id]:
-            # We use the max between average time a car takes in every semaphore
-            fitness_val = max(
-                fitness_val, ctrl.road_average_time_take_cars[road_id])
-            
-    # We use the opposite value because we wish to diminish the time it takes for the cars
+        # we use the max between average time a car takes in every semaphore
+        fitness_val = max(
+           fitness_val, ctrl.road_average_time_take_cars[road_id])
+    # I use the opposite value because we wish to diminish the time it takes for the cars
     return -fitness_val
 
 def eval_individual_in_simulation_total(simulation, individual, speed, obs_time):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
     ctrl.speed = speed
-    ctrl.Start(observation_time=obs_time, draw=False)
+    ctrl.Start(observation_time=obs_time)
     fitness_val = 0
     for road_id in range(len(ctrl.roads)):
-        if not ctrl.is_curve[road_id]:
-            fitness_val += ctrl.road_total_time_take_cars[road_id]
-    
-    # We use the opposite value because we wish to diminish the time it takes for the cars
+        fitness_val += ctrl.road_total_time_take_cars[road_id]
+    # I use the opposite value because we wish to diminish the time it takes for the cars
     return -fitness_val
 
 def eval_individual_in_simulation_weigthed_mean(simulation, individual, speed, obs_time):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
     ctrl.speed = speed
-    ctrl.Start(observation_time=obs_time, draw=False)
+    ctrl.Start(observation_time=obs_time)
     fitness_val = 0
     sumsq = 0
     for road_id in range(len(ctrl.roads)):
-        if not ctrl.is_curve[road_id]:
-            fitness_val += ctrl.road_average_time_take_cars[road_id] * ctrl.road_total_amount_cars[road_id]**2
-            sumsq += ctrl.road_total_amount_cars[road_id]**2
-   
-    # We use the opposite value because we wish to diminish the time it takes for the cars
+        fitness_val += ctrl.road_average_time_take_cars[road_id] * ctrl.road_total_amount_cars[road_id]**2
+        sumsq += ctrl.road_total_amount_cars[road_id]**2
+    # I use the opposite value because we wish to diminish the time it takes for the cars
     return -fitness_val / sumsq
 
 
+EVAL_INDIVIDUAL_IN_SIMULATION_MAX_AVERAGE = 0
+EVAL_INDIVIDUAL_IN_SIMULATION_TOTAL = 1
+EVAL_INDIVIDUAL_IN_SIMULATION_WEIGTHED_MEAN = 2
 
 # gives a fitness value to each individual of the population
 def fitness(simulation, population, speed, obs_time, eval_method = EVAL_INDIVIDUAL_IN_SIMULATION_TOTAL):
@@ -203,8 +200,15 @@ def fitness(simulation, population, speed, obs_time, eval_method = EVAL_INDIVIDU
             simulation, individual, speed, obs_time))
     return fitness
 
+# algorithm stops after a fixed number of iterations
+
+
+def stop_criterion(i):
+    return i >= MAX_ITERATIONS
 
 # main method of the genetic algorithm
+
+
 def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, 
                       speed, obs_time, max_iterations=100, xover_method = MULTIPOINT_XOVER,
                       weight_method = GET_WEIGHTS_BY_RANKING, eval_method = EVAL_INDIVIDUAL_IN_SIMULATION_TOTAL):
@@ -218,15 +222,49 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
     # best solution found
     best_solution = ([], -Inf)  # (solution, fitness value)
 
-    f = test_storage_init(max_iterations, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, 
-                          speed, xover_method, weight_method, eval_method, obs_time)
+    tests_path = os.path.dirname(__file__)
+    if sys.platform.startswith('win'):
+        tests_path = tests_path.replace('src\\models', 'tests\\')
+    else:
+        tests_path = tests_path.replace('src/models', 'tests/')
+
+    file_name = f'test_{max_iterations}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}_{speed}'
+    ls = os.listdir(tests_path)
+    print(ls)
+
+    test_number = 0
+    for file in ls:
+        if file.startswith(file_name):
+            test_number += 1
+
+    if test_number != 0:
+        file_name += f'_({test_number})'
+    file_name += '.txt'
+
+    print(file_name)
+
+    f = open(tests_path + file_name, "w")
+
+    f.write(f"xover_method: {xover_method} \n\n")
+    f.write(f"weight_method: {weight_method} \n\n")
+    f.write(f"eval_method: {eval_method} \n\n")
+    f.write(f"MAX_ITERATIONS: {max_iterations} \n\n")
+    f.write(f"SPEED: {speed} \n\n")
+    f.write(f"OBSERVATION_TIME: {obs_time} \n\n")
 
     while i < max_iterations:
-        
+        f.write(f"Generation {i} \n\n")
+
+        f.write(f"Population: \n")
+        for individual in population:
+            f.write(f"{individual} \n")
+            print(individual)
+        f.write(f"\n")
+
         fitness_vals = fitness(simulation, population, speed, obs_time, eval_method = eval_method)
-        test_storage_iteration(f, population, fitness_vals, i)
-        
         print(fitness_vals)
+
+        f.write(f"fitness: {fitness_vals} \n\n")
 
         # saves the solution with the greatest fitness in the current generation if it is better that the stored
         # in best solution
@@ -257,55 +295,4 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
     f.write(f"Genetic algorithm ENDED!!!!!!!!!! \n")
     f.write(f'Final solution: {best_solution}')
     f.close()
-    
     return best_solution[0]
-
-def test_storage_iteration(f, population, fitness_vals, i):
-    
-    f.write(f"Generation {i} \n\n")
-    f.write(f"Population: \n")
-    for individual in population:
-        f.write(f"{individual} \n")
-        print(individual)
-    f.write(f"\n")
-    f.write(f"fitness: {fitness_vals} \n\n")
-    
-    f.write(f'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Best Solution of this population: \n')
-    j = fitness_vals.index(max(fitness_vals))
-    f.write(f'{population[j]}')
-    f.write(f'!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!With a fitness of : \n')
-    f.write(f'{fitness_vals[j]}\n\n')
-
-def test_storage_init(max_iterations, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, speed, xover_method, weight_method, eval_method, obs_time):
-    
-    tests_path = os.path.dirname(__file__)
-    if sys.platform.startswith('win'):
-        tests_path = tests_path.replace('src\\models', 'tests\\')
-    else:
-        tests_path = tests_path.replace('src/models', 'tests/')
-
-    file_name = f'test_{max_iterations}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}_{speed}'
-    ls = os.listdir(tests_path)
-    print(ls)
-
-    test_number = 0
-    for file in ls:
-        if file.startswith(file_name):
-            test_number += 1
-
-    if test_number != 0:
-        file_name += f'_({test_number})'
-    file_name += '.txt'
-
-    print(file_name)
-
-    f = open(tests_path + file_name, "w")
-
-    f.write(f"xover_method: {xover_method} \n\n")
-    f.write(f"weight_method: {weight_method} \n\n")
-    f.write(f"eval_method: {eval_method} \n\n")
-    f.write(f"MAX_ITERATIONS: {max_iterations} \n\n")
-    f.write(f"SPEED: {speed} \n\n")
-    f.write(f"OBSERVATION_TIME: {obs_time} \n\n")
-    
-    return f

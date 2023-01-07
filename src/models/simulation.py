@@ -1,6 +1,7 @@
 from abc import ABC
 # from msilib.schema import Control
 from models.control import control
+from models.metaheuristic_control import metaeh_control
 
 # @abstract
 class Simulation(ABC):
@@ -16,8 +17,7 @@ class Simulation_test_3(Simulation):
         v_diff = 20
         road_width = 10
         
-        ctrl = control()
-        # pos_x, pos_y, end_y, start_x, curv = 700, 410, 900, 0, 5
+        ctrl = metaeh_control()
 
         AB = ctrl.AddRoad((pos_x[0], pos_y[2]), (pos_x[1], pos_y[2]))
         LJ = ctrl.AddRoad((pos_x[0], pos_y[1]), (pos_x[1], pos_y[1]))

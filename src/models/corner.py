@@ -1,4 +1,7 @@
 
+from sympy import true
+
+
 class corner:
 
     '''class to simulate the concept of a corner 
@@ -25,8 +28,10 @@ class corner:
         (the turns sucession is -1, 0, -2, 1, 2, -3 ...., where the
         negatives indicate everyone is in red)
         '''
-        if not self.light_controled:
+            
+        if self.numberOfTurns == 0 or not self.light_controled:
             return
+        
         self.time_tick += t
         if self.current_turn < 0:
             if self.time_tick  >= self.intermediate_time:
@@ -101,16 +106,24 @@ class corner:
         
         for in_road in in_roads:
             for out_road in out_roads:
-                if out_roads == out_roads[0]:
+                if out_road == out_roads[0]:
                     self.addFollow(in_road, out_road, order, displace, time)
                 else:
                     self.addFollow(in_road, out_road, order)
 
 
-    def CanIPass(self, in_road):
+    def CanIPass(self, in_road, out_road = None):
         '''If ask if a road has the green light. 
         It condiderate that the cars in a road can simultaneously with
         the same green light move to all the follow roads corresponding
         to the current one but this is a behavior that we whish to improve.'''
         
-        return self.current_turn == self.myturn[(in_road, self.follow[in_road][0])] 
+        if not self.light_controled: return True
+        
+        if out_road == None:
+            for out_road in self.follow[in_road]:
+                if self.current_turn != self.myturn[(in_road, out_road)]:
+                    return False
+            return True
+        
+        return self.current_turn == self.myturn[(in_road, out_road)] 
