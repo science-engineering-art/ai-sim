@@ -38,7 +38,7 @@ CI = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff
 FC = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2), 0.018)
 
 normal = 1/50
-factor = 0
+factor = 20
 ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * factor, normal * factor, normal, normal, normal])
 
 #curvas desde la izquiera
@@ -109,10 +109,14 @@ ctrl.speed = 20
 # for x in p:
 #     print(rr.index(x))
 
-draw.Start(observation_time = 2)
-car = ctrl.AddRoutedVehicle(BC, CD)
-print(car.path)
-draw.ObserveVehicle(car, len(car.path))
+draw.Start(observation_time = 1)
+A_star.SetDraw(draw)
+print(A_star.find_shortest_path(ctrl,AB,IG,g_increment=A_star.my_g_increment_function))
+
+# car = ctrl.AddRoutedVehicle(AB, IG)
+
+# print(car.path)
+# draw.ObserveVehicle(car, len(car.path))
 
 to_print_1 = []
 to_print_2 = []

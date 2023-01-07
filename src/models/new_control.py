@@ -1,6 +1,7 @@
 from copy import deepcopy
 import random
 from time import time
+from turtle import speed
 
 import pygame 
 from models.A_star import A_star
@@ -19,13 +20,9 @@ class new_control(control):
         
         self.it_number = 0
         init_time = time()
-        
         while vehicle.current_road_in_path < path_length - 1:
-            # print(vehicle.current_road_in_path)
-            t1 = time()  # measures time complexity
             self.UpdateAll()
-            self.dt = (time() - t1) * self.speed
-            self.it_number += 1
+        return (time() - init_time) * self.speed
         
         
     def AddRoutedVehicle(self, from_road_id, to_road_id):
@@ -60,6 +57,7 @@ class new_draw(draw_control):
             self.DrawAllRoadsCars( screen)
             
             pygame.display.update()
+        return (time() - init_time) * ctrl.speed
 
         
         
