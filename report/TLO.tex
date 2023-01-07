@@ -248,44 +248,47 @@
 	 
 	\section{Inteligencia Artificial}
 	
-	\subsection{Algoritmo genético}
+		\subsection{Algoritmo genético}
+		
+		\subsubsection{Solución}
+		
+		La solución será un vector que contiene enteros correspondientes a los tiempos de luz verde de cada semáforo de la intersección.
+		
+		Nota: Para realizar las operaciones de cruzamiento y mutaci\'on los tiempos se llevan a binario, teniendo as\'i m\'as d\'igitos, y por tanto posibilidades, con los que jugar y encontrar la nueva poblaci\'on.
+		
+		\subsubsection{Población inicial}
+		
+		La población inicial se hallará de manera aleatoria, en donde cada uno de los valores de tiempo de luz verde estará entre el tiempo promedio que le toma a un carro pasar por la intersección y el tiempo máximo que un vehículo puede estar esperando. 
+		
+		\subsubsection{Función de evaluación \textit{fitness}}
+		
+		Se consideraron tres formas de calcular el fitness:
+		\begin{itemize}
+			\item Seg\'un el m\'aximo tiempo de espera. 
+			\item Seg\'un el tiempo total de paso de los carros por una calle. 
+			\item Seg\'un la media ponderada, calculada sobre todas las calles, del tiempo promedio que toma a los carros cruzar una calle
+		\end{itemize}
 	
-	\subsubsection{Solución}
+		\subsubsection{Selección de padres}
+		
+		Para escoger los padres se utiliz\'o la selección basada en el rango (no el valor numérico) de los valores de fitness de los individuos en la población. La selección basada en el rango reduce los efectos potencialmente dominantes de individuos de alto fitness, comparativamente, en la población, estableciendo una cantidad predecible y limitada de presión de selección a favor de tales individuos. Al mismo tiempo, la selección basada en el rango exagera la diferencia entre valores de fitness agrupados de forma cercana para que los mejores se puedan muestrear más.
+		
+		\subsubsection{Mutación}
+		
+		La funci\'on de mutaci\'on recibe una poblaci\'on y un factor de mutaci\'on, que representa el porciento de la poblaci\'on a ser mutada. Para mutar un individuo, se escogen n de sus genes y en estos se niegan m de sus bits (ambos n y m se escogen de forma aleatoria).
+		
+		\subsubsection{Cruzamiento}
+		
+		\begin{itemize}
+			\item  \textbf{Cruce por puntos m\'ultiples:} Se seleccionan p puntos random y los segmentos (resultado de picar los individuos por dichos puntos) alternos de los individuos se intercambian para obtener nuevos descendientes.
+			\item \textbf{Cruce geom\'etrico:} Operador independiente de la representación definido sobre la distancia del espacio de búsqueda. Los descendientes deben estar en el segmento entre los individuos.
+			\item \textbf{Intermediate crossover:} Crea los descendientes mediante un promedio ponderado de los dos individuos en apareamiento.
+		\end{itemize}
+		
+		\subsection{Feature}
+		
+		Como caracter\'istica adicional al proyecto se implement\'o	un algoritmo $A^{*}$ para calcular, dadas dos calles del mapa, la menor distancia o tiempo para llegar de una a la otra. La primera versi\'on de $A^*$ que implementamos usa la conocida heur\'istica, admisible y completa, de distancia en l\'inea recta. Luego se realiz\'o una versi\'on un poco m\'as complicada del algoritmo que usa una simulaci\'on para estimar el tiempo que tomar\'a a un veh\'iculo llegar desde una calle a otra. La idea es que se generen veh\'iculos que tomen todas las aristas posibles cuando se esta calculando el valor de $g$ en $f = g + h$. Finalmente se implement\'o una heur\'istica propia que cosiste en aproximar el tiempo que demorar\'ia un carro en ir desde todas las calles hasta el destino (usando el algoritmo de Dijkstra), bas\'andonos en las distancias, concurrencia de veh\'iculos en las calles y tiempos de las luces de los sem\'aforos.
 	
-	La solución será un vector que contiene enteros correspondientes a los tiempos de luz verde de cada semáforo de la intersección.
-	
-	Nota: Para realizar las operaciones de cruzamiento y mutaci\'on los tiempos se llevan a binario, teniendo as\'i m\'as d\'igitos, y por tanto posibilidades, con los que jugar y encontrar la nueva poblaci\'on.
-	
-	\subsubsection{Población inicial}
-	
-	La población inicial se hallará de manera aleatoria, en donde cada uno de los valores de tiempo de luz verde estará entre el tiempo promedio que le toma a un carro pasar por la intersección y el tiempo máximo que un vehículo puede estar esperando. 
-	
-	\subsubsection{Función de evaluación \textit{fitness}}
-	
-	Se consideraron tres formas de calcular el fitness:
-	\begin{itemize}
-		\item Seg\'un el m\'aximo tiempo de espera. 
-		\item Seg\'un el tiempo total de paso de los carros por una calle. 
-		\item Seg\'un la media ponderada, calculada sobre todas las calles, del tiempo promedio que toma a los carros cruzar una calle
-	\end{itemize}
-
-	\subsubsection{Selección de padres}
-	
-	Para escoger los padres se utiliz\'o la selección basada en el rango (no el valor numérico) de los valores de fitness de los individuos en la población. La selección basada en el rango reduce los efectos potencialmente dominantes de individuos de alto fitness, comparativamente, en la población, estableciendo una cantidad predecible y limitada de presión de selección a favor de tales individuos. Al mismo tiempo, la selección basada en el rango exagera la diferencia entre valores de fitness agrupados de forma cercana para que los mejores se puedan muestrear más.
-	
-	\subsubsection{Mutación}
-	
-	La funci\'on de mutaci\'on recibe una poblaci\'on y un factor de mutaci\'on, que representa el porciento de la poblaci\'on a ser mutada. Para mutar un individuo, se escogen n de sus genes y en estos se niegan m de sus bits (ambos n y m se escogen de forma aleatoria).
-	
-	\subsubsection{Cruzamiento}
-	
-	\begin{itemize}
-		\item  \textbf{Cruce por puntos m\'ultiples:} Se seleccionan p puntos random y los segmentos (resultado de picar los individuos por dichos puntos) alternos de los individuos se intercambian para obtener nuevos descendientes.
-		\item \textbf{Cruce geom\'etrico:} Operador independiente de la representación definido sobre la distancia del espacio de búsqueda. Los descendientes deben estar en el segmento entre los individuos.
-		\item \textbf{Intermediate crossover:} Crea los descendientes mediante un promedio ponderado de los dos individuos en apareamiento.
-	\end{itemize}
-	
-	%\section{Tests}
 	
 \end{document}
 
