@@ -1,4 +1,5 @@
 from copy import deepcopy
+from importlib.resources import path
 import random
 from time import time
 from turtle import speed
@@ -44,7 +45,7 @@ class new_draw(draw_control):
         
         self.it_number = 0
         init_time = time()
-        while vehicle.current_road_in_path < path_length - 1:
+        while vehicle.current_road_in_path < path_length - 1 or (vehicle.current_road_in_path == path_length - 1 and vehicle.x < ctrl.roads[vehicle.path[path_length - 1]].length):
             # print(vehicle.current_road_in_path)
             t1 = time()  # measures time complexity
             ctrl.UpdateAll()

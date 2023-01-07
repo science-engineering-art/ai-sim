@@ -35,7 +35,7 @@ class A_star:
         
         p = [-1 for _ in range(len(ctrl.roads))]
         f = [Inf for _ in range(len(ctrl.roads))]
-        f[init_road_id] = h(ctrl, init_road_id, end_road_id)
+        f[init_road_id] = g_increment(ctrl, init_road_id, init_road_id, init_road_id) + h(ctrl, init_road_id, end_road_id)
         heappush(queue, (f[init_road_id], init_road_id))    
         
         while len(queue) > 0:
@@ -46,7 +46,7 @@ class A_star:
             if not road.end_conn:
                 continue
             for next_road_id in road.end_conn.follow[road_id]:
-                increment = g_increment(ctrl, init_road_id, road_id, next_road_id)
+                increment = g_increment(ctrl, init_road_id, next_road_id, next_road_id)
                 h_val = h(ctrl, next_road_id, end_road_id)
                 if f[next_road_id] <= d + increment + h_val:
                     continue
