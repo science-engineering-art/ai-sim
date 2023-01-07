@@ -29,8 +29,6 @@ class A_star:
         
     def find_shortest_path(ctrl, init_road_id : Road, end_road_id : Road, g_increment = real_distance, h = euclidean_distance):
         
-        init_road = ctrl.roads[init_road_id]
-        end_road = ctrl.roads[end_road_id]
         queue = []
         
         p = [-1 for _ in range(len(ctrl.roads))]
@@ -73,4 +71,54 @@ class A_star:
             return draw.ObserveVehicle(car, len(car.path))
         else:
             return ctrl.ObserveVehicle(car, len(car.path))
+    
+    def CalculateIncrements(ctrl, road, road_id):
+        cars = []
+        for next_road_id in road.end_conn.follow[road_id]:
+            car = ctrl.AddRoutedVehicle(next_road_id, next_road_id)
+            car.color = (255, 255, 255)
+            cars.append(car)
+        if draw != None:
+            return draw.ObserveVehicles(cars)
+        else:
+            return ctrl.ObserveVehicles(cars)
+                
         
+        
+    def find_shortest_path_parallel(ctrl, init_road_id : Road, end_road_id : Road, g_increment = real_distance, h = euclidean_distance):
+        
+        queue = []
+        
+        p = [-1 for _ in range(len(ctrl.roads))]
+        f = [Inf for _ in range(len(ctrl.roads))]
+        f[init_road_id] = g_increment(ctrl, init_road_id, init_road_id, init_road_id) + h(ctrl, init_road_id, end_road_id)
+        heappush(queue, (f[init_road_id], init_road_id))    
+        
+        while len(queue) > 0:
+            d, road_id = heappop(queue)
+            print(road_id)
+            road : Road = ctrl.roads[road_id]
+            if road_id == end_road_id:
+                break
+            if not road.end_conn:
+                continue
+            increments = A_star.CalculateIncrements(ctrl, road, road_id)
+            for i in range(len(road.end_conn.follow[road_id])):
+                next_road_id = road.end_conn.follow[road_id][i]
+                h_val = h(ctrl, next_road_id, end_road_id)
+                if f[next_road_id] <= d + increments[i] + h_val:
+                    continue
+                p[next_road_id] = road_id
+                f[next_road_id] = d + increments[i] + h_val
+                heappush(queue, (f[next_road_id], next_road_id))
+                
+        path = []
+        road_id = end_road_id
+        while road_id != init_road_id:
+            path.append(road_id)
+            road_id = p[road_id]
+            
+        path.append(road_id)
+        path.reverse()
+        
+        return path
