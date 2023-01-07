@@ -95,11 +95,12 @@ class metaeh_control(control):
 
         return dimension
 
-    def SetConfiguration(self, individual):
+    def SetConfiguration(self, individual, shync = True):
         pos = 0
         for corner in self.corners:
-            corner.time_tick = individual[pos]
-            pos+=1
+            if shync:
+                corner.time_tick = individual[pos]
+                pos+=1
             for i in range(corner.numberOfTurns):
                 corner.times[i] = individual[pos]
                 pos += 1

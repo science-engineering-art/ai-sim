@@ -3,6 +3,7 @@ from sklearn.utils import all_estimators
 from models.A_star import A_star
 from models.control import control
 from models.draw_control import draw_control
+from models.metaheuristic_control import metaeh_control
 from models.new_control import new_control, new_draw
 from models.simulation import Simulation_test_3
 
@@ -12,7 +13,8 @@ h_diff = 20
 v_diff = 20
 road_width = 10
 draw = new_draw()
-draw.ctrl = new_control()
+# draw.ctrl = new_control()
+draw.ctrl = metaeh_control()
 ctrl = draw.ctrl
 
 AB = ctrl.AddRoad((pos_x[0], pos_y[2]), (pos_x[1], pos_y[2]), 0.0138)
@@ -38,7 +40,7 @@ CI = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff
 FC = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2), 0.018)
 
 normal = 1/50
-normal = 0
+# normal = 0
 factor = 20
 ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * factor, normal * factor, normal, normal, normal])
 
@@ -99,10 +101,10 @@ t1 = 0
 t2 = 30
 # ctrl.SetConfiguration([t2 for _ in range(11)])
 # ctrl.SetConfiguration([81, 67, 7, 43, 25, 20, 53, 48, 85, 83, 29])
-# ctrl.SetConfiguration([19, 89, 27, 44, 4, 38, 11, 40, 11, 10, 52, 56, 59, 27, 59]    )
+ctrl.SetConfiguration([50, 54, 13, 54, 65, 72, 59, 32, 62, 51, 59], shync=False)
 
-rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
-print(ctrl.roads[AB].length)
+# rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
+# print(ctrl.roads[AB].length)
 ctrl.speed = 20
 
 # p = A_star.find_shortest_path(ctrl, init_road_id=BC, end_road_id=BE)
@@ -110,9 +112,9 @@ ctrl.speed = 20
 # for x in p:
 #     print(rr.index(x))
 
-# draw.Start(observation_time = 1)
-A_star.SetDraw(draw)
-print(A_star.find_shortest_path(ctrl,BC,BE,g_increment=A_star.my_g_increment_function))
+draw.Start(observation_time = 100)
+# A_star.SetDraw(draw)
+# print(A_star.find_shortest_path(ctrl,BC,BE,g_increment=A_star.my_g_increment_function))
 
 # car = ctrl.AddRoutedVehicle(AB, IG)
 
