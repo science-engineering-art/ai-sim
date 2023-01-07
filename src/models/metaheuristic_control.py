@@ -2,13 +2,12 @@
 from functools import reduce
 from multiprocessing.sharedctypes import copy
 from ntpath import join
-from time import  time
+from time import time
 from tokenize import Intnumber
 from typing import Deque
 from xml.etree.ElementTree import Comment
 
 from h11 import ConnectionClosed
-from pandas import concat
 from sklearn.preprocessing import scale
 from models.connection_road import connection_road
 from models.control import control
@@ -38,10 +37,11 @@ LIGHT_GRAY = (225, 225, 225)
 
 class metaeh_control(control):
     '''class made to control hall the simulation over the map'''
+
     def __init__(self, **kwargs):
 
         super().__init__()
-            
+
         # fitness properties
         self.road_total_amount_cars = []
         self.road_total_time_take_cars = []
@@ -52,7 +52,7 @@ class metaeh_control(control):
 
     def Start(self, observation_time=-1, it_amount=-1):
         '''method to begin the simulation'''
-        
+
         self.preprocess_fitness_properties()
         self.it_number = 0
         init_time = time()
@@ -70,22 +70,23 @@ class metaeh_control(control):
             self.road_total_time_take_cars.append(0)
             self.road_average_time_take_cars.append(0)
             self.ref_car.append(None)
-    
+
     def posprocess_fitness_properties(self):
         for road_id in range(len(self.roads)):
             self.road_average_time_take_cars[road_id] = self.road_total_time_take_cars[road_id] /            \
                 self.road_average_time_take_cars[road_id] if self.road_average_time_take_cars[road_id] != 0  \
-                    else 0
-        
+                else 0
+
     def UpdateFitnessProp(self):
         for road_id in range(len(self.roads)):
             road = self.roads[road_id]
-            self.road_total_time_take_cars[road_id] += self.dt * len(road.vehicles)
+            self.road_total_time_take_cars[road_id] += self.dt * \
+                len(road.vehicles)
             for vehicle in road.vehicles:
                 if vehicle == self.ref_car[road_id]:
                     break
                 self.road_total_amount_cars[road_id] += 1
-            if len(road.vehicles) > 0 :
+            if len(road.vehicles) > 0:
                 self.ref_car[road_id] = road.vehicles[len(road.vehicles) - 1]
 
     def GetDimension(self):
@@ -95,12 +96,11 @@ class metaeh_control(control):
 
         return dimension
 
-    def SetConfiguration(self, individual, shync = True):
+    def SetConfiguration(self, individual, shync=True):
         pos = 0
         for corner in self.corners:
-            if shync:
-                corner.time_tick = individual[pos]
-                pos+=1
+            corner.time_tick = individual[pos]
+            pos += 1
             for i in range(corner.numberOfTurns):
                 corner.times[i] = individual[pos]
                 pos += 1
