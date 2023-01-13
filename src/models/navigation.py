@@ -76,5 +76,7 @@ class navigation():
         return next_road_connec
     
     def __poisson(Lambda: float, t: float, x: int):
+        if t == 0:
+            t = 1e-8
         Lambda *= t
         return Lambda**x * (e**(-Lambda)) / factorial(x)
