@@ -1,7 +1,6 @@
 import random
 from copy import deepcopy
 from math import e, factorial
-from collections import deque
 from models.vehicle import Vehicle
 
 class navigation():
