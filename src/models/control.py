@@ -184,8 +184,19 @@ class control:
         if not next_road_connec:
             return True
         to_road = next_road_connec.to_road
-        return (len(to_road.vehicles) == 0 or to_road.vehicles[len(to_road.vehicles) - 1].x >=
-                to_road.vehicles[len(to_road.vehicles) - 1].length)
+        if not (len(to_road.vehicles) == 0 or to_road.vehicles[len(to_road.vehicles) - 1].x >=
+                to_road.vehicles[len(to_road.vehicles) - 1].length):
+            return False
+        
+        to_road_id = self.road_index[to_road]
+        for road_in in road.end_conn.preceed[to_road_id]:
+            conn_r = self.our_connection[(road_in, to_road_id)]
+            for road in conn_r.roads:
+                if len(road.vehicles) > 0:
+                    return False
+                
+        return True
+            
 
     def AddRoad(self, road_init_point, road_end_point, lambda_=1/50):
         '''Adds a nex road to the simulation'''
@@ -210,10 +221,10 @@ class control:
 
         return len(self.c_roads) - 1  # return the position/id
 
-    def CreateCorner(self, follows):
+    def CreateCorner(self, follows, ligth_controled = True):
         '''Create a new corner given a list of follow pairs'''
 
-        corn = corner(light_controled=True)
+        corn = corner(light_controled=ligth_controled)
         self.corners.append(corn)
 
         for follow in follows:

@@ -38,7 +38,7 @@ CI = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[2] - v_diff), (pos_x[2] + h_diff
 FC = ctrl.AddRoad((pos_x[2] + h_diff / 2, pos_y[3]), (pos_x[2] + h_diff / 2, pos_y[2] + v_diff / 2), 0.018)
 
 normal = 1/50
-factor = 5
+factor = 20
 ctrl.AddExtremeRoads([AB, DC, FC, KJ, LJ], [normal * factor, normal * factor, normal, normal, normal])
 
 #curvas desde la izquiera
@@ -84,7 +84,7 @@ ctrl.CreateCorner([(AB, BE, 0), (AB, BC, 0),\
 
 ctrl.CreateCorner([(BC, CD, 0), (BC, CI, 0),\
     (DC, CI, 1), (DC, CB, 1),\
-    (FC, CD, 2), (FC, CB, 2), (FC, CI, 2)])
+    (FC, CD, 2), (FC, CB, 2), (FC, CI, 2)], ligth_controled=False)
 
 ctrl.CreateCorner([(LJ, JI, 0), (LJ, JB, 0),\
     (IJ, JB, 1),\
@@ -94,5 +94,5 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     (CI, IH, 1), (CI, IG, 1), (CI, IJ, 1)])
     
 
-ctrl.speed = 20
+ctrl.speed = 10
 draw.Start(observation_time = 100)

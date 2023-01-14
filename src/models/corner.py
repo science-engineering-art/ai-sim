@@ -21,6 +21,7 @@ class corner:
         self.OutgoingRoads = [] #stores the roads that star at the corner
         self.follow = {} #stores for each road that end at corner which
                         #roads may follow it 
+        self.preceed = {} 
 
 
     def tick(self, t = 1):
@@ -59,6 +60,7 @@ class corner:
         for out_road in roads:
             if not self.OutgoingRoads.__contains__(out_road):
                 self.OutgoingRoads.append(out_road)
+                self.preceed[out_road] = []
 
 
     def addFollow(self, in_road, out_road, order = None, displace = False, time = 40):
@@ -73,6 +75,7 @@ class corner:
         self.addIncomingRoads([in_road])
         self.addOutgoingRoads([out_road])
         self.follow[in_road].append(out_road)
+        self.preceed[out_road].append(in_road)
         
         if self.light_controled:
             if  order != None:
