@@ -7,9 +7,9 @@ import dictdatabase as ddb
 from models.road import Road
 from abc import abstractmethod
 from scipy.spatial import distance
-from models.control import control
 from templates.visitor import NodeVisitor
-from models.draw_control import draw_control
+# from models.draw_control import draw_control
+from models.new_control import new_draw
 from templates.models import CurveEdge, Edge, IntersectionNode, Map, RoadEdge
      
 
@@ -127,45 +127,86 @@ class BasicMapBuilder:
     def __build_intersections(self):
 
         for x, y in self.map.intersections:
-            follows = {}
             i = 0
+            follows = {}
+            turn_left = []
             for in_lane_id in self.map.intersections[(x, y)].input_lanes:
                 for out_lane_id in self.map.intersections[(x, y)].out_lanes:
 
-                    print(f'{(x,y)}')
+                    # print(f'{(x,y)}')
 
                     road_in: Edge = self.map.lanes[in_lane_id]
                     road_out: Edge = self.map.lanes[out_lane_id]
 
                     # check if road_in and road_out are in the same road
                     # if abs(BasicMapBuilder.__calculate_angle(road_in) - 
-                    # BasicMapBuilder.__calculate_angle(road_out)) < 5: 
+                    #     BasicMapBuilder.__calculate_angle(road_out)) < 5: 
                     # if (abs(BasicMapBuilder.__calculate_angle(road_in) - \
                     # BasicMapBuilder.__calculate_angle(road_out)) > 177.5 and \
                     # abs(BasicMapBuilder.__calculate_angle(road_in) - \
                     # BasicMapBuilder.__calculate_angle(road_out)) < 182.5):
-                    #     print(
+                    #     # print(
                     #         f'PARALLEL: {(road_in.start, road_in.end)} -- {(road_out.start, road_out.end)}')
                     #     continue
                     
                     # turning left
                     
-                    if not (((BasicMapBuilder.__calculate_angle(road_out) - \
-                    BasicMapBuilder.__calculate_angle(road_in) > 87.5) and \
-                    (BasicMapBuilder.__calculate_angle(road_out) - \
-                    BasicMapBuilder.__calculate_angle(road_in) < 92.5)) or \
-                    ((BasicMapBuilder.__calculate_angle(road_out) - \
-                    BasicMapBuilder.__calculate_angle(road_in) < -267.5) and \
-                    (BasicMapBuilder.__calculate_angle(road_out) - \
-                    BasicMapBuilder.__calculate_angle(road_in) > -272.5))):
+                    # if not (((BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) > 87.5) and \
+                    #  (BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) < 92.5)) or \
+                    # ((BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) < -267.5) and \
+                    #  (BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) > -272.5))):
+                    #     continue
+
+                    # prevent it from turning left
+                    if ((BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) > 267.5) and \
+                     (BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) < 272.5)) or \
+                    ((BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) < -87.5) and \
+                     (BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) > -92.5)):
+                        turn_left.append((in_lane_id, out_lane_id))
                         continue
 
-                    print(f'connect {road_in.end} to {road_out.start}')
-                    print('!!!!!!!!!!!!!!!')
-                    print(road_in, road_out)
-                    print('!!!!!!!!!!!!!!!')
-                    curve_pt = BasicMapBuilder.__calculate_curve_point(road_in, road_out)
-                    print(f'curve at {curve_pt}')
+                    # avoid making U-turns at intersections
+                    if ((BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) > 177.5) and \
+                     (BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) < 182.5)) or \
+                    ((BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) < -177.5) and \
+                     (BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) > -182.5)):
+                        continue
+
+                    # # calculate the midpoint of the curves
+                    # if (BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) > -2.5) and \
+                    #  (BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) < 2.5):
+                    # else:
+                    #     curve_pt = BasicMapBuilder.__calculate_curve_point(road_in, road_out)
+
+                    # check if road_in and road_out are parallel
+                    # if distance.euclidean(road_in.start, road_out.end) == \
+                    #    distance.euclidean(road_in.end, road_out.start):
+                    #     # print(
+                    #         f'PARALLEL: {(road_in.start, road_in.end)} -- {(road_out.start, road_out.end)}')
+                    #     continue
+
+                    x0, y0 = road_in.start[0] - \
+                        road_in.end[0], road_in.start[1] - road_in.end[1]
+                    x1, y1 = road_out.end[0] - \
+                        road_out.start[0], road_out.end[1] - road_out.start[1]
+                    sim = (x0 * x1 + y0 * y1) / \
+                        ((x0**2 + y0**2)**0.5 * (x1**2 + y1**2)**0.5)
+
+                    # check if road_in and road_out are the same road
+                    # if sim == -1:
+                    #     # print(f"\n???????????????????????\n{road_in.__dict__, road_out.__dict__}\n???????????????????????\n")
+                    #     continue
+
+                    if sim == -1:
+                        curve_pt = ((road_in.end[0] + road_out.start[0]) / 2, (road_in.end[1] + road_out.start[1]) / 2)
+                    else:
+                        curve_pt = BasicMapBuilder.__calculate_curve_point(road_in, road_out)
+
+                    # print(f'connect {road_in.end} to {road_out.start}')
+                    # print('!!!!!!!!!!!!!!!')
+                    # print(road_in, road_out)
+                    # print('!!!!!!!!!!!!!!!')
+                    # print(f'curve at {curve_pt}')
                     curve = CurveEdge(
                         input_lane_id=in_lane_id,
                         output_lane_id=out_lane_id,
@@ -176,8 +217,8 @@ class BasicMapBuilder:
 
                     try:
                         self.map.extremes_lanes.remove(out_lane_id)
-                    except:
-                        print(f'road_out_id {out_lane_id} not in extremeRoads')
+                    except:...
+                        # print(f'road_out_id {out_lane_id} not in extremeRoads')
 
                     angle = BasicMapBuilder.__calculate_angle(road_in)
 
@@ -187,6 +228,8 @@ class BasicMapBuilder:
                     follows[i].append((angle, curve_id))
                 i += 1
 
+            print("--------------------")
+            print(follows)
             tmp = follows
             follows = {}
 
@@ -195,34 +238,73 @@ class BasicMapBuilder:
 
                 for j in tmp:
                     if i == j: continue
-                    
+
                     angle2, _ = tmp[j][0]
 
-                    if angle > 180 and angle2 < 180:
+                    if angle - angle2 > 177.5 and angle - angle2 < 182.5:
                         angle %= 180
-                    if angle < 180 and angle2 > 180:
-                        angle2 %= 180                    
+                    if angle2 - angle > 177.5 and angle2 - angle < 182.5:
+                        angle2 %= 180
+
+                    # # prevent it from turning left
+                    # if ((BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) > 267.5) and \
+                    #  (BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) < 272.5)) or \
+                    # ((BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) < -87.5) and \
+                    #  (BasicMapBuilder.__calculate_angle(road_out) - BasicMapBuilder.__calculate_angle(road_in) > -92.5)):
+                    #     ...# turn_left.append((in_lane_id, out_lane_id))
                     
-                    if abs(angle - angle2) < 1e-8:
+                    if abs(angle - angle2) < 5:
                         if angle not in follows:
                             follows[angle] = []
-                        follows[angle] += [(
-                            self.map.curves[curve_id].input_lane_id,
+                        follows[angle] += [
+                            (self.map.curves[curve_id].input_lane_id,
                             self.map.curves[curve_id].output_lane_id, i) 
-                            for _, curve_id in tmp[j]]
+                            for _, curve_id in tmp[j]
+                        ]
 
                 if angle not in follows:
                     follows[angle] = []
-                follows[angle] += [(
-                    self.map.curves[curve_id].input_lane_id,
+                follows[angle] += [
+                    (self.map.curves[curve_id].input_lane_id,
                     self.map.curves[curve_id].output_lane_id, i) 
-                    for _, curve_id in tmp[i]]
-            
+                    for _, curve_id in tmp[i]
+                ]
+
+            # for in_lane_id, out_lane_id in turn_left:
+            #     i += 1
+            #     curve_pt = BasicMapBuilder.__calculate_curve_point(
+            #         self.map.lanes[in_lane_id], self.map.lanes[out_lane_id])
+            #     curve = CurveEdge(
+            #         input_lane_id=in_lane_id,
+            #         output_lane_id=out_lane_id,
+            #         curve_point=curve_pt
+            #     )
+            #     curve_id = len(self.map.curves)
+            #     self.map.curves.append(curve)
+
+            #     try:
+            #         self.map.extremes_lanes.remove(out_lane_id)
+            #     except:
+            #         print(f'road_out_id {out_lane_id} not in extremeRoads')
+
+            #     angle = BasicMapBuilder.__calculate_angle(self.map.lanes[in_lane_id])
+
+            #     if angle not in follows:
+            #         follows[angle] = []
+
+            #     follows[angle] += [
+            #         (self.map.curves[curve_id].input_lane_id,
+            #         self.map.curves[curve_id].output_lane_id, i)
+            #     ]
+
+            print(follows)
+            print("---------------------")
             tmp = follows
             follows = []
             for _, tuples in tmp.items():
                 follows += tuples
 
+            print(f"\n\n{follows}\n\n")
             if len(follows) > 0:
                 self.map.intersections[(x, y)].follows = follows            
 
@@ -244,17 +326,17 @@ class BasicMapBuilder:
         try: 
             angle = math.acos((co**2 + ca**2 - h**2) / (2 * co * ca))
         except:...
-            # print('error 1')
+            # # print('error 1')
 
         try: 
             angle = math.acos((co**2 + h**2 - ca**2) / (2 * co * h))
         except:...
-            # print('error 2')
+            # # print('error 2')
 
         try:
             angle = math.acos((h**2 + ca**2 - co**2) / (2 * h * ca))
         except:...
-            # print('error 3')
+            # # print('error 3')
 
         angle = math.degrees(angle)
 
@@ -277,22 +359,23 @@ class BasicMapBuilder:
         elif x1 >= 0 and y1 < 0:
             return 360 - angle
 
-    def __calculate_curve_point(road_a: Road, road_b: Road):
+    def __calculate_curve_point(road_in: Road, road_out: Road):
         '''calculates the point where the curve should be created'''
-        xa_0, ya_0 = road_a.start
-        xa_1, ya_1 = road_a.end
-        xb_0, yb_0 = road_b.start
-        xb_1, yb_1 = road_b.end
+        xa_0, ya_0 = road_in.start
+        xa_1, ya_1 = road_in.end
+        xb_0, yb_0 = road_out.start
+        xb_1, yb_1 = road_out.end
 
         try:
             m_a = (ya_1 - ya_0) / (xa_1 - xa_0)
-        except ZeroDivisionError:
-            ...
+        except ZeroDivisionError:...
 
         try:
             m_b = (yb_1 - yb_0) / (xb_1 - xb_0)
-        except ZeroDivisionError:
-            ...
+        except ZeroDivisionError:...
+
+        # if ya_0 == ya_1 == yb_0 == yb_1:
+        #     return ((xa_1 + xb_0)/2, ya_0)
 
         n_a = 0
         if xa_1 - xa_0 == 0:
@@ -304,6 +387,7 @@ class BasicMapBuilder:
         else:
             n_a = ya_0 - xa_0*m_a
             n_b = yb_0 - xb_0*m_b
+            # print(road_in.__dict__, road_out.__dict__)
             x = (n_b - n_a) / (m_a - m_b)
 
         y = 0
@@ -328,8 +412,6 @@ class BasicMapBuilder:
         y1_in -= y0_in  
         x1_out -= x0_out
         y1_out -= y0_out
-
-
 
 
 class GridMapBuilder(BasicMapBuilder):
@@ -403,7 +485,7 @@ class GridMapBuilder(BasicMapBuilder):
         for road in self.map.roads:
             for i in road.lanes:
                 self.map.lanes[i].lambda_ = random.uniform(0, 0.15)
-                print(f'\n{self.map.lanes[i]}\n')
+                # print(f'\n{self.map.lanes[i]}\n')
 
         return deepcopy(self.map)
     
@@ -455,7 +537,7 @@ class TemplateIO:
         s = ddb.at(name)
         if s.exists():
             json = s.read()
-            draw = draw_control()
+            draw = new_draw()
             ctrl = draw.ctrl
 
             # add roads

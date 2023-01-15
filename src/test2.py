@@ -2,7 +2,7 @@ from templates.templates import GridMapBuilder, TemplateIO
 
 temp = GridMapBuilder(
     center_point=(700,400), 
-    len_roads=150, 
+    len_roads=300, 
     lower_limit_x=300, 
     lower_limit_y=0, 
     upper_limit_x=1100, 
@@ -12,6 +12,6 @@ temp = GridMapBuilder(
     width_roads=10
 )
 temp = TemplateIO(temp)
-temp.generate_template('map2')
+# temp.generate_template('map2')
 draw = temp.load_template('map2')
 draw.Start(it_amount=100000)

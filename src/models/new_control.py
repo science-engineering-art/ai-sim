@@ -9,7 +9,7 @@ from typing import List
 import pygame 
 from models.A_star import A_star
 from models.control import LIGHT_GRAY, control
-from msilib.schema import Control
+# from msilib.schema import Control
 from models.draw_control import draw_control
 
 from models.vehicle import Vehicle

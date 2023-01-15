@@ -103,7 +103,7 @@ class A_star:
         
         while len(queue) > 0:
             d, road_id = heappop(queue)
-            print(road_id)
+            
             road : Road = ctrl.roads[road_id]
             if road_id == end_road_id:
                 break

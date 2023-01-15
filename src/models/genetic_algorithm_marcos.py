@@ -230,7 +230,7 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
 
     file_name = f'test_{max_iterations}_{pop_size}_{number_of_turns}_{maximum_waiting_time}_{average_passing_time}_{speed}'
     ls = os.listdir(tests_path)
-    print(ls)
+    # print(ls)
 
     test_number = 0
     for file in ls:
@@ -241,7 +241,7 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
         file_name += f'_({test_number})'
     file_name += '.txt'
 
-    print(file_name)
+    # print(file_name)
 
     f = open(tests_path + file_name, "w")
 
@@ -258,11 +258,11 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
         f.write(f"Population: \n")
         for individual in population:
             f.write(f"{individual} \n")
-            print(individual)
+            # print(individual)
         f.write(f"\n")
 
         fitness_vals = fitness(simulation, population, speed, obs_time, eval_method = eval_method)
-        print(fitness_vals)
+        # print(fitness_vals)
 
         f.write(f"fitness: {fitness_vals} \n\n")
 
