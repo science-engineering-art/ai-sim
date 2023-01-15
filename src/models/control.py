@@ -86,7 +86,6 @@ class control:
 
     def Start(self, observation_time=-1, it_amount=-1):
         '''method to begin the simulation'''
-        
         self.it_number = 0
         init_time = time()
         while (self.it_number < it_amount or it_amount == -1) and (time() - init_time < observation_time or observation_time == -1):
@@ -94,6 +93,7 @@ class control:
             self.UpdateAll()
             self.dt = (time() - t1) * self.speed
             self.it_number += 1
+            
 
     def UpdateAll(self):
 

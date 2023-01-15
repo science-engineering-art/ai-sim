@@ -1,4 +1,5 @@
 
+from typing import List
 from sympy import true
 
 
@@ -16,7 +17,7 @@ class corner:
         self.intermediate_time = 3 #period of time where everyone is in red 
         self.turns = [] #the position i stores which follow pair has the green light 
         self.times = [] #indicates the duration of each turn
-        self.myturn = {} #store for each follow pair its turn number (inverse to self.turns)
+        self.myturns = {} #store for each follow pair its turn number (inverse to self.turns)
         self.IncomingRoads = [] #stores the roads that end at the corner
         self.OutgoingRoads = [] #stores the roads that star at the corner
         self.follow = {} #stores for each road that end at corner which
@@ -93,13 +94,15 @@ class corner:
                 else:
                     self.turns[order].append((in_road, out_road))
                 self.numberOfTurns += max(0, order + 1 - self.numberOfTurns)
-                self.myturn[(in_road, out_road)] = order
+                self.myturns.setdefault((in_road, out_road), [])
+                self.myturns[(in_road, out_road)].append(order)
                         
             else:
                 self.times.append(time)
                 self.numberOfTurns+=1
                 self.turns.append([(in_road, out_road)])
-                self.myturn[(in_road, out_road)] = self.numberOfTurns - 1
+                self.myturns.setdefault((in_road, out_road), [])
+                self.myturns[(in_road, out_road)].append(self.numberOfTurns - 1)
 
 
     def addFollows(self, in_roads, out_roads, order = None, displace = False, time = 40):
@@ -125,8 +128,8 @@ class corner:
         
         if out_road == None:
             for out_road in self.follow[in_road]:
-                if self.current_turn != self.myturn[(in_road, out_road)]:
+                if self.current_turn not in self.myturns[(in_road, out_road)]:
                     return False
             return True
         
-        return self.current_turn == self.myturn[(in_road, out_road)] 
+        return self.current_turn in self.myturns[(in_road, out_road)] 

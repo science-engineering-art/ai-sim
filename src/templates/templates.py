@@ -132,7 +132,7 @@ class BasicMapBuilder:
             for in_lane_id in self.map.intersections[(x, y)].input_lanes:
                 for out_lane_id in self.map.intersections[(x, y)].out_lanes:
 
-                    print(f'{(x,y)}')
+                    # print(f'{(x,y)}')
 
                     road_in: Edge = self.map.lanes[in_lane_id]
                     road_out: Edge = self.map.lanes[out_lane_id]
@@ -144,8 +144,8 @@ class BasicMapBuilder:
                     BasicMapBuilder.__calculate_angle(road_out)) > 177.5 and \
                     abs(BasicMapBuilder.__calculate_angle(road_in) - \
                     BasicMapBuilder.__calculate_angle(road_out)) < 182.5):
-                        print(
-                            f'PARALLEL: {(road_in.start, road_in.end)} -- {(road_out.start, road_out.end)}')
+                        # print(
+                            # f'PARALLEL: {(road_in.start, road_in.end)} -- {(road_out.start, road_out.end)}')
                         continue
 
                     # turning left
@@ -153,11 +153,11 @@ class BasicMapBuilder:
                     BasicMapBuilder.__calculate_angle(road_out)) > 185:
                         continue
 
-                    print(f'connect {road_in.end} to {road_out.start}')
-                    print(road_in.start, road_in.end,
-                        road_out.start, road_out.end)
+                    # print(f'connect {road_in.end} to {road_out.start}')
+                    # print(road_in.start, road_in.end,
+                        # road_out.start, road_out.end)
                     curve_pt = BasicMapBuilder.__calculate_curve_point(road_in, road_out)
-                    print(f'curve at {curve_pt}')
+                    # print(f'curve at {curve_pt}')
                     curve = CurveEdge(
                         input_lane_id=in_lane_id,
                         output_lane_id=out_lane_id,
@@ -227,7 +227,7 @@ class BasicMapBuilder:
             x0, y0 = x1, y1
             x1, y1 = tmp
 
-        print(f'x0: {x0}, y0: {y0}, x1: {x1}, y1: {y1}')
+        # print(f'x0: {x0}, y0: {y0}, x1: {x1}, y1: {y1}')
 
         co = y1 - y0
         ca = x1 - x0
@@ -237,7 +237,7 @@ class BasicMapBuilder:
 
         h = (co**2 + ca**2)**0.5
         
-        print(f'co: {co}, ca: {ca}, h: {h}')
+        # print(f'co: {co}, ca: {ca}, h: {h}')
         try: 
             angle = math.acos((co**2 + ca**2 - h**2) / (2 * co * ca))
             angle = math.degrees(angle)
@@ -369,7 +369,7 @@ class GridMapBuilder(BasicMapBuilder):
         for road in self.map.roads:
             for i in road.lanes:
                 self.map.lanes[i].lambda_ = random.uniform(0, 0.15)
-                print(f'\n{self.map.lanes[i]}\n')
+                # print(f'\n{self.map.lanes[i]}\n')
 
         return deepcopy(self.map)
     

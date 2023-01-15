@@ -18,7 +18,7 @@ class Vehicle:
         self.path = path
         self.v = 0
         self.v_max = 16.67
-        self.v = self.v_max * 3/4
+        # self.v = self.v_max * 3/4
         self.a = 0
         self.a_max = 1.44
         self.b_max = 4.61
