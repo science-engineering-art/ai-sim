@@ -7,10 +7,10 @@ from copy import deepcopy
 import dictdatabase as ddb
 from models.road import Road
 from abc import abstractmethod
-from navigation import navigation
+from models.navigation import navigation
 from scipy.spatial import distance
 from models.control import control
-from templates.models import Vehicle
+from templates.models import Template, Vehicle
 from models.new_control import new_draw
 from templates.visitor import NodeVisitor
 from models.draw_control import draw_control
@@ -412,11 +412,15 @@ import heapq
 from sys import maxsize
 
 def get_nearest_lane(map: Map, start, end):
-    lanes = []
+    return random.choice( 
+        [ lane 
+            for lane in map.intersections[start].out_lanes
+                for lane2 in map.intersections[end].input_lanes
+                    if lane == lane2
+        ]
+    )
 
-    
 def floyd_warshall(map: Map, edges: set) -> tuple[dict, list]:
-
     visited = dict()
 
     for x, y in map.intersections:
@@ -426,7 +430,7 @@ def floyd_warshall(map: Map, edges: set) -> tuple[dict, list]:
             if (x1, y1) == (x, y) and (x0, y0) not in visited:
                 visited[(x0, y0)] = len(visited)
 
-    paths  = [[[] for _ in range(len(visited))]      for _ in range(len(visited))]
+    paths = [[[] for _ in range(len(visited))]      for _ in range(len(visited))]
     costs = [[maxsize for _ in range(len(visited))] for _ in range(len(visited))]
 
     (x0, y0), (x1, y1) = [t for t in iter(edges)][0]
@@ -436,6 +440,7 @@ def floyd_warshall(map: Map, edges: set) -> tuple[dict, list]:
         i = visited[(x0, y0)]
         j = visited[(x1, y1)]
         costs[i][j] = len_roads
+        paths[i][j] = [get_nearest_lane(map, (x0, y0), (x1, y1))]
 
     for i in range(len(visited)):
         costs[i][i] = 0
@@ -445,10 +450,9 @@ def floyd_warshall(map: Map, edges: set) -> tuple[dict, list]:
             for j in range(len(visited)):
                 if costs[i][k] + costs[k][j] < costs[i][j]:
                     costs[i][j] = costs[i][k] + costs[k][j]
-                    paths[i][j]  = paths[i][k]  + paths[k][j]
+                    paths[i][j] = paths[i][k] + paths[k][j]
 
     return visited, costs, paths
-
 
 class VehicleGeneration:
 
@@ -467,7 +471,7 @@ class VehicleGeneration:
             lane = self.map.lanes[lane_id]
 
             r = random.random()
-            if r > navigation.__poisson(lane.lambda_, dt, 1):
+            if r > navigation._navigation__poisson(lane.lambda_, dt, 1):
                 continue
 
             # get nearest point of `lane.start`
@@ -479,20 +483,29 @@ class VehicleGeneration:
             u = self.visited[best[1]]
             v = u
             while u == v:
-                v = random.randint(0, len(self.visited))
+                v = random.randint(0, len(self.visited)-1)
 
             # get path from U to V intersection node
+            print(f"u: {u} == v: {v} == path: {len(self.paths[u])}")
             path = self.paths[u][v]
-
+            print('!!!')
+            print(path)
             car: Vehicle = Vehicle(path=path, start=time)
             cars.append(car)
 
-    def generate_cars(self, time_gen = 10, step_size = 0.014) -> list[Vehicle]:
+        return cars
 
-        t0 = time()
+    def generate_cars(self, time_generation = 10, step_size = 0.014) -> list[Vehicle]:
+        cars = []
+        current = 0
 
-        while time() - t0  < time_gen:
-            random.choice(population=map.extremes_lanes)
+        while current  < time_generation:
+            cars += self.generate_cars_round(step_size, current)
+            current += step_size
+
+        cars = [car for car in cars if len(car.path) > 0]
+
+        return cars
 
 
 class TemplateIO:
@@ -501,15 +514,15 @@ class TemplateIO:
         self.builder = builder
 
     def generate_template(self, name: str):
-        
+
         s = ddb.at(name)
         if not s.exists():
-            map, edges = self.builder.build_map()
-            
-            vehGen = VehicleGeneration(map, edges)
+            map, edges = self.builder.build_map()            
+            cars = VehicleGeneration(map, edges).generate_cars()
+            temp = Template(map=map, vehicles=cars)
 
             s.create(
-                NodeVisitor().visit(map)
+                NodeVisitor().visit(temp)
             )
 
     def load_template(self, name: str):
@@ -520,7 +533,7 @@ class TemplateIO:
             ctrl = draw.ctrl
 
             # add roads
-            for lane in json['lanes']:
+            for lane in json['map']['lanes']:
                 ctrl.AddRoad(
                     road_init_point=lane['start'],
                     road_end_point=lane['end'],
@@ -528,7 +541,7 @@ class TemplateIO:
                 )
 
             # add connections between roads            
-            for curve in json['curves']:
+            for curve in json['map']['curves']:
                 ctrl.connect_roads(
                     road_1_id=curve['input_lane_id'],
                     road_2_id=curve['output_lane_id'],
@@ -536,16 +549,22 @@ class TemplateIO:
                 )
             
             # create intersections
-            for x in json['intersections']:
-                for y in json['intersections'][x]:
-                    follows = json['intersections'][x][y]['follows']
+            for x in json['map']['intersections']:
+                for y in json['map']['intersections'][x]:
+                    follows = json['map']['intersections'][x][y]['follows']
                     follows = [ tuple(f) for f in follows ] 
                     ctrl.CreateCorner(follows)
-            
+
             # add extremes roads
-            ctrl.AddExtremeRoads(json['extremes_lanes'])
+            ctrl.AddExtremeRoads(json['map']['extremes_lanes'])
 
             ctrl.speed = 5
 
-            return draw 
+            cars = []
+            for car in json['vehicles']:
+                path, _ = car
+                car = deepcopy(random.choice(ctrl.basic_vehicles))
+                car.path = path
+                cars.append(car)
 
+            return draw, cars

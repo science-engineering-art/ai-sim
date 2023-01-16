@@ -107,7 +107,7 @@ class control:
         for corn in self.corners:
             corn.tick(self.dt)  # increments the time of each semaphore
 
-        self.nav.NewRandomVehicle()  # generates a new random vehicle
+        # self.nav.NewRandomVehicle()  # generates a new random vehicle
 
         for road_id in range(len(self.roads)):  # for each road....
             road = self.roads[road_id]

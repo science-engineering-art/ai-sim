@@ -1,4 +1,4 @@
-from templates.models import BaseNode
+from templates.models import BaseNode, Map
      
 
 def iter_fields(node: 'NodeVisitor'):
@@ -45,12 +45,10 @@ class NodeVisitor:
                             json[key][x][y] = self.visit(item)
                         else:
                             json[key][kw] = self.visit(item)
-            
+
             elif isinstance(value, BaseNode):
-                json = {}
-                for kw, item in iter_fields(value):
-                    json[kw] = item
-            
+                json[key] = self.visit(value)
+
             else:
                 json[key] = value
 

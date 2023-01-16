@@ -11,7 +11,15 @@ temp = GridMapBuilder(
     out_roads= 2,
     width_roads= 4
 )
+
 temp = TemplateIO(temp)
 temp.generate_template('map4')
-draw = temp.load_template('map4')
-draw.Start(it_amount=100000)
+draw, cars = temp.load_template('map4')
+
+for car in cars:
+    car.current_road_in_path = 0
+    car.color = (255,255,255)
+    draw.ctrl.nav.fixed_vehicles.append(car)
+
+draw.Start(observation_time=1)
+draw.ObserveVehicles(cars)

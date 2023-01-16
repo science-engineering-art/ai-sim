@@ -39,3 +39,8 @@ class Map(BaseNode):
 class Vehicle(BaseNode):
     path: List[int]
     start: float
+
+
+class Template(BaseNode):
+    map: Map
+    vehicles: List[Vehicle]
