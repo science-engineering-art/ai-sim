@@ -34,3 +34,8 @@ class Map(BaseNode):
     intersections: Dict[Tuple[float,float], IntersectionNode] 
     curves: List[CurveEdge]
     extremes_lanes: List[int] 
+
+
+class Vehicle(BaseNode):
+    path: List[int]
+    start: float
