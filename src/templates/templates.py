@@ -562,9 +562,8 @@ class TemplateIO:
 
             cars = []
             for car in json['vehicles']:
-                path, _ = car
-                car = deepcopy(random.choice(ctrl.basic_vehicles))
-                car.path = path
+                path, start = car
+                _, car = ctrl.AddRoutedVehicle(path, start)
                 cars.append(car)
 
             return draw, cars

@@ -53,14 +53,14 @@ class new_control(control):
         return (time() - init_time) * self.speed
         
         
-    def AddRoutedVehicle(self, from_road_id, to_road_id):
-        path = A_star.find_shortest_path(self, from_road_id, to_road_id)
+    def AddRoutedVehicle(self, path, start):
+        # path = A_star.find_shortest_path(self, from_road_id, to_road_id)
         car: Vehicle = deepcopy(random.choice(self.basic_vehicles))
         car.path = path; car.current_road_in_path = 0
         
-        self.nav.fixed_vehicles.append(car)
+        self.nav.fixed_vehicles.append((start, car))
         
-        return car
+        return start, car
     
 class new_draw(draw_control):
     
