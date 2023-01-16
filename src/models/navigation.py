@@ -3,6 +3,7 @@ from copy import deepcopy
 from math import e, factorial
 from collections import deque
 from models.vehicle import Vehicle
+import heapq
 
 class navigation():
     
@@ -12,32 +13,41 @@ class navigation():
         self. ctrl = ctrl
         
     
-    def NewRandomVehicle(self):
+    def NewRandomVehicle(self, time=-1):
         '''Creates a random vehicle with probability prob'''
 
         cars = []
         roads_id = []
 
-        for road_id in self.ctrl.extremeRoads:
-            road = self.ctrl.roads[road_id]
+        # for road_id in self.ctrl.extremeRoads:
+        #     road = self.ctrl.roads[road_id]
 
-            r = random.random()
-            if r > navigation.__poisson(road.lambda_, self.ctrl.dt, 1):
-                continue
+        #     r = random.random()
+        #     if r > navigation.__poisson(road.lambda_, self.ctrl.dt, 1):
+        #         continue
 
-            # select uniformly the vehicle template (i.e. color, length, speed)
-            car: Vehicle = deepcopy(random.choice(self.ctrl.basic_vehicles))
+        #     # select uniformly the vehicle template (i.e. color, length, speed)
+        #     car: Vehicle = deepcopy(random.choice(self.ctrl.basic_vehicles))
             
-            if len(road.vehicles) > 0 and road.vehicles[len(road.vehicles) - 1].x < car.length:
-                continue
-            road.vehicles.append(car)
-            car.path = [road_id]; car.current_road_in_path = 0
-            self.cars.append(car)
-            cars.append(car)
-            roads_id.append(road_id)
+        #     if len(road.vehicles) > 0 and road.vehicles[len(road.vehicles) - 1].x < car.length:
+        #         continue
+        #     road.vehicles.append(car)
+        #     car.path = [road_id]; car.current_road_in_path = 0
+        #     self.cars.append(car)
+        #     cars.append(car)
+        #     roads_id.append(road_id)
+
+        # print(self.fixed_vehicles, self.cars)
             
         new_fv = []
-        for vehicle in self.fixed_vehicles:
+        # print(f'\n\nTIME: {time} < {self.fixed_vehicles[0][0]}\n\n')
+        
+        if len(self.fixed_vehicles) == 0 or self.fixed_vehicles[0][0] > time: 
+            return cars, roads_id
+
+        while len(self.fixed_vehicles) > 0 and self.fixed_vehicles[0][0] <= time:
+            _, vehicle = heapq.heappop(self.fixed_vehicles)
+
             road = self.ctrl.roads[vehicle.path[0]]
             l = len(road.vehicles)
             if l == 0 or (road.vehicles[l - 1].x < road.vehicles[l - 1].length): 
@@ -46,7 +56,6 @@ class navigation():
                 cars.append(vehicle)
                 roads_id.append(vehicle.path[0])
             else: new_fv.append(vehicle)
-        self.fixed_vehicles = new_fv    
         
         return cars, roads_id
     

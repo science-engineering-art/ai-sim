@@ -1,3 +1,4 @@
+import random
 from templates.templates import GridMapBuilder, TemplateIO
 
 temp = GridMapBuilder(
@@ -11,7 +12,28 @@ temp = GridMapBuilder(
     out_roads= 2,
     width_roads= 4
 )
+
 temp = TemplateIO(temp)
 temp.generate_template('map4')
 draw = temp.load_template('map4')
-draw.Start(it_amount=100000)
+
+ctrl = draw.ctrl
+
+ctrl.speed = 40
+cars = []
+
+ok = True
+while ok:
+    try:
+        road_start_id = ctrl.extremeRoads[0]
+        road_end_id   = random.randint(1, len(ctrl.roads))
+        print(f"\n\nINITIAL POINT: {road_start_id} TARGET: {road_end_id}\n\n")
+        prior, car = ctrl.AddRoutedVehicle(road_start_id, road_end_id, random.uniform(0, 5))
+        ok = False
+    except:...
+
+car.color = (255,255,255)
+cars.append((prior, car))
+
+draw.Start(observation_time=20)
+draw.ObserveVehicles(cars)

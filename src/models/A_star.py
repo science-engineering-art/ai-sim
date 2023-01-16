@@ -43,6 +43,7 @@ class A_star:
         
         while len(queue) > 0:
             d, road_id = heappop(queue)
+            print(d, road_id)
             road : Road = ctrl.roads[road_id]
             if road_id == end_road_id:
                 break
@@ -56,10 +57,11 @@ class A_star:
                 p[next_road_id] = road_id
                 f[next_road_id] = d + increment + h_val
                 heappush(queue, (f[next_road_id], next_road_id))
-                
         path = []
         road_id = end_road_id
         while road_id != init_road_id:
+            if road_id == -1:
+                raise Exception()
             path.append(road_id)
             road_id = p[road_id]
             

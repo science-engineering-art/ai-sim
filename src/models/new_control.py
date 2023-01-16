@@ -9,7 +9,6 @@ from typing import List
 import pygame 
 from models.A_star import A_star
 from models.control import LIGHT_GRAY, control
-from msilib.schema import Control
 from models.draw_control import draw_control
 
 from models.vehicle import Vehicle
@@ -23,7 +22,7 @@ class new_control(control):
         
         lst = [time() for _ in vehicles]
         checked = [False for _ in vehicles]
-        path_lengths = [len(v.path) for v in vehicles]
+        path_lengths = [len(v.path) for _, v in vehicles]
         
         ctrl = self.ctrl
         
@@ -53,14 +52,14 @@ class new_control(control):
         return (time() - init_time) * self.speed
         
         
-    def AddRoutedVehicle(self, from_road_id, to_road_id):
+    def AddRoutedVehicle(self, from_road_id, to_road_id, priority):
         path = A_star.find_shortest_path(self, from_road_id, to_road_id)
         car: Vehicle = deepcopy(random.choice(self.basic_vehicles))
         car.path = path; car.current_road_in_path = 0
         
-        self.nav.fixed_vehicles.append(car)
+        self.nav.fixed_vehicles.append((priority, car))
         
-        return car
+        return priority, car
     
 class new_draw(draw_control):
     
@@ -87,24 +86,28 @@ class new_draw(draw_control):
 
             self.DrawAllRoads( screen)
             self.DrawAllRoadsCars( screen)
-            
+
             pygame.display.update()
         return (time() - init_time) * ctrl.speed
-    
+
     def ObserveVehicles(self, vehicles : List[Vehicle]):
-        
+        vehicles = sorted(vehicles, key=lambda x: x[0], reverse=False)
+        self.ctrl.nav.fixed_vehicles = vehicles
+        print(vehicles)
+
         lst = [time() for _ in vehicles]
         checked = [False for _ in vehicles]
-        path_lengths = [len(v.path) for v in vehicles]
-        
+        path_lengths = [len(v.path) for _, v in vehicles]
+
         ctrl = self.ctrl
         pygame.init()
         screen = pygame.display.set_mode((1400, 800))
         pygame.display.update()
-        
+
         self.it_number = 0
+        t1 = time()
         while True:
-            ctrl.UpdateAll()
+            ctrl.UpdateAll(time=(time() - t1))
             screen.fill(LIGHT_GRAY)  # repaint the background
             for event in pygame.event.get():  # check if exiting
                 if event.type == pygame.QUIT:
@@ -112,27 +115,22 @@ class new_draw(draw_control):
 
             self.DrawAllRoads( screen)
             self.DrawAllRoadsCars( screen)
-            
+
             pygame.display.update()
-            
+
             done = True
             for i in range(len(vehicles)):
                 if not checked[i]:
+                    
                     done = False
-                    car = vehicles[i]
+                    _, car = vehicles[i]
                     if car.current_road_in_path > path_lengths[i] - 1 or \
                             (car.current_road_in_path == path_lengths[i] - 1
-                             and car.x >= ctrl.roads[car.path[path_lengths[i] - 1]].length):
+                            and car.x >= ctrl.roads[car.path[path_lengths[i] - 1]].length):
                         lst[i] = (lst[i] - time()) * ctrl.speed
                         checked[i] = True
             if done:
                 break
+        
         return lst
-        
-            
-        
-
-        
-        
-        
-    
+ 

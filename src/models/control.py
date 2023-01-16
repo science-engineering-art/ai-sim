@@ -90,12 +90,12 @@ class control:
         init_time = time()
         while (self.it_number < it_amount or it_amount == -1) and (time() - init_time < observation_time or observation_time == -1):
             t1 = time()  # measures time complexity
-            self.UpdateAll()
+            self.UpdateAll(time=(time() - t1))
             self.dt = (time() - t1) * self.speed
             self.it_number += 1
             
 
-    def UpdateAll(self):
+    def UpdateAll(self, time=-1):
 
         def CleanRedLights():
             for road in self.roads:
@@ -107,7 +107,7 @@ class control:
         for corn in self.corners:
             corn.tick(self.dt)  # increments the time of each semaphore
 
-        self.nav.NewRandomVehicle()  # generates a new random vehicle
+        self.nav.NewRandomVehicle(time=time)  # generates a new random vehicle
 
         for road_id in range(len(self.roads)):  # for each road....
             road = self.roads[road_id]

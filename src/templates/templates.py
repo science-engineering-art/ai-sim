@@ -8,10 +8,20 @@ from models.road import Road
 from abc import abstractmethod
 from scipy.spatial import distance
 from models.control import control
+from models.new_control import new_draw
 from templates.visitor import NodeVisitor
 from models.draw_control import draw_control
 from templates.models import CurveEdge, Edge, IntersectionNode, Map, RoadEdge
-     
+
+
+def floyd_warshall(map: Map, edges):
+    for x, y in map.intersections:
+        for edge in edges:
+            (x0, y0), (x1, y1) = edge
+            if (x, y) == (x0, y0) or (x, y) == (x1, y1):
+                break
+        else:
+            print(f"WRONG ({x}, {y})")
 
 class BasicMapBuilder:
 
@@ -132,8 +142,6 @@ class BasicMapBuilder:
             for in_lane_id in self.map.intersections[(x, y)].input_lanes:
                 for out_lane_id in self.map.intersections[(x, y)].out_lanes:
 
-                    # print(f'{(x,y)}')
-
                     road_in: Edge = self.map.lanes[in_lane_id]
                     road_out: Edge = self.map.lanes[out_lane_id]
 
@@ -144,8 +152,6 @@ class BasicMapBuilder:
                     BasicMapBuilder.__calculate_angle(road_out)) > 177.5 and \
                     abs(BasicMapBuilder.__calculate_angle(road_in) - \
                     BasicMapBuilder.__calculate_angle(road_out)) < 182.5):
-                        # print(
-                            # f'PARALLEL: {(road_in.start, road_in.end)} -- {(road_out.start, road_out.end)}')
                         continue
 
                     # turning left
@@ -359,7 +365,7 @@ class GridMapBuilder(BasicMapBuilder):
 
                     self._BasicMapBuilder__build_roads(
                         pt0, pt1, self.in_roads, self.out_roads, self.map.width_roads)
-                    
+
                     heapq.heappush(stack, pt)
                     edges.add((pt0, pt1))
 
@@ -368,8 +374,11 @@ class GridMapBuilder(BasicMapBuilder):
         # add the frequency of vehicles in each road
         for road in self.map.roads:
             for i in road.lanes:
-                self.map.lanes[i].lambda_ = random.uniform(0, 0.15)
-                # print(f'\n{self.map.lanes[i]}\n')
+                self.map.lanes[i].lambda_ = random.uniform(0, 0.05)
+
+        print("!!!!!!!!!!!!!!!!!!!!!!!!")
+        print(edges)
+        floyd_warshall(self.map, edges)
 
         return deepcopy(self.map)
     
@@ -421,7 +430,7 @@ class TemplateIO:
         s = ddb.at(name)
         if s.exists():
             json = s.read()
-            draw = draw_control()
+            draw = new_draw()
             ctrl = draw.ctrl
 
             # add roads

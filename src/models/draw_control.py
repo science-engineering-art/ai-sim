@@ -59,7 +59,7 @@ class draw_control():
 
             t1 = time()  # measures time complexity
 
-            self.ctrl.UpdateAll()
+            self.ctrl.UpdateAll(time=(t1 - init_time))
             
             screen.fill(LIGHT_GRAY)  # repaint the background
 

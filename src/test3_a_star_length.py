@@ -92,13 +92,66 @@ ctrl.CreateCorner([(LJ, JI, 0), (LJ, JB, 0),\
 
 ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     (CI, IH, 1), (CI, IG, 1), (CI, IJ, 1)])
-    
+
+import random  
 
 ctrl.speed = 40
 
+cars = []
 
-draw.Start(observation_time = 5)
-car = ctrl.AddRoutedVehicle(AB, IG)
+prior, car = ctrl.AddRoutedVehicle(LJ, CD, random.uniform(0, 10))
 car.color = (255,255,255)
-draw.ObserveVehicle(car, len(car.path))
+cars.append((prior, car))
 
+prior, car = ctrl.AddRoutedVehicle(KJ, BE, random.uniform(0, 10))
+car.color = (255,255,255)
+cars.append((prior, car))
+
+prior, car = ctrl.AddRoutedVehicle(AB, IG, random.uniform(0, 10))
+car.color = (255,255,255)
+cars.append((prior, car))
+
+prior, car = ctrl.AddRoutedVehicle(LJ, CD, random.uniform(0, 10))
+car.color = (255,255,255)
+cars.append((prior, car))
+
+prior, car = ctrl.AddRoutedVehicle(KJ, BE, random.uniform(0, 10))
+car.color = (255,255,255)
+cars.append((prior, car))
+
+prior, car = ctrl.AddRoutedVehicle(AB, IG, random.uniform(0, 10))
+car.color = (255,255,255)
+
+prior, car = ctrl.AddRoutedVehicle(LJ, CD, random.uniform(0, 10))
+car.color = (255,255,255)
+cars.append((prior, car))
+
+prior, car = ctrl.AddRoutedVehicle(KJ, BE, random.uniform(0, 10))
+car.color = (255,255,255)
+cars.append((prior, car))
+
+prior, car = ctrl.AddRoutedVehicle(AB, IG, random.uniform(0, 10))
+car.color = (255,255,255)
+cars.append((prior, car))
+
+prior, car = ctrl.AddRoutedVehicle(LJ, CD, random.uniform(0, 10))
+car.color = (255,255,255)
+cars.append((prior, car))
+
+prior, car = ctrl.AddRoutedVehicle(KJ, BE, random.uniform(0, 10))
+car.color = (255,255,255)
+cars.append((prior, car))
+
+prior, car = ctrl.AddRoutedVehicle(AB, IG, random.uniform(0, 10))
+car.color = (255,255,255)
+cars.append((prior, car))
+
+
+draw.Start(observation_time=1)
+draw.ObserveVehicles(cars)
+# draw.ObserveVehicle(cars[0])
+# draw.ObserveVehicle(cars[1])
+
+# draw.ObserveVehicle(car, len(car.path))
+
+# draw.ObserveVehicle(car, len(car.path))
