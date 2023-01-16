@@ -95,7 +95,7 @@ class new_draw(draw_control):
         
         lst = [time() for _ in vehicles]
         checked = [False for _ in vehicles]
-        path_lengths = [len(v.path) for v in vehicles]
+        path_lengths = [len(v.path) for _, v in vehicles]
         
         ctrl = self.ctrl
         pygame.init()
@@ -119,7 +119,7 @@ class new_draw(draw_control):
             for i in range(len(vehicles)):
                 if not checked[i]:
                     done = False
-                    car = vehicles[i]
+                    _, car = vehicles[i]
                     if car.current_road_in_path > path_lengths[i] - 1 or \
                             (car.current_road_in_path == path_lengths[i] - 1
                              and car.x >= ctrl.roads[car.path[path_lengths[i] - 1]].length):

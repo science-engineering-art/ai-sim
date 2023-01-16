@@ -563,7 +563,7 @@ class TemplateIO:
             cars = []
             for car in json['vehicles']:
                 path, start = car
-                _, car = ctrl.AddRoutedVehicle(path, start)
-                cars.append(car)
+                start, car = ctrl.AddRoutedVehicle(path, start)
+                cars.append((start, car))
 
             return draw, cars
