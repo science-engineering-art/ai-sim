@@ -562,7 +562,6 @@ class TemplateIO:
 
             cars = []
             for car in json['vehicles']:
-                print(car)
                 path, start = car['path'], car['start']
                 start, car = ctrl.AddRoutedVehicle(path, start)
                 cars.append((start, car))
