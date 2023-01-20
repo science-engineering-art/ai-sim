@@ -29,7 +29,6 @@ GREEN = (0, 255, 0)
 GRAY = (50, 50, 50)
 LIGHT_GRAY = (225, 225, 225)
 
-
 # relaciones:
 # vehiculo.length/calle 4m/300m
 # vehiculo.vmax/calle 80-120km/h/300m = 22.2-33.3m/s/300m
@@ -43,7 +42,6 @@ class draw_control():
 
         self.ctrl = control()
         self.__dict__.update(kwargs)
-
 
     def Start(self, observation_time=-1, it_amount=-1):
         '''method to begin the simulation'''
@@ -95,5 +93,3 @@ class draw_control():
                 for car in road.vehicles:
                     # repaint all the cars
                     Painting.draw_vehicle(screen, road, car)
-
-            
