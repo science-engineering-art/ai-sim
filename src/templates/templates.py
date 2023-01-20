@@ -420,6 +420,78 @@ def get_nearest_lane(map: Map, start, end):
         ]
     )
 
+def get_nearest_nodes(map: Map, edges, visited, lane_id):
+
+    def get_point(pt):
+        for x, y in visited:
+            if x == pt[0] and y == pt[1]:
+                return visited[(x,y)]
+        return -1
+
+    start = map.lanes[lane_id].start
+    end   = map.lanes[lane_id].end
+
+    for (x0, y0), (x1, y1) in edges:
+        # print(x0, x1, y0, y1)
+        if (x0, y0) != (x1, y1): 
+            lane_id = get_nearest_lane(map, (x0,y0), (x1,y1))
+            lane = map.lanes[lane_id]
+            if lane.start == start and lane.end == end:
+                return get_point((x0,y0)), get_point((x1,y1))
+
+        # print(x0, x1, y0, y1)
+
+    return -1
+
+def a(map: Map, edges, visited, paths, i, j, k):
+
+    def get_point(pt):
+        for x, y in visited:
+            if visited[(x,y)] == pt:
+                return x, y
+        return -1
+
+    s0 = e0 = s1 = e1 = 0
+
+    # print(paths[i][k], paths[k][j])
+    if len(paths[i][k]) == 0 or len(paths[k][j]) == 0:
+        return False
+    
+    # print(f'if len(paths[i][k]) > 0 or len(paths[k][j]) > 0:\nif {len(paths[i][k])} > 0 or {len(paths[k][j])} > 0:')
+
+    s0, e0 = paths[i][k][len(paths[i][k]) - 1], k
+    s1, e1 = k, paths[k][j][0]
+    
+    s0 = get_nearest_nodes(map, edges, visited, s0)
+    e1 = get_nearest_nodes(map, edges, visited, e1)
+
+    if s0 == -1 or e1 == -1: return False
+    
+    s0, _ = s0
+    _, e1 = e1
+
+    # print(visited)
+    # print(paths)
+    s0 = get_point(s0)
+    e0 = get_point(e0)
+    s1 = get_point(s1)
+    e1 = get_point(e1)
+
+    # print(paths[k][j])
+    # print(s0, e0, s1, e1)
+    # print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    
+    lane_in_id  = get_nearest_lane(map, s0, e0)
+    lane_out_id = get_nearest_lane(map, s1, e1)
+
+    k = get_point(k)
+    # print(map.intersections.keys())
+    # print(k0, k1)
+
+    return len ([follows for follows in map.intersections[k].follows
+        if map.lanes[follows[0]] == lane_in_id and \
+           map.lanes[follows[1]] == lane_out_id ]) > 0
+
 def floyd_warshall(map: Map, edges: set) -> tuple[dict, list]:
     visited = dict()
 
@@ -435,7 +507,7 @@ def floyd_warshall(map: Map, edges: set) -> tuple[dict, list]:
 
     (x0, y0), (x1, y1) = [t for t in iter(edges)][0]
     len_roads = distance.euclidean((x0, y0), (x1, y1))
-
+    
     for (x0, y0), (x1, y1) in edges:
         i = visited[(x0, y0)]
         j = visited[(x1, y1)]
@@ -448,11 +520,15 @@ def floyd_warshall(map: Map, edges: set) -> tuple[dict, list]:
     for k in range(len(visited)):
         for i in range(len(visited)):
             for j in range(len(visited)):
+                if k == i or k == j or i == j or \
+                    not a(map, edges, visited, paths, i, j, k): 
+                    continue
                 if costs[i][k] + costs[k][j] < costs[i][j]:
                     costs[i][j] = costs[i][k] + costs[k][j]
                     paths[i][j] = paths[i][k] + paths[k][j]
 
     return visited, costs, paths
+
 
 class VehicleGeneration:
 
