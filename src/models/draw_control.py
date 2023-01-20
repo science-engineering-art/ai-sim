@@ -53,11 +53,12 @@ class draw_control():
 
         self.it_number = 0
         init_time = time()
+        time_elapsed = 0
         while (self.it_number < it_amount or it_amount == -1) and (time() - init_time < observation_time or observation_time == -1):
 
             t1 = time()  # measures time complexity
 
-            self.ctrl.UpdateAll()
+            self.ctrl.UpdateAll(time=time_elapsed)
             
             screen.fill(LIGHT_GRAY)  # repaint the background
 
@@ -71,6 +72,7 @@ class draw_control():
             pygame.display.update()
 
             ctrl.dt = (time() - t1) * ctrl.speed
+            time_elapsed += ctrl.dt
             self.it_number += 1
 
     def DrawAllRoads(self, screen):

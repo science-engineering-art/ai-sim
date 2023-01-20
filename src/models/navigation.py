@@ -37,9 +37,9 @@ class navigation():
         #     roads_id.append(road_id)
 
         # print(self.fixed_vehicles, self.cars)
-            
+
         new_fv = []
-        # print(f'\n\nTIME: {time} < {self.fixed_vehicles[0][0]}\n\n') 
+        print(f'\n\nTIME: {time} < {self.fixed_vehicles[0][0]}  <<<====>>>  {self.fixed_vehicles}\n\n')
         if len(self.fixed_vehicles) == 0 or self.fixed_vehicles[0][0] > time: 
             return cars, roads_id
 
