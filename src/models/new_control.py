@@ -57,7 +57,7 @@ class new_control(control):
         # path = A_star.find_shortest_path(self, from_road_id, to_road_id)
         car: Vehicle = deepcopy(random.choice(self.basic_vehicles))
         car.path = path; car.current_road_in_path = 0
-        
+
         self.nav.fixed_vehicles.append((start, car))
         
         return start, car
