@@ -508,11 +508,11 @@ def floyd_warshall(map: Map, edges: set) -> tuple[dict, list]:
     (x0, y0), (x1, y1) = [t for t in iter(edges)][0]
     len_roads = distance.euclidean((x0, y0), (x1, y1))
     
-    for (x0, y0), (x1, y1) in edges:
+    for i, ((x0, y0), (x1, y1)) in enumerate(edges):
         i = visited[(x0, y0)]
         j = visited[(x1, y1)]
         costs[i][j] = len_roads
-        paths[i][j] = [get_nearest_lane(map, (x0, y0), (x1, y1))]
+        paths[i][j] = [i]
 
     for i in range(len(visited)):
         costs[i][i] = 0
@@ -520,12 +520,33 @@ def floyd_warshall(map: Map, edges: set) -> tuple[dict, list]:
     for k in range(len(visited)):
         for i in range(len(visited)):
             for j in range(len(visited)):
-                if k == i or k == j or i == j or \
-                    not a(map, edges, visited, paths, i, j, k): 
+                if k == i or k == j or i == j: # or \
+                    # not a(map, edges, visited, paths, i, j, k): 
                     continue
                 if costs[i][k] + costs[k][j] < costs[i][j]:
                     costs[i][j] = costs[i][k] + costs[k][j]
                     paths[i][j] = paths[i][k] + paths[k][j]
+
+    
+    for i in range(len(visited)):
+        for j in range(len(visited)):
+            if i == j: continue
+            path = ""
+            for edge_id in paths[i][j]:
+                
+                edge = None
+                for i, edg in enumerate(edges):
+                    if i == edge_id:
+                        edge = edg
+                        break
+                
+                s,e = edge
+                path += f"( {s} --> {e} ) ====>"
+            if path != "":
+                print(path)
+    
+
+    # print(f'PATH: {paths}')
 
     return visited, costs, paths
 
