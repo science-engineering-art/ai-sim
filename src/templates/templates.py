@@ -403,9 +403,9 @@ class GridMapBuilder(BasicMapBuilder):
                 horizontal = abs(self.map.lanes[i].end[1] - self.map.lanes[i].start[1]) < \
                                 abs(self.map.lanes[i].end[0] - self.map.lanes[i].start[0]) 
                 if horizontal:
-                    self.map.lanes[i].lambda_ = random.uniform(0.07, 0.15)
+                    self.map.lanes[i].lambda_ = random.uniform(0.05, 0.10)
                 else:
-                    self.map.lanes[i].lambda_ = random.uniform(0, 0.09)
+                    self.map.lanes[i].lambda_ = random.uniform(0, 0.07)
                 # print(f'\n{self.map.lanes[i]}\n')
 
 

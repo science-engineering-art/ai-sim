@@ -100,4 +100,5 @@ class navigation():
         if t == 0:
             t = 1e-8
         Lambda *= t
-        return Lambda**x * (e**(-Lambda)) / factorial(x)
+        return 1.0 -  (e**(-Lambda)) 
+        # return Lambda**x * (e**(-Lambda)) / factorial(x)
