@@ -1,6 +1,7 @@
 from functools import reduce
 from multiprocessing.sharedctypes import copy
 from ntpath import join
+from operator import length_hint
 from ssl import VERIFY_CRL_CHECK_CHAIN
 from time import time
 from tokenize import Intnumber
@@ -45,6 +46,8 @@ class control:
         self.scale = 300
         self.roads_width = 1
         self.curve_steps = 1
+        self.slow_distance = 30 * self.scale / 300
+        self.slow_limit_velocity = 10 * self.scale / 300
 
         self.roads = []
         self.c_roads = []
@@ -150,6 +153,10 @@ class control:
         for i in range(len(road.vehicles)):
             vehicle = road.vehicles[i]
             lead = None
+            if vehicle.x > road.length - self.slow_distance:
+                vehicle.slow(v = self.slow_limit_velocity)
+            else:
+                vehicle.unslow()
             if i != 0:
                 lead = road.vehicles[i - 1]
             elif type(road.end_conn) == corner and not road.end_conn.CanIPass(self.road_index[road],\
@@ -202,7 +209,6 @@ class control:
                     return False
                 
         return True
-            
 
     def AddRoad(self, road_init_point, road_end_point, lambda_=1/50):
         '''Adds a nex road to the simulation'''

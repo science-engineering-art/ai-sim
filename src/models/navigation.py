@@ -100,5 +100,8 @@ class navigation():
         if t == 0:
             t = 1e-8
         Lambda *= t
+        print('lll', Lambda)
+        print('bbb', Lambda**x * (e**(-Lambda)) / factorial(x))
+        print('eee', 1.0 - e**(-Lambda))
         return 1.0 -  (e**(-Lambda)) 
         # return Lambda**x * (e**(-Lambda)) / factorial(x)

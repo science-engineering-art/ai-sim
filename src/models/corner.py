@@ -64,7 +64,7 @@ class corner:
                 self.preceed[out_road] = []
 
 
-    def addFollow(self, in_road, out_road, order = None, displace = False, time = 40):
+    def addFollow(self, in_road, out_road, order = None, displace = False, time = 30):
         '''Add a follow pair, i.e. a  pair of (in_road, out_road) indicating 
         a car can move from in_road to out_road. 
         The parameter order is used to indicate its turn in the semaphore.
@@ -105,7 +105,7 @@ class corner:
                 self.myturns[(in_road, out_road)].append(self.numberOfTurns - 1)
 
 
-    def addFollows(self, in_roads, out_roads, order = None, displace = False, time = 40):
+    def addFollows(self, in_roads, out_roads, order = None, displace = False, time = 30):
         '''adds all the possible pair between in and out roads, as follow pairs'''
         if order == None:
             order = self.numberOfTurns

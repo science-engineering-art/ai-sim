@@ -17,5 +17,3 @@ temp.generate_template('map4')
 draw, cars = temp.load_template('map4')
 draw.ctrl.scale = 150
 draw.Start(observation_time=5000)
-print(cars)
-draw.ObserveVehicles(cars)
