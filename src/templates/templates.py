@@ -118,6 +118,21 @@ class BasicMapBuilder:
 
     def __build_intersections(self):
 
+        def is_turning_left(road_in: Edge, road_out: Edge):            
+            if road_in.end[1] < road_in.start[1]:
+                if road_out.end[0] < road_out.start[0]:
+                    return True
+            elif road_in.end[1] > road_in.start[1]:
+                if road_out.end[0] > road_out.start[0]:
+                    return True
+            elif road_in.start[0] < road_in.end[0]:
+                if road_out.end[1] < road_out.start[1]:
+                    return True
+            elif road_in.start[0] > road_in.end[0]:
+                if road_out.end[1] > road_out.start[1]:
+                    return True
+            return False
+
         for x, y in self.map.intersections:
             follows = {}
             i = 0
@@ -134,11 +149,6 @@ class BasicMapBuilder:
                         distance.euclidean(road_in.end, road_out.start):
                         continue
                         # print(f'PARALLEL: ({(road_in.start, road_in.end)} < {angle_in}) -- ({(road_out.start, road_out.end)} < {angle_out})')
-
-                    # turning left
-                    if abs(BasicMapBuilder.__calculate_angle(road_in) - \
-                    BasicMapBuilder.__calculate_angle(road_out)) > 185:
-                        continue
 
                     # print(f'connect {road_in.end} to {road_out.start}')
                     # print(road_in.start, road_in.end,
@@ -212,10 +222,23 @@ class BasicMapBuilder:
             j = 0
             tmp = follows
             follows = []
+            turning_left = {}
             for _, tuples in tmp.items():
                 for in_id, out_id, _ in tuples:
-                    follows.append((in_id, out_id, j))
+                    road_in  = self.map.lanes[in_id]
+                    road_out = self.map.lanes[out_id]
+                    if is_turning_left(road_in, road_out):
+                        if j not in turning_left:
+                            turning_left[j] = []
+                        turning_left[j].append((in_id, out_id))
+                    else:
+                        follows.append((in_id, out_id, j))
                 j += 1
+
+            # for _, tuples in turning_left.items():
+            #     for in_id, out_id in tuples:
+            #         follows.append((in_id, out_id, j))
+            #     j += 1
 
             if len(follows) > 0:
                 self.map.intersections[(x, y)].follows = follows            
@@ -647,12 +670,18 @@ class TemplateIO:
                     curve_point=curve['curve_point']
                 )
             
+            i = 0
             # create intersections
             for x in json['map']['intersections']:
                 for y in json['map']['intersections'][x]:
                     follows = json['map']['intersections'][x][y]['follows']
                     follows = [ tuple(f) for f in follows ] 
-                    ctrl.CreateCorner(follows)
+                    
+                    if i % 2 != 0:
+                        ctrl.CreateCorner(follows, ligth_controled=False)
+                    else:
+                        ctrl.CreateCorner(follows)
+                    i += 1
 
             # add extremes roads
             ctrl.AddExtremeRoads(json['map']['extremes_lanes'])
