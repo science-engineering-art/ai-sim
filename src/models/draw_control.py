@@ -42,6 +42,7 @@ class draw_control():
 
 
         self.ctrl = control()
+        self.ctrl.curve_steps = 15
         self.__dict__.update(kwargs)
 
 
@@ -95,5 +96,3 @@ class draw_control():
                 for car in road.vehicles:
                     # repaint all the cars
                     Painting.draw_vehicle(screen, road, car)
-
-            
