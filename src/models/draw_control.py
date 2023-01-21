@@ -42,7 +42,7 @@ class draw_control():
 
 
         self.ctrl = control()
-        self.ctrl.curve_steps = 15
+        self.ctrl.curve_steps = 1
         self.__dict__.update(kwargs)
 
 
