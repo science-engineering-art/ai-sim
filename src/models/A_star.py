@@ -161,7 +161,7 @@ class A_star:
             
             for next_road_id in inverse_conn[start_conn[road_id]][road_id]:
                 c =  ctrl.roads[next_road_id].length / ctrl.basic_vehicles[0].v_max
-                f_val = start_conn[road_id].times[start_conn[road_id].myturn[(next_road_id, road_id)]] + c
+                f_val = start_conn[road_id].times[start_conn[road_id].myturns[(next_road_id, road_id)][0]]+ c
                 if f[next_road_id] <= d + f_val:
                     continue
                 f[next_road_id] = d + f_val

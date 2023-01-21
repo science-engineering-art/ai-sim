@@ -94,7 +94,7 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     (CI, IH, 1), (CI, IG, 1), (CI, IJ, 1)])
     
 
-ctrl.speed = 40
+ctrl.speed = 10
 
 
 draw.Start(observation_time = 5)
