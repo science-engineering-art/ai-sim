@@ -102,11 +102,10 @@ class new_draw(draw_control):
         screen = pygame.display.set_mode((1400, 800))
         pygame.display.update()
         
-        time_elapsed = 0
         while True:
             t1 = time()
 
-            ctrl.UpdateAll(time=time_elapsed)
+            ctrl.UpdateAll()
             screen.fill(LIGHT_GRAY)  # repaint the background
             for event in pygame.event.get():  # check if exiting
                 if event.type == pygame.QUIT:
@@ -130,8 +129,6 @@ class new_draw(draw_control):
             if done:
                 break
             
-            time_elapsed += (time() - t1) * ctrl.speed
-
         return lst
         
             
