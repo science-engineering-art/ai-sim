@@ -84,8 +84,8 @@ ctrl.CreateCorner([(AB, BE, 0), (AB, BC, 0),\
     (JB, BC, 2), (JB, BA, 2), (JB, BE, 2)])
 
 ctrl.CreateCorner([(BC, CD, 0), (BC, CI, 0),\
-    (DC, CI, 1), (DC, CB, 1),\
-    (FC, CD, 2), (FC, CB, 2), (FC, CI, 2)], ligth_controled=False)
+    (DC, CI, 1), (DC, CB, 1), (BC, CI, 1),\
+    (FC, CD, 2), (FC, CB, 2), (FC, CI, 2)], ligth_controled=True)
 
 ctrl.CreateCorner([(LJ, JI, 0), (LJ, JB, 0),\
     (IJ, JB, 1),\

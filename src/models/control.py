@@ -113,12 +113,15 @@ class control:
 
         for road_id in range(len(self.roads)):  # for each road....
             road = self.roads[road_id]
-            if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id):
-                road.vehicles.insert(0, Vehicle(
-                    road.length, 3, 1, color=RED, v=0, stopped=True))
             self.UpdateRoad(road)
 
         self.UpdateConnectionRoads()
+        
+        for road_id in range(len(self.roads)):  # for each road....
+            road = self.roads[road_id]
+            if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id):
+                road.vehicles.insert(0, Vehicle(
+                    road.length, 3, 1, color=RED, v=0, stopped=True))
 
     def UpdateConnectionRoads(self):
         for c_road in self.c_roads:
@@ -149,6 +152,9 @@ class control:
             lead = None
             if i != 0:
                 lead = road.vehicles[i - 1]
+            elif type(road.end_conn) == corner and not road.end_conn.CanIPass(self.road_index[road],\
+                                                self.road_index[self.nav.NextRoad(vehicle).to_road]):
+                lead =  Vehicle(road.length, 3, 1, color=RED, v=0, stopped=True)
             vehicle.update(dt=self.dt, lead=lead)
 
     def UpdateRoad(self, road):
