@@ -79,29 +79,30 @@ class navigation():
         if not road.end_conn:  # if nothing is associated with the end of the road
             return  # means the road end in the edge of the map
         
+        next_road_id = None
         if vehicle.current_road_in_path < len(vehicle.path) - 1:
             next_road_id =  vehicle.path[vehicle.current_road_in_path + 1]
-        else:
-            # we select the next corner road that can be reached from the current one, 
-            # taking into account the flow of cars on each of these roads
-            next_road_id = random.choices(
-                population=road.end_conn.follow[ctrl.road_index[road]], 
-                weights=[navigation.__poisson(ctrl.roads[i].lambda_, ctrl.dt, 1) 
-                    for i in road.end_conn.follow[ctrl.road_index[road]]],
-                k = 1)[0]
+        # else:
+        #     pass
+        #     #uncomment this 'pass' if want cars to keep moving around map
+        
+        #     # we select the next corner road that can be reached from the current one, 
+        #     # taking into account the flow of cars on each of these roads
+        #     next_road_id = random.choices(
+        #         population=road.end_conn.follow[ctrl.road_index[road]], 
+        #         weights=[navigation.__poisson(ctrl.roads[i].lambda_, ctrl.dt, 1) 
+        #             for i in road.end_conn.follow[ctrl.road_index[road]]],
+        #         k = 1)[0]
 
             vehicle.path.append(next_road_id)
         pp = st_distances_matrix
         dd = st_path_matrix
-        next_road_connec  = ctrl.our_connection[(road_id, next_road_id)]
+        next_road_connec  = ctrl.our_connection.get((road_id, next_road_id))
         return next_road_connec
     
     def __poisson(Lambda: float, t: float, x: int):
         if t == 0:
             t = 1e-8
         Lambda *= t
-        print('lll', Lambda)
-        print('bbb', Lambda**x * (e**(-Lambda)) / factorial(x))
-        print('eee', 1.0 - e**(-Lambda))
         return 1.0 -  (e**(-Lambda)) 
         # return Lambda**x * (e**(-Lambda)) / factorial(x)

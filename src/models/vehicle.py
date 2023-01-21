@@ -50,6 +50,9 @@ class Vehicle:
 
         self.a = self.a_max * (1 - (self.v/self.v_max)**4 - alpha**2)
 
+        if lead and lead.x - self.x < 5:
+            self.v = 0
+        
     def slow(self, v):
         self.v_max = v
 
