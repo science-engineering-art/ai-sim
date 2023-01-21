@@ -1,6 +1,7 @@
 from functools import reduce
 from multiprocessing.sharedctypes import copy
 from ntpath import join
+from ssl import VERIFY_CRL_CHECK_CHAIN
 from time import time
 from tokenize import Intnumber
 from typing import Deque
@@ -43,6 +44,7 @@ class control:
         self.dt = self.speed * (1/300)
         self.scale = 300
         self.roads_width = 1
+        self.curve_steps = 1
 
         self.roads = []
         self.c_roads = []
@@ -121,7 +123,7 @@ class control:
     def UpdateConnectionRoads(self):
         for c_road in self.c_roads:
             c_road: connection_road
-            for i in range(len(c_road.roads)):
+            for i in range(len(c_road.roads) - 1):
                 road = c_road.roads[i]
                 self.UpdateAllVehiclesInRoad(road)
 
@@ -134,12 +136,9 @@ class control:
 
                     road.vehicles.pop(0)
                     vehicle.x = 0
-                    to = c_road.to_road
-                    if i != len(c_road.roads) - 1:
-                        to = c_road.roads[i + 1]
-                    else:
-                        vehicle.current_road_in_path += 1
-                    to.vehicles.append(vehicle)
+                    c_road.roads[i + 1].vehicles.append(vehicle)
+                    # if i == len(c_road.roads) - 2:
+                    #     vehicle.current_road_in_path += 1
 
                 if red != None:
                     road.vehicles.insert(0, red)
@@ -173,6 +172,7 @@ class control:
                 if next_road_connec:
                     vehicle.x = 0
                     next_road_connec.roads[0].vehicles.append(vehicle)
+                    vehicle.current_road_in_path +=1
             else:
                 vehicle.stopped = True
 
@@ -191,7 +191,7 @@ class control:
         to_road_id = self.road_index[to_road]
         for road_in in road.end_conn.preceed[to_road_id]:
             conn_r = self.our_connection[(road_in, to_road_id)]
-            for road in conn_r.roads:
+            for road in conn_r.roads[:-1]:
                 if len(road.vehicles) > 0:
                     return False
                 
@@ -214,7 +214,7 @@ class control:
         road_1: Road = self.roads[road_1_id]
         road_2: Road = self.roads[road_2_id]
 
-        c_road = connection_road(road_1, road_2, curve_point)
+        c_road = connection_road(road_1, road_2, curve_point, self.curve_steps)
         self.c_roads.append(c_road)
 
         self.our_connection[(road_1_id, road_2_id)] = c_road

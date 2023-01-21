@@ -41,6 +41,7 @@ class draw_control():
 
 
         self.ctrl = control()
+        self.ctrl.curve_steps = 1
         self.__dict__.update(kwargs)
 
     def Start(self, observation_time=-1, it_amount=-1):

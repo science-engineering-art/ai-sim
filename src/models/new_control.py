@@ -65,8 +65,8 @@ class new_control(control):
 class new_draw(draw_control):
     
     def __init__(self, **kwargs):
-        
         self.ctrl = new_control()
+        self.ctrl.curve_steps = 15
         self.__dict__.update(kwargs)
     
     def ObserveVehicle(self, vehicle : Vehicle, path_length):

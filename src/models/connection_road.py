@@ -5,12 +5,14 @@ from models.road import Road
 
 class connection_road():
     
-    def __init__(self, road_1, road_2, curve_point):
+    def __init__(self, road_1, road_2, curve_point, steps = 15):
         
-        road_locations = [
-            *connection_road.get_curve_road(road_1.end, road_2.start, curve_point)]
+        road_locations = []
+        if steps != 0:
+            road_locations.extend([
+                *connection_road.get_curve_road(road_1.end, road_2.start, curve_point, steps)])
         
-        self.roads = [Road(r_loc[0], r_loc[1]) for r_loc in road_locations]
+        self.roads = [Road(r_loc[0], r_loc[1]) for r_loc in road_locations] + [road_2]
         self.from_road = road_1
         self.to_road = road_2
         
