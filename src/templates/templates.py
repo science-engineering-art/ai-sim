@@ -185,7 +185,7 @@ class BasicMapBuilder:
 
             tmp = follows
             follows = {}
-
+            print(f'TEMP: {tmp}')
             for i in tmp:
                 angle, _ = tmp[i][0]
 
@@ -214,10 +214,13 @@ class BasicMapBuilder:
                     self.map.curves[curve_id].output_lane_id, i) 
                     for _, curve_id in tmp[i]]
             
+            j = 0
             tmp = follows
             follows = []
             for _, tuples in tmp.items():
-                follows += tuples
+                for in_id, out_id, _ in tuples:
+                    follows.append((in_id, out_id, j))
+                j += 1
 
             if len(follows) > 0:
                 self.map.intersections[(x, y)].follows = follows            
@@ -540,8 +543,8 @@ def floyd_warshall(map: Map, edges: set) -> tuple[dict, list]:
                         edge = edg
                         break
                 
-                s,e = edge
-                path += f"( {s} --> {e} ) ====>"
+                # s,e = edge
+                # path += f"( {s} --> {e} ) ====>"
             if path != "":
                 print(path)
     
