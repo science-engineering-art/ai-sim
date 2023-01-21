@@ -235,10 +235,10 @@ class BasicMapBuilder:
                         follows.append((in_id, out_id, j))
                 j += 1
 
-            # for _, tuples in turning_left.items():
-            #     for in_id, out_id in tuples:
-            #         follows.append((in_id, out_id, j))
-            #     j += 1
+            for _, tuples in turning_left.items():
+                for in_id, out_id in tuples:
+                    follows.append((in_id, out_id, j))
+                j += 1
 
             if len(follows) > 0:
                 self.map.intersections[(x, y)].follows = follows            
