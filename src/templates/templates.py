@@ -185,7 +185,7 @@ class BasicMapBuilder:
 
             tmp = follows
             follows = {}
-            print(f'TEMP: {tmp}')
+            # print(f'TEMP: {tmp}')
             for i in tmp:
                 angle, _ = tmp[i][0]
 
@@ -249,19 +249,22 @@ class BasicMapBuilder:
             angle = math.acos((co**2 + ca**2 - h**2) / (2 * co * ca))
             angle = math.degrees(angle)
         except:
-            print('error 1')
+            pass
+            # print('error 1')
 
         try: 
             angle = math.acos((co**2 + h**2 - ca**2) / (2 * co * h))
             angle = math.degrees(angle)
         except:
-            print('error 2')
+            pass
+            # print('error 2')
 
         try:
             angle = math.acos((h**2 + ca**2 - co**2) / (2 * h * ca))
             angle = math.degrees(angle)
         except:
-            print('error 3')
+            pass
+            # print('error 3')
 
         return angle
 
@@ -586,10 +589,10 @@ class VehicleGeneration:
                 v = random.randint(0, len(self.visited)-1)
 
             # get path from U to V intersection node
-            print(f"u: {u} == v: {v} == path: {len(self.paths[u])}")
+            # print(f"u: {u} == v: {v} == path: {len(self.paths[u])}")
             path = self.paths[u][v]
-            print('!!!')
-            print(path)
+            # print('!!!')
+            # print(path)
             car: Vehicle = Vehicle(path=path, start=time)
             cars.append(car)
 
@@ -661,9 +664,9 @@ class TemplateIO:
             ctrl.speed = 5
 
             cars = []
-            for car in json['vehicles']:
-                path, start = car['path'], car['start']
-                start, car = ctrl.AddRoutedVehicle(path, start)
-                cars.append((start, car))
+            # for car in json['vehicles']:
+            #     path, start = car['path'], car['start']
+            #     start, car = ctrl.AddRoutedVehicle(path, start)
+            #     cars.append((start, car))
 
             return draw, cars

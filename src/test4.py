@@ -15,6 +15,6 @@ temp = GridMapBuilder(
 temp = TemplateIO(temp)
 temp.generate_template('map4')
 draw, cars = temp.load_template('map4')
-draw.Start(observation_time=5)
+draw.Start(observation_time=50)
 print(cars)
 draw.ObserveVehicles(cars)
