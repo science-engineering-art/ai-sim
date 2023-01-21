@@ -3,7 +3,12 @@ import random
 from copy import deepcopy
 from math import e, factorial
 from collections import deque
+
+from numpy import Inf
+from models.Floyd_Warshall import GetPath
 from models.vehicle import Vehicle
+from models.Floyd_Warshall import st_distances_matrix
+from models.Floyd_Warshall import st_path_matrix
 
 class navigation():
     
@@ -12,7 +17,7 @@ class navigation():
         self.fixed_vehicles = []
         self. ctrl = ctrl
 
-    def NewRandomVehicle(self):
+    def NewRandomVehicle(self, fixed_direction = True):
         '''Creates a random vehicle with probability prob'''
 
         cars = []
@@ -31,8 +36,11 @@ class navigation():
             if len(road.vehicles) > 0 and road.vehicles[len(road.vehicles) - 1].x < car.length:
                 continue
             road.vehicles.append(car)
-            car.path = [road_id]; car.current_road_in_path = 0
-            self.cars.append(car)
+            if fixed_direction:
+                car.path = self.GenerateRandomPath(road_id); car.current_road_in_path = 0
+            else:
+                car.path = [road_id]; car.current_road_in_path = 0
+                self.cars.append(car)
             cars.append(car)
             roads_id.append(road_id)
             
@@ -49,6 +57,17 @@ class navigation():
         self.fixed_vehicles = new_fv    
         
         return cars, roads_id
+    
+    def GenerateRandomPath(self, road_from_id):
+
+        road_to_id = random.choice(range(len(self.ctrl.roads)))
+        path = GetPath(self.ctrl, road_from_id, road_to_id)
+        while path == []:
+            road_to_id = random.choice(range(len(self.ctrl.roads)))
+            path = GetPath(self.ctrl, road_from_id, road_to_id)
+        return path
+            
+
 
     def NextRoad(self, vehicle: Vehicle):
 
@@ -72,7 +91,8 @@ class navigation():
                 k = 1)[0]
 
             vehicle.path.append(next_road_id)
-
+        pp = st_distances_matrix
+        dd = st_path_matrix
         next_road_connec  = ctrl.our_connection[(road_id, next_road_id)]
         return next_road_connec
     

@@ -1,6 +1,6 @@
 
 from numpy import Inf
-from models.control import control
+# from models.control import control
 from models.road import Road
 
 
@@ -8,7 +8,7 @@ st_distances_matrix = {}
 st_path_matrix = {}
 
 
-def GetPathsMatrix(ctrl : control):
+def GetPathsMatrix(ctrl ):
     
     if st_path_matrix.get(ctrl):
        return  st_path_matrix[ctrl]
@@ -20,9 +20,9 @@ def GetPathsMatrix(ctrl : control):
         distances_matrix[road_from_id][road_from_id] = 0
                 
     for road_from_id in range(len(ctrl.roads)):
-        road_from : Road = ctrl.roads[road_from_id]
+        road_from = ctrl.roads[road_from_id]
         for road_to_id in range(len(ctrl.roads)):
-            if road_to_id in road_from.end_conn.follow[road_from_id]:
+            if road_from.end_conn and road_to_id in road_from.end_conn.follow[road_from_id]:
                 path_matrix[road_from_id][road_to_id] = [road_from_id]
                 distances_matrix[road_from_id][road_to_id] = road_from.length
     
@@ -41,8 +41,9 @@ def GetPathsMatrix(ctrl : control):
     #addind last road length to the length of the path    
     for road_from_id in range(len(ctrl.roads)):
         for road_to_id in range(len(ctrl.roads)):
-            distances_matrix[road_from_id][road_to_id] +=ctrl.roads[road_to_id].length
-            path_matrix[road_from_id][road_to_id].append(road_to_id)
+            if distances_matrix[road_from_id][road_to_id] < Inf:
+                distances_matrix[road_from_id][road_to_id] +=ctrl.roads[road_to_id].length
+                path_matrix[road_from_id][road_to_id].append(road_to_id)
 
     st_distances_matrix[ctrl] = distances_matrix
     st_path_matrix[ctrl] = path_matrix
