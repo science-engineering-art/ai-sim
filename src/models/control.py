@@ -44,7 +44,7 @@ class control:
         self.dt = self.speed * (1/300)
         self.scale = 300
         self.roads_width = 1
-        self.curve_steps = 0
+        self.curve_steps = 1
 
         self.roads = []
         self.c_roads = []
