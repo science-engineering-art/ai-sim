@@ -12,7 +12,7 @@ class navigation():
         self.fixed_vehicles = []
         self. ctrl = ctrl
 
-    def NewRandomVehicle(self, time=-1):
+    def NewRandomVehicle(self):
         '''Creates a random vehicle with probability prob'''
 
         cars = []
@@ -35,25 +35,18 @@ class navigation():
             self.cars.append(car)
             cars.append(car)
             roads_id.append(road_id)
-
-        # print(self.fixed_vehicles, self.cars)
-
-        # new_fv = []
-        # if len(self.fixed_vehicles) == 0 or self.fixed_vehicles[0][0] > time: 
-        #     return cars, roads_id
-        # print(f'\n\nTIME: {time} < {self.fixed_vehicles[0][0]}  <<<====>>>  {self.fixed_vehicles}\n\n')
-
-        # while len(self.fixed_vehicles) > 0 and self.fixed_vehicles[0][0] <= time:
-        #     _, vehicle = heapq.heappop(self.fixed_vehicles)
-
-        #     road = self.ctrl.roads[vehicle.path[0]]
-        #     l = len(road.vehicles)
-        #     if l == 0 or (road.vehicles[l - 1].x < road.vehicles[l - 1].length): 
-        #         road.vehicles.append(vehicle)
-        #         self.cars.append(vehicle)
-        #         cars.append(vehicle)
-        #         roads_id.append(vehicle.path[0])
-        #     else: new_fv.append(vehicle)
+            
+        new_fv = []
+        for vehicle in self.fixed_vehicles:
+            road = self.ctrl.roads[vehicle.path[0]]
+            l = len(road.vehicles)
+            if l == 0 or (road.vehicles[l - 1].x < road.vehicles[l - 1].length): 
+                road.vehicles.append(vehicle)
+                self.cars.append(vehicle)
+                cars.append(vehicle)
+                roads_id.append(vehicle.path[0])
+            else: new_fv.append(vehicle)
+        self.fixed_vehicles = new_fv    
         
         return cars, roads_id
 
