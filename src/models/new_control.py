@@ -53,14 +53,14 @@ class new_control(control):
         return (time() - init_time) * self.speed
         
         
-    def AddRoutedVehicle(self, path, start):
-        # path = A_star.find_shortest_path(self, from_road_id, to_road_id)
+    def AddRoutedVehicle(self, from_road_id, to_road_id):
+        path = A_star.find_shortest_path(self, from_road_id, to_road_id)
         car: Vehicle = deepcopy(random.choice(self.basic_vehicles))
         car.path = path; car.current_road_in_path = 0
-
-        self.nav.fixed_vehicles.append((start, car))
         
-        return start, car
+        self.nav.fixed_vehicles.append(car)
+        
+        return car
     
 class new_draw(draw_control):
     
@@ -95,7 +95,7 @@ class new_draw(draw_control):
         
         lst = [time() for _ in vehicles]
         checked = [False for _ in vehicles]
-        path_lengths = [len(v.path) for _, v in vehicles]
+        path_lengths = [len(v.path) for v in vehicles]
         
         ctrl = self.ctrl
         pygame.init()
@@ -121,7 +121,7 @@ class new_draw(draw_control):
             for i in range(len(vehicles)):
                 if not checked[i]:
                     done = False
-                    _, car = vehicles[i]
+                    car = vehicles[i]
                     if car.current_road_in_path > path_lengths[i] - 1 or \
                             (car.current_road_in_path == path_lengths[i] - 1
                              and car.x >= ctrl.roads[car.path[path_lengths[i] - 1]].length):
