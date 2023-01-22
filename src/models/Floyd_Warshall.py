@@ -1,4 +1,5 @@
 
+from this import d
 from numpy import Inf
 # from models.control import control
 from models.road import Road
@@ -12,15 +13,15 @@ def GetPathsMatrix(ctrl):
     
     global st_path_matrix
     
-    if st_path_matrix.get(ctrl):
-       return  st_path_matrix[ctrl]
+    if st_path_matrix.get(ctrl.name):
+       return  st_path_matrix[ctrl.name]
     
     if big:
-        s = ddb.at('Floyd_Warshall')
+        s = ddb.at('Floyd_Warshall_' + ctrl.name)
         if s.exists():
             json = s.read()
-            st_path_matrix[ctrl] = json['matrix']
-            return st_path_matrix[ctrl]
+            st_path_matrix[ctrl.name] = json['matrix']
+            return st_path_matrix[ctrl.name]
         
     #setting intial values
     path_matrix = [[[] for road_to in range(len(ctrl.roads))] for road_in in range(len(ctrl.roads))]
@@ -69,12 +70,12 @@ def GetPathsMatrix(ctrl):
                 path_matrix[road_from_id][road_to_id].append(road_middle)
             path_matrix[road_from_id][road_to_id].reverse()
 
-    st_distances_matrix[ctrl] = distances_matrix
-    st_path_matrix[ctrl] = path_matrix
+    st_distances_matrix[ctrl.name] = distances_matrix
+    st_path_matrix[ctrl.name] = path_matrix
     
     if big:
         s.create({
-            'matrix' :  st_path_matrix[ctrl]}
+            'matrix' :  st_path_matrix[ctrl.name]}
         )
     
     return path_matrix

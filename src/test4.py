@@ -19,5 +19,6 @@ temp = TemplateIO(temp)
 temp.generate_template('map4')
 draw, cars = temp.load_template('map4')
 draw.ctrl.scale = 150
+draw.ctrl.name = 'map4'
 # draw.ctrl.speed = 20 
 draw.Start(observation_time=5000)

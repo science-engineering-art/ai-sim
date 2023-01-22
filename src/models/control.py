@@ -50,6 +50,7 @@ class control:
         self.slow_distance = 30 * self.scale / 300
         self.slow_limit_velocity = 10 * self.scale / 300
 
+        self.name = 'control'
         self.roads = []
         self.c_roads = []
         self.our_connection = {}
