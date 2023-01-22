@@ -106,7 +106,7 @@ INTERMEDIATE_XOVER = 1
 GEOMETRIC_XOVER = 2
 
 # random crossover points are selected and the alternating segments of the individuals are swapped to get new offsprings.
-def multipoint_xover(parent_a, parent_b, p=1):
+def multipoint_xover(parent_a, parent_b, p=2):
     offsprings = [[], []]
 
     last = (0, parent_a)  # point, parent
