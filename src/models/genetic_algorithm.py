@@ -3,10 +3,6 @@ from sys import maxsize as Inf
 import os
 import sys
 
-from sklearn import cross_decomposition
-
-from models.control import control
-
 MAX_ITERATIONS = 100
 
 
