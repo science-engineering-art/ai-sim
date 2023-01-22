@@ -103,12 +103,12 @@ class control:
 
     def UpdateAll(self):
 
-        def CleanRedLights():
+        def CleanLights():
             for road in self.roads:
-                if len(road.vehicles) > 0 and road.vehicles[0].color == RED:
+                if len(road.vehicles) > 0 and (road.vehicles[0].color == RED or road.vehicles[0].color == GREEN):
                     road.vehicles.pop(0)  # remove all the semaphores in red
 
-        CleanRedLights()
+        CleanLights()
 
         for corn in self.corners:
             corn.tick(self.dt)  # increments the time of each semaphore
@@ -126,6 +126,9 @@ class control:
             if type(road.end_conn) == corner and not road.end_conn.CanIPass(road_id):
                 road.vehicles.insert(0, Vehicle(
                     road.length, 3, 1, color=RED, v=0, stopped=True))
+            elif type(road.end_conn) == corner and road.end_conn.light_controled:
+                road.vehicles.insert(0, Vehicle(
+                    road.length, 3, 1, color=GREEN, v=0, stopped=True))
 
     def UpdateConnectionRoads(self):
         for c_road in self.c_roads:
