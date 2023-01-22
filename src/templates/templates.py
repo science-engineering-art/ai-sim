@@ -721,7 +721,7 @@ class TemplateIO:
         s = ddb.at(name)
         if not s.exists():
             map, edges = self.builder.build_map()            
-            cars = VehicleGeneration(map, edges).generate_cars()
+            cars = []# cars = VehicleGeneration(map, edges).generate_cars()
             temp = Template(map=map, vehicles=cars)
 
             s.create(
