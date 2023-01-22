@@ -257,7 +257,7 @@ class BasicMapBuilder:
                 j += 1
 
             for _, tuples in turning_left.items():
-                extreme_left0 = extreme_left1 = None
+                extreme_left00 = extreme_left01 = extreme_left10 = extreme_left11 = None
                 min_distance = maxsize
 
                 for in_id0, out_id0 in tuples:
