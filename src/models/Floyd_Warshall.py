@@ -1,7 +1,6 @@
 
 from this import d
 from numpy import Inf
-# from models.control import control
 from models.road import Road
 import dictdatabase as ddb
 
@@ -35,7 +34,6 @@ def GetPathsMatrix(ctrl):
         road_from = ctrl.roads[road_from_id]
         for road_to_id in range(len(ctrl.roads)):
             if road_from.end_conn and road_to_id in road_from.end_conn.follow[road_from_id]:
-                # path_matrix[road_from_id][road_to_id] = [road_from_id]
                 distances_matrix[road_from_id][road_to_id] = road_from.length
                 parents_matrix[road_from_id][road_to_id] = road_from_id
                  
@@ -47,8 +45,6 @@ def GetPathsMatrix(ctrl):
                                                                     distances_matrix[road_from_id][road_to_id]:
                     distances_matrix[road_from_id][road_to_id] = distances_matrix[road_from_id][road_max_id] \
                         + distances_matrix[road_max_id][road_to_id]
-                    # path_matrix[road_from_id][road_to_id] = path_matrix[road_from_id][road_max_id] + \
-                        # path_matrix[road_max_id][road_to_id]
                     parents_matrix[road_from_id][road_to_id] = parents_matrix[road_max_id][road_to_id]
     
     
@@ -57,7 +53,6 @@ def GetPathsMatrix(ctrl):
         for road_to_id in range(len(ctrl.roads)):
             if distances_matrix[road_from_id][road_to_id] < Inf:
                 distances_matrix[road_from_id][road_to_id] +=ctrl.roads[road_to_id].length
-                # path_matrix[road_from_id][road_to_id].append(road_to_id)
 
     for road_from_id in range(len(ctrl.roads)):
         for road_to_id in range(len(ctrl.roads)):

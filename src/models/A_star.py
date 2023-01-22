@@ -33,7 +33,6 @@ class A_star:
         
     def find_shortest_path(ctrl, init_road_id : Road, end_road_id : Road, g_increment = real_distance, h = euclidean_distance):
         
-        end_road = ctrl.roads[end_road_id]
         queue = []
         
         p = [-1 for _ in range(len(ctrl.roads))]

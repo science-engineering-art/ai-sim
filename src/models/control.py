@@ -148,8 +148,6 @@ class control:
                     road.vehicles.pop(0)
                     vehicle.x = 0
                     c_road.roads[i + 1].vehicles.append(vehicle)
-                    # if i == len(c_road.roads) - 2:
-                    #     vehicle.current_road_in_path += 1
 
                 if red != None:
                     road.vehicles.insert(0, red)
@@ -204,8 +202,6 @@ class control:
         if not next_road_connec:
             return True
         to_road = next_road_connec.to_road
-        # if not (len(to_road.vehicles) == 0 or to_road.vehicles[len(to_road.vehicles) - 1].x >=
-        #         to_road.length / 3):
         if not (len(to_road.vehicles) == 0 or to_road.vehicles[len(to_road.vehicles) - 1].x >=
                 to_road.vehicles[len(to_road.vehicles) - 1].length * 2):
             return False

@@ -80,7 +80,6 @@ class corner:
         
         if self.light_controled:
             if  order != None:
-                # print(order + 1 - self.numberOfTurns)
                 self.turns.extend([] for _ in range(max(0, order + 1 - self.numberOfTurns)))
                 self.times.extend(time for _ in range(max(0, order + 1 - self.numberOfTurns)))
                 if displace:

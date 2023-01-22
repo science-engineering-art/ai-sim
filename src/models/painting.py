@@ -28,7 +28,6 @@ class Painting:
         color = vehicle.color
         l = -vehicle.length
         h = vehicle.width
-        # road : Road = roads[vehicle.path[vehicle.current_road]]
         road_x, road_y = road.start
         x = road_x + road.angle_cos * vehicle.x
         y = road_y + road.angle_sin * vehicle.x
