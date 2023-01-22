@@ -149,29 +149,20 @@ class BasicMapBuilder:
             return False
 
         for x, y in self.map.intersections:
-            follows = {}
             i = 0
+            follows = {}
+
             for in_lane_id in self.map.intersections[(x, y)].input_lanes:
                 for out_lane_id in self.map.intersections[(x, y)].out_lanes:
 
-                    # print(f'{(x,y)}')
-
                     road_in : Edge = self.map.lanes[in_lane_id]
                     road_out: Edge = self.map.lanes[out_lane_id]
+                    
                     # check if road_in and road_out are in the same road
                     if distance.euclidean(road_in.start, road_out.end) == \
                         distance.euclidean(road_in.end, road_out.start):
                         continue
-                        # print(f'PARALLEL: ({(road_in.start, road_in.end)} < {angle_in}) -- ({(road_out.start, road_out.end)} < {angle_out})')
-
-                    # print(f'connect {road_in.end} to {road_out.start}')
-                    # print(road_in.start, road_in.end,
-                        # road_out.start, road_out.end)
-                    # if (abs(BasicMapBuilder.__calculate_angle(road_in) - \
-                    # BasicMapBuilder.__calculate_angle(road_out)) > 177.5 and \
-                    # abs(BasicMapBuilder.__calculate_angle(road_in) - \
-                    # BasicMapBuilder.__calculate_angle(road_out)) < 182.5):
-                    #     print('!@#$!@#!$#%^!!$^@*&!^$*^*!^@#*$^!*@^$*@&')
+                    
                     if abs(BasicMapBuilder.__calculate_angle(road_in) - 
                     BasicMapBuilder.__calculate_angle(road_out)) < 5:
                         curve_pt = (
@@ -243,8 +234,6 @@ class BasicMapBuilder:
                     road_in  = self.map.lanes[in_id]
                     road_out = self.map.lanes[out_id]
                     if is_turning_left(road_in, road_out):
-                        # angle = BasicMapBuilder.__calculate_angle(road_in)
-                        # angle %= 180
                         if j not in turning_left:
                             turning_left[j] = []
                         turning_left[j].append((in_id, out_id))
@@ -278,6 +267,13 @@ class BasicMapBuilder:
                             == min_distance:
                             extreme_left10 = (in_id0, out_id0)
                             extreme_left11 = (in_id1, out_id1)         
+                
+                in_id0, _ = extreme_left00
+                in_id1, _ = extreme_left01
+                
+                rm = [(x, y, z) for x,y,z in follows if x == in_id0 or x == in_id1]
+                for item in rm:
+                    follows.remove(item)
 
                 follows.add((*extreme_left00, j))
                 follows.add((*extreme_left01, j))
