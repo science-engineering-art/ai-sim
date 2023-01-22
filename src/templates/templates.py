@@ -7,13 +7,13 @@ from copy import deepcopy
 import dictdatabase as ddb
 from models.road import Road
 from abc import abstractmethod
-from models.navigation import navigation
 from scipy.spatial import distance
 from models.control import control
-from templates.models import Template, Vehicle
 from models.new_control import new_draw
+from models.navigation import navigation
 from templates.visitor import NodeVisitor
 from models.draw_control import draw_control
+from templates.models import Template, Vehicle
 from templates.models import CurveEdge, Edge, IntersectionNode, Map, RoadEdge
      
 
@@ -132,6 +132,21 @@ class BasicMapBuilder:
                 if road_out.end[1] > road_out.start[1]:
                     return True
             return False
+        
+        def is_turning_right(road_in: Edge, road_out: Edge):
+            if road_in.end[1] < road_in.start[1]:
+                if road_out.end[0] > road_out.start[0]:
+                    return True
+            elif road_in.end[1] > road_in.start[1]:
+                if road_out.end[0] < road_out.start[0]:
+                    return True
+            elif road_in.start[0] < road_in.end[0]:
+                if road_out.end[1] > road_out.start[1]:
+                    return True
+            elif road_in.start[0] > road_in.end[0]:
+                if road_out.end[1] < road_out.start[1]:
+                    return True
+            return False
 
         for x, y in self.map.intersections:
             follows = {}
@@ -144,7 +159,6 @@ class BasicMapBuilder:
                     road_in : Edge = self.map.lanes[in_lane_id]
                     road_out: Edge = self.map.lanes[out_lane_id]
                     # check if road_in and road_out are in the same road
-                    
                     if distance.euclidean(road_in.start, road_out.end) == \
                         distance.euclidean(road_in.end, road_out.start):
                         continue
@@ -221,27 +235,86 @@ class BasicMapBuilder:
             
             j = 0
             tmp = follows
-            follows = []
-            turning_left = {}
+            follows = set()
+            turning_left  = {}
+            turning_right = {}
             for _, tuples in tmp.items():
-                for in_id, out_id, _ in tuples:
+                for in_id, out_id, sect in tuples:
                     road_in  = self.map.lanes[in_id]
                     road_out = self.map.lanes[out_id]
                     if is_turning_left(road_in, road_out):
+                        # angle = BasicMapBuilder.__calculate_angle(road_in)
+                        # angle %= 180
                         if j not in turning_left:
                             turning_left[j] = []
                         turning_left[j].append((in_id, out_id))
+                    elif is_turning_right(road_in, road_out):
+                        if j not in turning_right:
+                            turning_right[j] = []
+                        turning_right[j].append((in_id, out_id, j))
                     else:
-                        follows.append((in_id, out_id, j))
+                        follows.add((in_id, out_id, j))
                 j += 1
 
             for _, tuples in turning_left.items():
-                for in_id, out_id in tuples:
-                    follows.append((in_id, out_id, j))
+                extreme_left0 = extreme_left1 = None
+                min_distance = maxsize
+
+                for in_id0, out_id0 in tuples:
+                    for in_id1, out_id1 in tuples:
+
+                        road_in0 = self.map.lanes[in_id0]
+                        road_in1 = self.map.lanes[in_id1]
+                        
+                        if distance.euclidean(road_in0.start, road_in1.start) == \
+                           distance.euclidean(road_in0.end, road_in1.end):  continue
+
+                        if distance.euclidean(road_in0.end, road_in1.end) \
+                            < min_distance:
+                            extreme_left00 = (in_id0, out_id0)
+                            extreme_left01 = (in_id1, out_id1)
+                            min_distance = distance.euclidean(road_in0.end, road_in1.end) 
+                        elif distance.euclidean(road_in0.end, road_in1.end) \
+                            == min_distance:
+                            extreme_left10 = (in_id0, out_id0)
+                            extreme_left11 = (in_id1, out_id1)         
+
+                follows.add((*extreme_left00, j))
+                follows.add((*extreme_left01, j))
+                follows.add((*extreme_left10, j))
+                follows.add((*extreme_left11, j))
+                j += 1
+
+            for _, tuples in turning_right.items():
+                extreme_right00 = extreme_right01 = extreme_right10 = extreme_right11 = None
+                max_distance = -maxsize
+                for in_id0, out_id0, sect0 in tuples:
+                    for in_id1, out_id1, sect1 in tuples:
+                        
+                        road_in0  = self.map.lanes[in_id0]
+                        road_in1  = self.map.lanes[in_id1]
+                        
+                        if distance.euclidean(road_in0.start, road_in1.start) == \
+                           distance.euclidean(road_in0.end, road_in1.end):  continue
+
+                        if distance.euclidean(road_in0.end, road_in1.end) \
+                            > max_distance:
+                            extreme_right00 = (in_id0, out_id0, sect0)
+                            extreme_right01 = (in_id1, out_id1, sect1)
+                            max_distance = distance.euclidean(road_in0.end, road_in1.end)
+                        elif distance.euclidean(road_in0.end, road_in1.end) \
+                            == max_distance:
+                            extreme_right10 = (in_id0, out_id0, sect0)
+                            extreme_right11 = (in_id1, out_id1, sect1)
+
+                follows.add(extreme_right00)
+                follows.add(extreme_right01)
+                follows.add(extreme_right10)
+                follows.add(extreme_right11)
                 j += 1
 
             if len(follows) > 0:
-                self.map.intersections[(x, y)].follows = follows            
+                self.map.intersections[(x, y)].follows = [sect for sect in follows]            
 
     def __calculate_angle(road_in: Road) -> float:
         x0, y0 = road_in.start
@@ -663,6 +736,7 @@ class TemplateIO:
             ctrl = draw.ctrl
 
             # add roads
+            print(f"AMOUNT OF LANES: {len(json['map']['lanes'])}")
             for lane in json['map']['lanes']:
                 ctrl.AddRoad(
                     road_init_point=lane['start'],
