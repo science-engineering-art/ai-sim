@@ -26,6 +26,7 @@ class Vehicle:
         self.s0 = 4
         self.T = 1
 
+        self.mark = None
         self.stopped = False
         self.__dict__.update(kwargs)
 

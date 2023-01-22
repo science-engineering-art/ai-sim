@@ -5,6 +5,7 @@ from time import time
 from typing import Tuple
 from copy import deepcopy
 import dictdatabase as ddb
+from models.metaheuristic_control import metaeh_control
 from models.road import Road
 from abc import abstractmethod
 from scipy.spatial import distance
@@ -729,6 +730,7 @@ class TemplateIO:
         if s.exists():
             json = s.read()
             draw = new_draw()
+            draw.ctrl = metaeh_control()
             ctrl = draw.ctrl
 
             # add roads

@@ -2,12 +2,71 @@ from abc import ABC
 # from msilib.schema import Control
 from models.control import control
 from models.metaheuristic_control import metaeh_control
+from templates.templates import GridMapBuilder, TemplateIO
+import models.Floyd_Warshall
 
 # @abstract
 class Simulation(ABC):
     def get_new_control_object(self):
         pass
     
+class Simulation_test_5(Simulation):
+        
+    def get_new_control_object(self):
+        temp = GridMapBuilder(
+            center_point=(700, 400), 
+            len_roads=100, 
+            lower_limit_x=0,
+            lower_limit_y= 0, 
+            upper_limit_x= 1400,
+            upper_limit_y= 800,
+            in_roads= 2,
+            out_roads= 2,
+            width_roads= 4
+        )
+
+        models.Floyd_Warshall.big = True
+        temp = TemplateIO(temp)
+        
+        temp.generate_template('map5')
+        draw, _ = temp.load_template('map5')
+        ctrl = draw.ctrl
+        
+        ctrl.scale = 100
+        ctrl.name = 'map5'
+        ctrl.speed = 30 
+        
+        return ctrl
+
+class Simulation_test_6(Simulation):
+        
+    def get_new_control_object(self):
+        temp = GridMapBuilder(
+            center_point=(700, 400), 
+            len_roads=350, 
+            lower_limit_x=0,
+            lower_limit_y= 0, 
+            upper_limit_x= 1400,
+            upper_limit_y= 800,
+            in_roads= 2,
+            out_roads= 2,
+            width_roads= 4
+        )
+
+        models.Floyd_Warshall.big = True
+        temp = TemplateIO(temp)
+        
+        temp.generate_template('map6')
+        draw, _ = temp.load_template('map6')
+        ctrl = draw.ctrl
+        
+        ctrl.scale = 350
+        ctrl.name = 'map6'
+        ctrl.speed = 30 
+        
+        return ctrl
+
+
 class Simulation_test_3(Simulation):
     
     def get_new_control_object(self):

@@ -40,7 +40,7 @@ class navigation():
                 car.path = self.GenerateRandomPath(road_id); car.current_road_in_path = 0
             else:
                 car.path = [road_id]; car.current_road_in_path = 0
-                self.cars.append(car)
+            self.cars.append(car)
             cars.append(car)
             roads_id.append(road_id)
             

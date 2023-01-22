@@ -12,6 +12,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+tests/
 salva_de_test3.py
 proof.py
 proof2.py

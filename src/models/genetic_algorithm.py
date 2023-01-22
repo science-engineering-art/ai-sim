@@ -252,7 +252,11 @@ def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_tim
     f.write(f"SPEED: {speed} \n\n")
     f.write(f"OBSERVATION_TIME: {obs_time} \n\n")
 
+    f.close()
+    
     while i < max_iterations:
+        
+        f = open(tests_path + file_name, mode = "+a")
         f.write(f"Generation {i} \n\n")
 
         f.write(f"Population: \n")

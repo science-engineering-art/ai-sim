@@ -54,9 +54,10 @@ class metaeh_control(control):
             t1 = time()  # measures time complexity
             self.UpdateAll()
             self.UpdateFitnessProp()
-            self.dt = (time() - t1) * self.speed
+            t2 = time()
+            self.dt = (t2 - t1) * self.speed
             self.it_number += 1
-        self.posprocess_fitness_properties
+        self.posprocess_fitness_properties()
 
     def preprocess_fitness_properties(self):
         for _ in range(len(self.roads)):
@@ -68,7 +69,7 @@ class metaeh_control(control):
     def posprocess_fitness_properties(self):
         for road_id in range(len(self.roads)):
             self.road_average_time_take_cars[road_id] = self.road_total_time_take_cars[road_id] /            \
-                self.road_average_time_take_cars[road_id] if self.road_average_time_take_cars[road_id] != 0  \
+                self.road_total_amount_cars[road_id] if self.road_total_amount_cars[road_id] != 0  \
                 else 0
 
     def UpdateFitnessProp(self):
@@ -76,11 +77,14 @@ class metaeh_control(control):
             road = self.roads[road_id]
             self.road_total_time_take_cars[road_id] += self.dt * \
                 len(road.vehicles)
-            for vehicle in road.vehicles:
-                if vehicle == self.ref_car[road_id]:
+            for pos in range(len(road.vehicles)):
+                vehicle = road.vehicles[len(road.vehicles) - pos - 1]
+                if vehicle.mark == road_id:
+                    # vehicle.mark = None
                     break
                 self.road_total_amount_cars[road_id] += 1
             if len(road.vehicles) > 0:
+                road.vehicles[len(road.vehicles) - 1].mark = road_id
                 self.ref_car[road_id] = road.vehicles[len(road.vehicles) - 1]
 
     def GetDimension(self):

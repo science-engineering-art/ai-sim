@@ -8,6 +8,7 @@ from typing import Deque
 from xml.etree.ElementTree import Comment
 
 from h11 import ConnectionClosed
+from matplotlib.colors import LightSource
 from pandas import concat
 from sklearn.preprocessing import scale
 from models.connection_road import connection_road
@@ -83,9 +84,16 @@ class draw_control():
                 Painting.draw_road(screen, road, GRAY)  # repaint it
                 
     def DrawAllRoadsCars(self, screen):
-    
+        
         for road in self.ctrl.roads:
-            for car in road.vehicles:
+            ligth = []
+            if type(road.end_conn) == corner and not road.end_conn.CanIPass(self.ctrl.road_index[road]):
+                ligth.append(Vehicle(
+                road.length, 3, 1, color=RED, v=0, stopped=True))
+            elif type(road.end_conn) == corner and road.end_conn.light_controled:
+                ligth.append(Vehicle(
+                road.length, 3, 1, color=GREEN, v=0, stopped=True))
+            for car in road.vehicles + ligth:
                 # repaint all the cars
                 Painting.draw_vehicle(screen, road, car)
 
