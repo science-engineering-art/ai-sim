@@ -1,3 +1,2 @@
-
-dev: 
-	python src/main.py
+test: 
+	python src/test5_evolutionary_algorithm.py
