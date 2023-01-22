@@ -94,7 +94,7 @@ class navigation():
         #             for i in road.end_conn.follow[ctrl.road_index[road]]],
         #         k = 1)[0]
 
-            vehicle.path.append(next_road_id)
+            # vehicle.path.append(next_road_id)
         pp = st_distances_matrix
         dd = st_path_matrix
         next_road_connec  = ctrl.our_connection.get((road_id, next_road_id))
