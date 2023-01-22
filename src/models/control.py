@@ -1,27 +1,12 @@
-from functools import reduce
-from multiprocessing.sharedctypes import copy
-from ntpath import join
-from operator import length_hint
-from ssl import VERIFY_CRL_CHECK_CHAIN
 from time import time
-from tkinter.ttk import setup_master
-from tokenize import Intnumber
-from typing import Deque
-from xml.etree.ElementTree import Comment
-
-from h11 import ConnectionClosed
-from sklearn.preprocessing import scale
 from models.connection_road import connection_road
 from models.corner import corner
 from models.navigation import navigation
 from models.vehicle import Vehicle
 from models.road import Road
-import random
-from copy import deepcopy
 from models.painting import *
 from pygame.locals import *
-import pygame
-from math import e, factorial
+
 
 RED = (255, 0, 0)
 BLUE = (0, 255, 255)

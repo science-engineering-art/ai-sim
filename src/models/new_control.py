@@ -1,18 +1,12 @@
-from copy import deepcopy
-from importlib.resources import path
-import random
-from tabnanny import check
-from time import time
-from turtle import speed
-from typing import List
-
 import pygame 
+import random
+from time import time
+from typing import List
+from copy import deepcopy
 from models.A_star import A_star
-from models.control import LIGHT_GRAY, control
-# from msilib.schema import Control
-from models.draw_control import draw_control
-
 from models.vehicle import Vehicle
+from models.draw_control import draw_control
+from models.control import LIGHT_GRAY, control
 
 
 class new_control(control):

@@ -1,9 +1,6 @@
-from pyexpat import model
-from matplotlib.hatch import HorizontalHatch
-from models.control import control
 import models.genetic_algorithm as gam
 # import models.genetic_algorithm as ga
-from models.simulation import Simulation, Simulation_test_3
+from models.simulation import Simulation_test_3
 
 
 EVAL_INDIVIDUAL_IN_SIMULATION_MAX_AVERAGE = 0

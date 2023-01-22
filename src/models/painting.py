@@ -1,11 +1,7 @@
 
-import pygame
 from pygame import gfxdraw
 from models.road import Road
 from models.vehicle import Vehicle
-import random
-from copy import deepcopy
-
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)

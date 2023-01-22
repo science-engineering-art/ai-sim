@@ -1,5 +1,4 @@
-from typing import Tuple
-from numpy import sqrt
+from math import sqrt
 
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)

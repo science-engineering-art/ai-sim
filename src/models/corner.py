@@ -1,8 +1,4 @@
 
-from typing import List
-from sympy import true
-
-
 class corner:
 
     '''class to simulate the concept of a corner 

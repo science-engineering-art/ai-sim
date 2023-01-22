@@ -1,4 +1,4 @@
-from templates.models import BaseNode, Map
+from templates.models import BaseNode
      
 
 def iter_fields(node: 'NodeVisitor'):

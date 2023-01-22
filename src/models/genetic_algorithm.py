@@ -1,7 +1,5 @@
 import random
-from matplotlib.bezier import find_bezier_t_intersecting_with_closedpath
-from matplotlib.font_manager import weight_dict
-from numpy import Inf, sort
+from sys import maxsize as Inf
 import os
 import sys
 

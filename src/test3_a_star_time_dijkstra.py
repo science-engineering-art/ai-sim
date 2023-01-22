@@ -1,11 +1,5 @@
-from matplotlib.hatch import HorizontalHatch
-from sklearn.utils import all_estimators
 from models.A_star import A_star
-from models.control import control
-from models.draw_control import draw_control
-from models.metaheuristic_control import metaeh_control
-from models.new_control import new_control, new_draw
-from models.simulation import Simulation_test_3
+from models.new_control import new_draw
 
 pos_x = [100, 450, 800, 1150]
 pos_y = [100, 300, 500, 700]

@@ -1,18 +1,7 @@
-
-
-from audioop import reverse
-from calendar import c
-from cmath import sqrt
-from distutils.dir_util import remove_tree
+from math import sqrt
 from heapq import heappop, heappush
-from tracemalloc import start
-from matplotlib.units import ConversionError
-from numpy import Inf
-from pygame import init
-from sklearn.metrics import euclidean_distances
-# from models.new_control import new_cControl
+from sys import maxsize as Inf
 from models.road import Road
-from models.corner import corner
 
 class A_star:
     

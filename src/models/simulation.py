@@ -1,9 +1,7 @@
 from abc import ABC
-# from msilib.schema import Control
-from models.control import control
+import models.Floyd_Warshall
 from models.metaheuristic_control import metaeh_control
 from templates.templates import GridMapBuilder, TemplateIO
-import models.Floyd_Warshall
 
 # @abstract
 class Simulation(ABC):

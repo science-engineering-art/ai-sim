@@ -1,7 +1,6 @@
-from models.control import control
-from templates.templates import GridMap
+from templates.templates import GridMapBuilder
 
-temp = GridMap(center_point=(700,400), 
+temp = GridMapBuilder(center_point=(700,400), 
     len_roads=92, lower_limit_x=10, 
     lower_limit_y=10, upper_limit_x=1380, 
     upper_limit_y=790, in_roads=1,

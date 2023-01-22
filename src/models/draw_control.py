@@ -1,28 +1,11 @@
 
-from functools import reduce
-from multiprocessing.sharedctypes import copy
-from ntpath import join
 from time import  time
-from tokenize import Intnumber
-from typing import Deque
-from xml.etree.ElementTree import Comment
-
-from h11 import ConnectionClosed
-from matplotlib.colors import LightSource
-from pandas import concat
-from sklearn.preprocessing import scale
-from models.connection_road import connection_road
 from models.control import control
 from models.corner import corner
-from models.navigation import navigation
 from models.vehicle import Vehicle
-from models.road import Road
-import random
-from copy import deepcopy
 from models.painting import *
 from pygame.locals import *
 import pygame
-from math import e, factorial
 
 RED = (255, 0, 0)
 BLUE = (0, 255, 255)

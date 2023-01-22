@@ -1,7 +1,6 @@
 import math
 import heapq
 import random
-from time import time
 from typing import Tuple
 from copy import deepcopy
 import dictdatabase as ddb
@@ -9,11 +8,9 @@ from models.metaheuristic_control import metaeh_control
 from models.road import Road
 from abc import abstractmethod
 from scipy.spatial import distance
-from models.control import control
 from models.new_control import new_draw
 from models.navigation import navigation
 from templates.visitor import NodeVisitor
-from models.draw_control import draw_control
 from templates.models import Template, Vehicle
 from templates.models import CurveEdge, Edge, IntersectionNode, Map, RoadEdge
      
@@ -556,12 +553,9 @@ def a(map: Map, edges, visited, paths, i, j, k):
 
     s0 = e0 = s1 = e1 = 0
 
-    # print(paths[i][k], paths[k][j])
     if len(paths[i][k]) == 0 or len(paths[k][j]) == 0:
         return False
     
-    # print(f'if len(paths[i][k]) > 0 or len(paths[k][j]) > 0:\nif {len(paths[i][k])} > 0 or {len(paths[k][j])} > 0:')
-
     s0, e0 = paths[i][k][len(paths[i][k]) - 1], k
     s1, e1 = k, paths[k][j][0]
     
@@ -595,7 +589,7 @@ def a(map: Map, edges, visited, paths, i, j, k):
         if map.lanes[follows[0]] == lane_in_id and \
            map.lanes[follows[1]] == lane_out_id ]) > 0
 
-def floyd_warshall(map: Map, edges: set) -> tuple[dict, list]:
+def floyd_warshall(map: Map, edges: set):
     visited = dict()
 
     for x, y in map.intersections:
@@ -664,7 +658,7 @@ class VehicleGeneration:
         self.paths = paths
         self.map = map
 
-    def generate_cars_round(self, dt, time) -> list[Vehicle]:
+    def generate_cars_round(self, dt, time):
         cars = []
 
         for lane_id in self.map.extremes_lanes:
@@ -695,7 +689,7 @@ class VehicleGeneration:
 
         return cars
 
-    def generate_cars(self, time_generation = 10, step_size = 0.014) -> list[Vehicle]:
+    def generate_cars(self, time_generation = 10, step_size = 0.014):
         cars = []
         current = 0
 
