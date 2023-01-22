@@ -2,17 +2,26 @@
 from numpy import Inf
 # from models.control import control
 from models.road import Road
-
+import dictdatabase as ddb
 
 st_distances_matrix = {}
 st_path_matrix = {}
+big = True
 
-
-def GetPathsMatrix(ctrl ):
+def GetPathsMatrix(ctrl):
+    
+    global st_path_matrix
     
     if st_path_matrix.get(ctrl):
        return  st_path_matrix[ctrl]
-   
+    
+    if big:
+        s = ddb.at('Floyd_Warshall')
+        if s.exists():
+            json = s.read()
+            st_path_matrix[ctrl] = json['matrix']
+            return st_path_matrix[ctrl]
+        
     #setting intial values
     path_matrix = [[[] for road_to in range(len(ctrl.roads))] for road_in in range(len(ctrl.roads))]
     parents_matrix = [[None for road_to in range(len(ctrl.roads))] for road_in in range(len(ctrl.roads))]
@@ -62,6 +71,11 @@ def GetPathsMatrix(ctrl ):
 
     st_distances_matrix[ctrl] = distances_matrix
     st_path_matrix[ctrl] = path_matrix
+    
+    if big:
+        s.create({
+            'matrix' :  st_path_matrix[ctrl]}
+        )
     
     return path_matrix
 
