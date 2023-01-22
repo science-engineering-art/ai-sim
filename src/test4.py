@@ -1,5 +1,6 @@
 
 from templates.templates import GridMapBuilder, TemplateIO
+import models.Floyd_Warshall
 
 temp = GridMapBuilder(
     center_point=(700, 400), 
@@ -13,9 +14,10 @@ temp = GridMapBuilder(
     width_roads= 4
 )
 
+models.Floyd_Warshall.big = True
 temp = TemplateIO(temp)
 temp.generate_template('map4')
 draw, cars = temp.load_template('map4')
 draw.ctrl.scale = 150
-draw.ctrl.speed = 20 
+# draw.ctrl.speed = 20 
 draw.Start(observation_time=5000)
