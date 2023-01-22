@@ -18,6 +18,7 @@ class Vehicle:
         self.path = path
         self.v = 0
         self.v_max = 16.67
+        self._v_max = self.v_max
         # self.v = self.v_max * 3/4
         self.a = 0
         self.a_max = 1.44
@@ -48,3 +49,12 @@ class Vehicle:
             alpha = (self.s0 + max(0, self.v*self.T + self.v*delta_v/(2*sqrt(self.a_max*self.b_max)))) / delta_x
 
         self.a = self.a_max * (1 - (self.v/self.v_max)**4 - alpha**2)
+
+        if lead and lead.x - self.x < 5:
+            self.v = 0
+        
+    def slow(self, v):
+        self.v_max = v
+
+    def unslow(self):
+        self.v_max = self._v_max

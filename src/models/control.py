@@ -1,8 +1,10 @@
 from functools import reduce
 from multiprocessing.sharedctypes import copy
 from ntpath import join
+from operator import length_hint
 from ssl import VERIFY_CRL_CHECK_CHAIN
 from time import time
+from tkinter.ttk import setup_master
 from tokenize import Intnumber
 from typing import Deque
 from xml.etree.ElementTree import Comment
@@ -45,6 +47,8 @@ class control:
         self.scale = 300
         self.roads_width = 1
         self.curve_steps = 1
+        self.slow_distance = 30 * self.scale / 300
+        self.slow_limit_velocity = 10 * self.scale / 300
 
         self.roads = []
         self.c_roads = []
@@ -150,9 +154,13 @@ class control:
         for i in range(len(road.vehicles)):
             vehicle = road.vehicles[i]
             lead = None
+            if vehicle.x > road.length - self.slow_distance:
+                vehicle.slow(v = self.slow_limit_velocity)
+            else:
+                vehicle.unslow()
             if i != 0:
                 lead = road.vehicles[i - 1]
-            elif type(road.end_conn) == corner and not road.end_conn.CanIPass(self.road_index[road],\
+            elif type(road.end_conn) == corner and self.nav.NextRoad(vehicle) and not road.end_conn.CanIPass(self.road_index[road],\
                                                 self.road_index[self.nav.NextRoad(vehicle).to_road]):
                 lead =  Vehicle(road.length, 3, 1, color=RED, v=0, stopped=True)
             vehicle.update(dt=self.dt, lead=lead)
@@ -175,6 +183,8 @@ class control:
             next_road_connec: connection_road = self.nav.NextRoad(vehicle)
             if self.VehicleCanTurn(vehicle, road):
                 road.vehicles.pop(0)
+                if vehicle.color == (255,255,255):
+                    print(next_road_connec)
                 if next_road_connec:
                     vehicle.x = 0
                     next_road_connec.roads[0].vehicles.append(vehicle)
@@ -191,7 +201,7 @@ class control:
             return True
         to_road = next_road_connec.to_road
         if not (len(to_road.vehicles) == 0 or to_road.vehicles[len(to_road.vehicles) - 1].x >=
-                to_road.vehicles[len(to_road.vehicles) - 1].length):
+                to_road.length / 3):
             return False
         
         to_road_id = self.road_index[to_road]
@@ -202,7 +212,6 @@ class control:
                     return False
                 
         return True
-            
 
     def AddRoad(self, road_init_point, road_end_point, lambda_=1/50):
         '''Adds a nex road to the simulation'''
@@ -219,8 +228,7 @@ class control:
 
         road_1: Road = self.roads[road_1_id]
         road_2: Road = self.roads[road_2_id]
-
-        c_road = connection_road(road_1, road_2, curve_point, self.curve_steps)
+        c_road = connection_road(road_1, road_2, curve_point, steps = self.curve_steps)
         self.c_roads.append(c_road)
 
         self.our_connection[(road_1_id, road_2_id)] = c_road
