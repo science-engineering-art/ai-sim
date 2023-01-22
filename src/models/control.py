@@ -203,8 +203,10 @@ class control:
         if not next_road_connec:
             return True
         to_road = next_road_connec.to_road
+        # if not (len(to_road.vehicles) == 0 or to_road.vehicles[len(to_road.vehicles) - 1].x >=
+        #         to_road.length / 3):
         if not (len(to_road.vehicles) == 0 or to_road.vehicles[len(to_road.vehicles) - 1].x >=
-                to_road.length / 3):
+                to_road.vehicles[len(to_road.vehicles) - 1].length * 2):
             return False
         
         to_road_id = self.road_index[to_road]
