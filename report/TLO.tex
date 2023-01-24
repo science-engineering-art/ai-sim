@@ -21,7 +21,7 @@
 
 %\documentclass[10pt]{article} % Single column
 
-\documentclass[twoside,twocolumn]{article} % Two column
+\documentclass[colorinlistoftodos,twoside,twocolumn]{article} % Two column
 
 \usepackage{blindtext} % Package to generate dummy text throughout this template 
 
@@ -55,18 +55,19 @@
 \pagestyle{fancy} % All pages have headers and footers
 \fancyhead{} % Blank out the default header
 \fancyfoot{} % Blank out the default footer
-\fancyhead[C]{Lenguajes de Programaci\'on: \textbf{Concurrencia}} % Custom header text
+\fancyhead[C]{Traffic Lights Optimization} % Custom header text
 \fancyfoot[RO,LE]{\thepage} % Custom footer text
 
 \usepackage{titling} % Customizing the title section
 
-\usepackage{hyperref} % For hyperlinks in the PDF
+\usepackage[colorlinks]{hyperref} % For hyperlinks in the PDF
 
 \usepackage{graphicx} % For images
 
 \usepackage{pifont} % bullets
 
 \usepackage{amsmath}
+
 
 % Keywords command
 \providecommand{\keywords}[1]
@@ -75,7 +76,6 @@
 	\vspace{0.5em}
 	\noindent \textbf{\textit{Palabras clave --- }} #1
 }
-
 
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION
@@ -175,16 +175,27 @@
 	
 	\section{Simulación}
 	
-	\subsection{Modelo microscópico}
+	\subsection{Modelo mesosc\'opico}
 	
-	Para modelar el flujo del tráfico se utiliza un modelo microscópico, en donde se representan los vehículos de forma independiente y se intenta replicar el comportamiento de un conductor. En consecuencia, debe ser un sistema multiagente, es decir, cada vehículo opera por sí mismo utilizando información de su entorno.
+	Para modelar el flujo del tráfico se utiliza un modelo mesosc\'opico, modelo híbrido que combina las características de los modelos microscópico y macroscópico.
+	
+	Como en el modelo microsc\'opico, se representan los vehículos de forma independiente y se intenta replicar el comportamiento de un conductor. En consecuencia, es un sistema multiagente, es decir, cada vehículo opera por sí mismo utilizando información de su entorno.
 	
 	Cada vehículo est\'a identificado por un número i. El i-ésimo vehículo sigue al (i-1)-ésimo vehículo. Para el i-ésimo vehículo, se denota por $ x_{i} $ su posición a lo largo del camino, $ v_{i} $ su velocidad y $ l_{i} $ su longitud. Sean, adem\'as, $ s_{i} $ la distancia parachoques a parachoques y $ \Delta v_{i} $ la diferencia de velocidad entre el i-ésimo vehículo y el vehículo que le precede (vehículo número i-1).
+	
+	\begin{center}
+		\includegraphics[width=\columnwidth]{microscopic_model.png}
+	\end{center}
+	
 	\begin{center}
 		$ s_{i} = x_{i} - x_{i-1} - l_{i} $
 	
 		$ \Delta v_{i} = v_{i} - v_{i-1} $
 	\end{center}
+	
+	Por otro lado, como caracter\'istica del modelo macrosc\'opico, se tienen en cuenta factores globales que describen el movimiento de vehículos como un todo, en términos de densidad de tráfico (vehículos por km) y flujo de tráfico (vehículos por minuto).
+	
+	\todo{revisar y arreglar como se utiliza el modelo macroscopico}
 	
 	\subsection{Modelo Conductor Inteligente}
 	
@@ -220,19 +231,37 @@
 	
 	\subsection{Generación de vehículos}
 	
-	Para la generación de vehículos se utiliza la distribución de Poisson. Esta es una distribución de probabilidad discreta, describe situaciones en las cuales los clientes llegan de manera independiente durante un cierto intervalo de tiempo y el número de llegadas depende de la magnitud del intervalo.
+	Los veh\'iculos se generan en los extremos del mapa. Cada calle tiene un $\lambda$ asignado que representa la cantidad de carros por segundo que pasan por ella, el cual corresponde a un valor entre 70 y 150 carros por hora. A las calles que se determinan como principales se les aumenta su $\lambda$.
 	
- 	\begin{center}
+	Se usa $\lambda$ para saber la probabilidad de que se genere un carro en dicha calle en un intervalo de tiempo, utiliz\'andolo como par\'ametro en la funci\'on de probabilidad de Poisson. Esta funci\'on dir\'a cu\'al es la probabilidad de que hayan pasado $ x $ carros en un intervalo de tiempo en esa calle.  
+	
+	\begin{center}
 		$ p(x) = f(x, \lambda) = \dfrac{\lambda^{x} \cdot e^{-\lambda}}{k!} $		
- 	\end{center}
+	\end{center}
+
+	Luego, se genera un n\'umero $ r $ aleatorio entre $ 0 $ y $ 1 $, y se halla la probabilidad $ p(0) $ de que no se haya creado ning\'un carro en este intervalo de tiempo. Se genera un carro en esta calle si $ r > p(0) $.
+	
+	Al generar un carro se establece su destino y su ruta. El destino se selecciona aleatoriamente de acuerdo a una probabilidad que tiene cada calle de que un carro vaya hacia ella, asign\'andole mayor peso a las calles m\'as transitadas. Cuando se ejecuta por primera vez una simulaci\'on en un mapa, se utiliza Floyd-Warshall para hallar los caminos de menor distancia entre todo par de calles, y se guardan los mismos. Luego, se escoge la ruta de estos caminos precalculados. 
+	
+	%Para la generación de vehículos se utiliza la distribución de Poisson. Esta es una distribución de probabilidad discreta, describe situaciones en las cuales los clientes llegan de manera independiente durante un cierto intervalo de tiempo y el número de llegadas depende de la magnitud del intervalo.
+	
+% 	\begin{center}
+%		$ p(x) = f(x, \lambda) = \dfrac{\lambda^{x} \cdot e^{-\lambda}}{k!} $		
+% 	\end{center}
  
 	\subsection{Semáforos}
+	
+	\subsubsection{Turnos}
+	
+	Un turno es un conjunto de sem\'aforos que se encuentran en verde en un mismo per\'iodo de tiempo. Cada sem\'aforo de la intersecci\'on puede existir en m\'as de un turno, siendo posible as\'i establecer distintas combinaciones para las direcciones factibles (seguir recto, doblar a la derecha o doblar a la izquierda) tal que no haya choques y haya la menor cantidad de turnos posibles. 
+	
+	\subsubsection{Zonas}
 	
 	Los sem\'aforos tienen dos zonas en los que los veh\'iculos se comportan de forma diferente:
 	\begin{itemize}
 		\item Zona de ralentización: Zona en la que los vehículos reducen su velocidad máxima utilizando un factor de ralentización.
 		\begin{center}
-			$ v_{0,i} := \alpha v_{0,i} \text{\hspace{0.2em} donde \hspace{0.2em}} \alpha < 1$
+			$ v_{0,i} := \alpha v_{0,i} \hspace{0.5em} \text{donde} \hspace{0.5em} \alpha < 1$
 		\end{center}
 		\item Zona de parada: Zona en la que se detienen los vehículos. Esto se logra utilizando una fuerza de amortiguamiento a través de la siguiente ecuación dinámica:
 		\begin{center}
@@ -242,54 +271,137 @@
 	
 	\subsection{Curvas de Bézier}
 	
-	Una curva de Bézier es una curva polinomial que aproxima a una serie de puntos llamados "puntos de control". Esta curva puede ser de cualquier grado, y podemos decir que de una curva de grado n aproxima a  n + 1 puntos de control. 
+	Una curva de Bézier es una curva polinomial que aproxima a una serie de puntos llamados puntos de control. Est\'a definida por un conjunto de puntos de control $ P_{0} $ a $ P_{n} $ donde $ n $ es su grado. Se dice que una curva de grado n aproxima a $ n + 1 $ puntos de control. El primer y el último punto de control son siempre los puntos extremos de la curva; sin embargo, los puntos de control intermedios (si los hay) por lo general no se encuentran en la misma. 
 	
-	Entonces para producir una curva en nuestro mapa se crean las calles (rectas) y se utilizan las curvas de B\'ezier como un spline de suavizado.
-	 
+	\begin{center}
+		$ P(u) = \sum_{i=0}^{n} P_{i}B_{i}^{n}(u) $
+	\end{center}
+	\begin{center}
+		$ B_{i}^{n}(u) = \binom{n}{i} (1 - u)^{n-i}u^{i} $
+	\end{center}
+	donde $ P_{i} $ es el conjunto de puntos, $ B_{i}^{n}(u) $ representa los polinomios de Bernstein y $ u $ toma valor entre $ 0 $ y $ 1 $.
+
+	Para producir una curva en nuestro mapa se crean las calles (rectas) y se utilizan las curvas de B\'ezier como un spline de suavizado. N\'otese que esto solo se utiliza para la parte visual, en realidad los carros estar\'an corriendo en una sola calle. 
+	
 	\section{Inteligencia Artificial}
 	
-		\subsection{Algoritmo genético}
-		
-		\subsubsection{Solución}
-		
-		La solución será un vector que contiene enteros correspondientes a los tiempos de luz verde de cada semáforo de la intersección.
-		
-		Nota: Para realizar las operaciones de cruzamiento y mutaci\'on los tiempos se llevan a binario, teniendo as\'i m\'as d\'igitos, y por tanto posibilidades, con los que jugar y encontrar la nueva poblaci\'on.
-		
-		\subsubsection{Población inicial}
-		
-		La población inicial se hallará de manera aleatoria, en donde cada uno de los valores de tiempo de luz verde estará entre el tiempo promedio que le toma a un carro pasar por la intersección y el tiempo máximo que un vehículo puede estar esperando. 
-		
-		\subsubsection{Función de evaluación \textit{fitness}}
-		
-		Se consideraron tres formas de calcular el fitness:
-		\begin{itemize}
-			\item Seg\'un el m\'aximo tiempo de espera. 
-			\item Seg\'un el tiempo total de paso de los carros por una calle. 
-			\item Seg\'un la media ponderada, calculada sobre todas las calles, del tiempo promedio que toma a los carros cruzar una calle
-		\end{itemize}
+	\subsection{Algoritmo genético}
 	
-		\subsubsection{Selección de padres}
-		
-		Para escoger los padres se utiliz\'o la selección basada en el rango (no el valor numérico) de los valores de fitness de los individuos en la población. La selección basada en el rango reduce los efectos potencialmente dominantes de individuos de alto fitness, comparativamente, en la población, estableciendo una cantidad predecible y limitada de presión de selección a favor de tales individuos. Al mismo tiempo, la selección basada en el rango exagera la diferencia entre valores de fitness agrupados de forma cercana para que los mejores se puedan muestrear más.
-		
-		\subsubsection{Mutación}
-		
-		La funci\'on de mutaci\'on recibe una poblaci\'on y un factor de mutaci\'on, que representa el porciento de la poblaci\'on a ser mutada. Para mutar un individuo, se escogen n de sus genes y en estos se niegan m de sus bits (ambos n y m se escogen de forma aleatoria).
-		
-		\subsubsection{Cruzamiento}
-		
-		\begin{itemize}
-			\item  \textbf{Cruce por puntos m\'ultiples:} Se seleccionan p puntos random y los segmentos (resultado de picar los individuos por dichos puntos) alternos de los individuos se intercambian para obtener nuevos descendientes.
-			\item \textbf{Cruce geom\'etrico:} Operador independiente de la representación definido sobre la distancia del espacio de búsqueda. Los descendientes deben estar en el segmento entre los individuos.
-			\item \textbf{Intermediate crossover:} Crea los descendientes mediante un promedio ponderado de los dos individuos en apareamiento.
-		\end{itemize}
-		
-		\subsection{Feature}
-		
-		Como caracter\'istica adicional al proyecto se implement\'o	un algoritmo $A^{*}$ para calcular, dadas dos calles del mapa, la menor distancia o tiempo para llegar de una a la otra. La primera versi\'on de $A^*$ que implementamos usa la conocida heur\'istica, admisible y completa, de distancia en l\'inea recta. Luego se realiz\'o una versi\'on un poco m\'as complicada del algoritmo que usa una simulaci\'on para estimar el tiempo que tomar\'a a un veh\'iculo llegar desde una calle a otra. La idea es que se generen veh\'iculos que tomen todas las aristas posibles cuando se esta calculando el valor de $g$ en $f = g + h$. Finalmente se implement\'o una heur\'istica propia que cosiste en aproximar el tiempo que demorar\'ia un carro en ir desde todas las calles hasta el destino (usando el algoritmo de Dijkstra), bas\'andonos en las distancias, concurrencia de veh\'iculos en las calles y tiempos de las luces de los sem\'aforos.
+	\subsubsection{Optimizaci\'on}
 	
+	Mediante el uso de un algoritmo gen\'etico se intenta minimizar las colas demoradas de carros en las intersecciones.
 	
+	\subsubsection{Solución}
+	
+	La solución será un vector que contiene enteros correspondientes a los tiempos de luz verde de cada turno de la intersección, para todas las intersecciones del mapa.
+	
+	\subsubsection{Población inicial}
+	
+	La población inicial se hallará de manera aleatoria, en donde cada uno de los valores de tiempo de luz verde estará entre el tiempo promedio que le toma a un carro pasar por la intersección y el tiempo máximo que un vehículo puede estar esperando. 
+	
+	\subsubsection{Función de evaluación \textit{fitness}}
+	
+	Para evaluar qu\'e tan buena es una soluci\'on, se ejecuta con ella una simulaci\'on. Luego, con los resultados arrojados por esta en un per\'iodo determinado y bajo el criterio escogido, se le da una puntuaci\'on a dicho individuo.
+	
+	Se consideraron tres formas de calcular el fitness:
+	\begin{itemize}
+		\item Seg\'un el m\'aximo tiempo de espera. 
+		\item Seg\'un el tiempo total de paso de los carros por una calle. 
+		\item Seg\'un la media ponderada, calculada sobre todas las calles, del tiempo promedio que toma a los carros cruzar una calle.
+	\end{itemize}
+
+	N\'otese que como se quieren minimizar los tiempos de los criterios anteriores, se tomar\'an dichos valores negativos para el fitness. 
+	
+	\subsubsection{Selección de padres}
+	
+	Para escoger los padres se utiliz\'o la selección basada en el rango (\textit{rank selection}), en la cual se ordena según el valor de fitness y se da una probabilidad de selección a cada individuo. 
+	
+	La selección basada en el rango reduce los efectos potencialmente dominantes de individuos de alto fitness, comparativamente, en la población, estableciendo una cantidad predecible y limitada de presión de selección a favor de tales individuos. Al mismo tiempo, exagera la diferencia entre valores de fitness agrupados de forma cercana para que los mejores se puedan muestrear más.
+	
+	\subsubsection{Mutación}
+	
+	La funci\'on de mutaci\'on recibe una poblaci\'on y una probabilidad de mutaci\'on igual al inverso del n\'umero de individuos. Por cada gen de cada individuo, se escoge un n\'umero $ m $ aleatorio entre $ 0 $ y $ 1 $, y dicho gen es mutado si $ m $ es menor que la probabilidad de mutaci\'on. La forma de mutar es escoger un n\'umero aleatorio entre el tiempo promedio que le toma a un carro pasar por la intersección y el tiempo máximo que un vehículo puede estar esperando, de igual forma que para crear la poblaci\'on inicial.
+	
+	\subsubsection{Cruzamiento}
+	
+	La funci\'on de cruzamiento genera dos individuos para a\~nadir a la nueva poblaci\'on a partir de los padres. Se consideraron tres formas de realizar el cruzamiento:
+	\begin{itemize}
+		\item  \textbf{Cruzamiento por puntos m\'ultiples:} Se seleccionan p puntos random y los segmentos (resultado de picar los individuos por dichos puntos) alternos de los individuos se intercambian para obtener nuevos descendientes.
+		\item \textbf{Cruzamiento geom\'etrico:} Se emparejan los genes que tienen la misma posici\'on en los padres, y en esta posici\'on del hijo se pone la media geom\'etrica entre ellos. Adem\'as de este descendiente, se devuelve uno de los padres, escogido de forma aleatoria.   
+		\item \textbf{Cruzamiento intermedio:} Se emparejan los genes que tienen la misma posici\'on en los padres, y en esta posici\'on del hijo se pone la media aritm\'etica entre ellos. Adem\'as de este descendiente, se devuelve uno de los padres, escogido de forma aleatoria. 
+	\end{itemize}
+	
+	\subsection{$ A^{*} $}
+	
+	La b\'usqueda $ A^{*} $ es un algoritmo de búsqueda \textit{best-first} informada que utiliza la función de evaluación:
+	\begin{center}
+		$ f(n) = g(n) + h(n) $
+	\end{center}
+	donde $ g(n) $ es el costo de alcanzar el nodo $ n $, $ h(n) $ es una heur\'istica del costo estimado del camino de menor costo desde n hasta el objetivo, siendo $ f(n) $ entonces el costo estimado de la mejor soluci\'on que pasa por $ n $.
+	
+	Se concibieron dos algoritmos $ A^{*} $, el cl\'asico para hallar la distancia m\'inima entre dos calles, y otro para hallar el camino que menor tiempo le tomar\'a a un veh\'iculo para llegar de una calle a otra.
+	
+	\subsubsection{$ A^{*} $ para hallar la distancia m\'inima entre dos calles}
+	
+	\begin{center}
+	
+	\textit{$ g(n) = $ distancia recorrida hasta el momento.}
+	
+	\vspace{0.5em}
+	\textit{$ h(n) = $ distancia en l\'inea recta desde el punto actual hasta el objetivo.}
+	
+	\end{center}
+	
+	\subsubsection{$ A^{*} $ para hallar el camino que menor tiempo le tomar\'a a un veh\'iculo para llegar de una calle a otra}
+	
+	\begin{center}
+		\textit{$ g(n) = $ } \textit{tiempo que demor\'o el veh\'iculo en llegar desde el estado inicial hasta el \hspace{8em} estado intermedio n.}
+	\end{center}	
+	Para hallar $ g(n) = $ se corre una simulaci\'on con un veh\'iculo que vaya desde el estado inicial hasta el estado intermedio n, y se toma el tiempo que demor\'o en llegar a su destino. \todo{aclarar lo de que va soltando carros en cada esquina}
+		
+	\begin{center}
+		\vspace{0.5em}
+		\textit{$ h(n) = $ } \textit{aproximado del tiempo requerido para llegar del estado intermedio n \hspace{8em} hasta el estado final.}
+	\end{center}
+
+	Se precacula, ejecutando Disjktra desde el destino hacia todos los puntos del mapa, el tiempo que tomar\'a cada una de esas rutas, teniendo en cuenta los sem\'aforos, distancia de las calles, velocidad de los carros y tr\'afico. Luego, para hallar $ h(n) $ simplemente se toma el tiempo de la ruta del destino al nodo intermedio n.
+	
+
+	\section{Tests}
+	
+	Se ejecutaron \todo{chequear cantidad de tests}50 pruebas con los siguientes par\'ametros para la optimizaci\'on:
+	\begin{itemize}
+		\item \textbf{tama\~no de la poblaci\'on:} 30
+		\item \textbf{cantidad de iteraciones:} 50
+		\item \textbf{tiempo de observaci\'on de cada individuo en la simulaci\'on:} 10s
+		\item \textbf{velocidad de la simulaci\'on:} 30
+		\item \textbf{tipo de cruzamiento:} cruzamiento por puntos m\'ultiples (2)
+		\item \textbf{c\'alculo de fitness:} seg\'un la media ponderada, calculada sobre todas las calles, del tiempo promedio que toma a los carros cruzar una calle
+		\item \textbf{tiempo promedio que le toma a un carro pasar por la intersección:} 3s
+		\item \textbf{tiempo máximo que un vehículo puede estar esperando:} 90s
+	\end{itemize}
+	sobre el mapa, de $ 12 \times 6 $ cuadras y $ 29 $ intersecciones semaforizadas, que se muestra a continuaci\'on:
+	
+	\begin{center}
+		\includegraphics[width=\columnwidth]{map.jpg}
+	\end{center}
+	
+	Dichas pruebas se pueden encontrar en la carpeta \emph{tests} del repositorio. 
+
+	\subsection{Resultados}
+
+	\missingfigure{plot con los fitness de la solucion final en cada test}
+	\todo{Explicar resultados}
+	
+	\section{Recomendaciones}
+	
+	\todo{Poner algun problema actual}
+	
+	\todo{Trabajo futuro: creacion de los mapas con gramatica prob. como habia pensado leo}
+	
+	Como trabajo futuro ser\'ia interesante optimizar la distribuci\'on de los turnos tal que en una intersecci\'on haya la menor cantidad posible de estos, y optimizar la posici\'on de las intersecciones semaforizadas (a\~nadir, quitar o reacomodar intersecciones en el mapa), para contribuir a hacer el tr\'afico m\'as fluido, objetivo perseguido en este proyecto.
+	
+	\listoftodos
 \end{document}
 
 
