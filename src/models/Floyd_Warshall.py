@@ -35,7 +35,6 @@ def GetPathsMatrix(ctrl):
                 parents_matrix[road_from_id][road_to_id] = road_from_id
                  
     for road_max_id in range(len(ctrl.roads)):
-        print(road_max_id)
         for road_from_id in range(len(ctrl.roads)):
             for road_to_id in range(len(ctrl.roads)):
                 if distances_matrix[road_from_id][road_max_id] + distances_matrix[road_max_id][road_to_id] < \

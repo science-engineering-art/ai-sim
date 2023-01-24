@@ -155,8 +155,6 @@ class control:
             next_road_connec: connection_road = self.nav.NextRoad(vehicle)
             if self.VehicleCanTurn(vehicle, road):
                 road.vehicles.pop(0)
-                if vehicle.color == (255,255,255):
-                    print(next_road_connec)
                 if next_road_connec:
                     vehicle.x = 0
                     next_road_connec.roads[0].vehicles.append(vehicle)
