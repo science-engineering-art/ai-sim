@@ -16,13 +16,13 @@ temp = GridMapBuilder(
 )
 
 
-ddb.config.storage_directory = '../tests/marcos_1_tests/ddb_storage'
-s = ddb.at('test_1')
-json = s.read()
-config = json['0']['best_solution']['vector']
-for i in range(49):
-    if json[str(i)].get('best_solution'):
-        config = json[str(i)]['best_solution']['vector']
+# ddb.config.storage_directory = '../tests/marcos_1_tests/ddb_storage'
+# s = ddb.at('test_1')
+# json = s.read()
+# config = json['0']['best_solution']['vector']
+# for i in range(49):
+#     if json[str(i)].get('best_solution'):
+#         config = json[str(i)]['best_solution']['vector']
         
 
 
@@ -34,5 +34,5 @@ draw.ctrl.scale = 150
 draw.ctrl.name = 'map5'
 draw.ctrl.speed = 30 
 
-draw.ctrl.SetConfiguration(config)
+# draw.ctrl.SetConfiguration(config)
 draw.Start(observation_time=10)

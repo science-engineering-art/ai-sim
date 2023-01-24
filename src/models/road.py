@@ -12,7 +12,6 @@ class Road:
         self.angle_cos = (self.end[0]-self.start[0]) / self.length
         self.vehicles = []
         
-        
         self.start_conn = None #it may be another road or a corner
         self.end_conn = None #it may be another road or a corner
         

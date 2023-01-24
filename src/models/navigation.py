@@ -5,6 +5,10 @@ from models.Floyd_Warshall import GetPath
 from models.vehicle import Vehicle
 from models.Floyd_Warshall import st_distances_matrix
 from models.Floyd_Warshall import st_path_matrix
+import numpy as np
+from scipy import stats
+from scipy.stats import expon
+
 
 class navigation():
     
@@ -12,6 +16,8 @@ class navigation():
         self.cars = []
         self.fixed_vehicles = []
         self. ctrl = ctrl
+        self.next_event = {}
+        self.acumulate = {}
 
     def NewRandomVehicle(self, fixed_direction = True):
         '''Creates a random vehicle with probability prob'''
@@ -21,10 +27,17 @@ class navigation():
 
         for road_id in self.ctrl.extremeRoads:
             road = self.ctrl.roads[road_id]
-
-            r = random.random()
-            if r > navigation.__poisson(road.lambda_, self.ctrl.dt, 1):
+            
+            if not self.next_event.get(road_id):
+                self.acumulate[road_id] = 0
+                self.next_event[road_id] = expon.rvs(loc = 0, scale = 1/ road.lambda_) #variable aleatoria exponencial
+            
+            self.acumulate[road_id] += self.ctrl.dt
+            if self.acumulate[road_id] < self.next_event[road_id]:
                 continue
+            else:
+                self.acumulate[road_id] = 0
+                self.next_event[road_id] = expon.rvs(loc = 0, scale = 1/ road.lambda_)
 
             # select uniformly the vehicle template (i.e. color, length, speed)
             car: Vehicle = deepcopy(random.choice(self.ctrl.basic_vehicles))
