@@ -147,9 +147,6 @@ class control:
         red = road.vehicles.pop(0) if len(
             road.vehicles) > 0 and road.vehicles[0].color == RED else None
 
-        if len(road.vehicles) > 0 and self.VehicleCanTurn(road.vehicles[0], road):
-            road.vehicles[0].stopped = False
-
         while len(road.vehicles) > 0:
             vehicle = road.vehicles[0]
             if vehicle.x <= road.length or vehicle.stopped:
@@ -166,9 +163,6 @@ class control:
                     vehicle.current_road_in_path +=1
             else:
                 vehicle.stopped = True
-
-        if red != None:
-            road.vehicles.insert(0, red)
 
     def VehicleCanTurn(self, vehicle, road):
         next_road_connec: connection_road = self.nav.NextRoad(vehicle)
