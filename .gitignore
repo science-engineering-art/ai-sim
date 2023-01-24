@@ -146,3 +146,111 @@ src/proof2.py
 src/models/proof_of_selection.py
 src/models/proof_of_another_problem.py
 src/proof_test3_integration_attempt.py
+tests/_all_json/test_1.json
+tests/_all_json/test_10.json
+tests/_all_json/test_11.json
+tests/_all_json/test_12.json
+tests/_all_json/test_13.json
+tests/_all_json/test_14.json
+tests/_all_json/test_15.json
+tests/_all_json/test_16.json
+tests/_all_json/test_17.json
+tests/_all_json/test_18.json
+tests/_all_json/test_19.json
+tests/_all_json/test_2.json
+tests/_all_json/test_20.json
+tests/_all_json/test_21.json
+tests/_all_json/test_22.json
+tests/_all_json/test_23.json
+tests/_all_json/test_24.json
+tests/_all_json/test_25.json
+tests/_all_json/test_26.json
+tests/_all_json/test_27.json
+tests/_all_json/test_28.json
+tests/_all_json/test_29.json
+tests/_all_json/test_3.json
+tests/_all_json/test_30.json
+tests/_all_json/test_31.json
+tests/_all_json/test_32.json
+tests/_all_json/test_33.json
+tests/_all_json/test_34.json
+tests/_all_json/test_35.json
+tests/_all_json/test_36.json
+tests/_all_json/test_37.json
+tests/_all_json/test_38.json
+tests/_all_json/test_39.json
+tests/_all_json/test_4.json
+tests/_all_json/test_40.json
+tests/_all_json/test_41.json
+tests/_all_json/test_42.json
+tests/_all_json/test_43.json
+tests/_all_json/test_44.json
+tests/_all_json/test_45.json
+tests/_all_json/test_46.json
+tests/_all_json/test_47.json
+tests/_all_json/test_48.json
+tests/_all_json/test_49.json
+tests/_all_json/test_5.json
+tests/_all_json/test_50.json
+tests/_all_json/test_51.json
+tests/_all_json/test_52.json
+tests/_all_json/test_53.json
+tests/_all_json/test_6.json
+tests/_all_json/test_7.json
+tests/_all_json/test_8.json
+tests/_all_json/test_9.json
+tests/tests.zip
+tests/tests/convert.py
+tests/tests/test_50_30_199_90_3_30 (2).txt
+tests/tests/test_50_30_199_90_3_30 (3).txt
+tests/tests/test_50_30_199_90_3_30 (4).txt
+tests/tests/test_50_30_199_90_3_30 (5).txt
+tests/tests/test_50_30_199_90_3_30 (6).txt
+tests/tests/test_50_30_199_90_3_30.txt
+tests/tests/test_50_30_199_90_3_30_ (10).txt
+tests/tests/test_50_30_199_90_3_30_ (11).txt
+tests/tests/test_50_30_199_90_3_30_ (12).txt
+tests/tests/test_50_30_199_90_3_30_ (13).txt
+tests/tests/test_50_30_199_90_3_30_ (14).txt
+tests/tests/test_50_30_199_90_3_30_ (15).txt
+tests/tests/test_50_30_199_90_3_30_ (16).txt
+tests/tests/test_50_30_199_90_3_30_ (17).txt
+tests/tests/test_50_30_199_90_3_30_ (18).txt
+tests/tests/test_50_30_199_90_3_30_ (19).txt
+tests/tests/test_50_30_199_90_3_30_ (2).txt
+tests/tests/test_50_30_199_90_3_30_ (20).txt
+tests/tests/test_50_30_199_90_3_30_ (21).txt
+tests/tests/test_50_30_199_90_3_30_ (22).txt
+tests/tests/test_50_30_199_90_3_30_ (23).txt
+tests/tests/test_50_30_199_90_3_30_ (24).txt
+tests/tests/test_50_30_199_90_3_30_ (25).txt
+tests/tests/test_50_30_199_90_3_30_ (26).txt
+tests/tests/test_50_30_199_90_3_30_ (27).txt
+tests/tests/test_50_30_199_90_3_30_ (28).txt
+tests/tests/test_50_30_199_90_3_30_ (3).txt
+tests/tests/test_50_30_199_90_3_30_ (4).txt
+tests/tests/test_50_30_199_90_3_30_ (5).txt
+tests/tests/test_50_30_199_90_3_30_ (6).txt
+tests/tests/test_50_30_199_90_3_30_ (7).txt
+tests/tests/test_50_30_199_90_3_30_ (8).txt
+tests/tests/test_50_30_199_90_3_30_ (9).txt
+tests/tests/test_50_30_199_90_3_30_(1).txt
+tests/tests/test_50_30_199_90_3_30_(10) (2).txt
+tests/tests/test_50_30_199_90_3_30_(10).txt
+tests/tests/test_50_30_199_90_3_30_(11) (2).txt
+tests/tests/test_50_30_199_90_3_30_(11).txt
+tests/tests/test_50_30_199_90_3_30_(12).txt
+tests/tests/test_50_30_199_90_3_30_(13).txt
+tests/tests/test_50_30_199_90_3_30_(14).txt
+tests/tests/test_50_30_199_90_3_30_(15).txt
+tests/tests/test_50_30_199_90_3_30_(16).txt
+tests/tests/test_50_30_199_90_3_30_(17).txt
+tests/tests/test_50_30_199_90_3_30_(2).txt
+tests/tests/test_50_30_199_90_3_30_(3).txt
+tests/tests/test_50_30_199_90_3_30_(4).txt
+tests/tests/test_50_30_199_90_3_30_(5).txt
+tests/tests/test_50_30_199_90_3_30_(6).txt
+tests/tests/test_50_30_199_90_3_30_(7).txt
+tests/tests/test_50_30_199_90_3_30_(8).txt
+tests/tests/test_50_30_199_90_3_30_(9) (2).txt
+tests/tests/test_50_30_199_90_3_30_(9).txt
