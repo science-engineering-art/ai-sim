@@ -95,8 +95,3 @@ class navigation():
         next_road_connec  = ctrl.our_connection.get((road_id, next_road_id))
         return next_road_connec
     
-    def __poisson(Lambda: float, t: float, x: int):
-        if t == 0:
-            t = 1e-8
-        Lambda *= t
-        return 1.0 -  (e**(-Lambda)) 
