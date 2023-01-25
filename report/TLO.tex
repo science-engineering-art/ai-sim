@@ -290,7 +290,7 @@
 	
 	\subsubsection{Optimizaci\'on}
 	
-	Mediante el uso de un algoritmo gen\'etico se intenta minimizar la demorada de los carros en las intersecciones. 
+	Mediante el uso de un algoritmo gen\'etico se intenta minimizar la demora de los carros en las intersecciones. 
 	
 	\subsubsection{Proceso}
 	
@@ -302,10 +302,10 @@
 	
 	\subsubsection{Población inicial}
 	
-	Para  la población inicial se generan un n\'umero fijo de individuos que componen a la misma. Cada individuo se hallará de manera aleatoria, en donde cada uno de los valores de tiempo de luz verde estará entre el tiempo promedio que le toma a un carro pasar por la intersección y el tiempo máximo que un vehículo puede estar esperando. 
+	Para  la población inicial se genera un n\'umero fijo de individuos que componen a la misma. Cada individuo se hallará de manera aleatoria, en donde cada uno de los valores de tiempo de luz verde estará entre el tiempo promedio que le toma a un carro pasar por la intersección y el tiempo máximo que un vehículo puede estar esperando, ambos configurables. 
 	
 	\subsubsection{Nueva población}
-	En cada iteraci\'on la nueva poblaci\'on tendr\'a la misma cantidad de individuos que la anterior. Para su creaci\'on se seleccionan algunos pares de individuos de la poblaci\'on anterior que se cruzar\'an para crear nuevas soluciones. Estas soluciones adem\'as est\'an sujetas a mutaciones. Adem\'as, los dos individuos m\'as aptos de cada generaci\'on pasar\'an para la siguiente.  
+	En cada iteraci\'on la nueva poblaci\'on tendr\'a la misma cantidad de individuos que la anterior. Para su creaci\'on se seleccionan algunos pares de individuos de la poblaci\'on anterior que se cruzar\'an para crear nuevas soluciones. Estas soluciones adem\'as est\'an sujetas a mutaciones. Adem\'as, los dos individuos m\'as aptos de cada generaci\'on pasar\'an a la siguiente.  
 	
 	\subsubsection{Función de evaluación \textit{fitness}}
 	
@@ -313,15 +313,14 @@
 	
 	Se consideraron tres formas de calcular el fitness:
 	\begin{itemize}
-		\item Seg\'un el m\'aximo, tomado sobre todas las calles, del tiempo promedio que toman los carros que cruzan una calle. 
+		\item Seg\'un el m\'aximo, tomado sobre todas las calles, del tiempo promedio que demoran los carros transitar una una calle. 
 		\item Seg\'un el tiempo total de los recorridos de todos los carros. 
-		\item Seg\'un una media ponderada, tomada sobre todas las calles, del tiempo promedio que toma a los carros que cruzan una calle. En este caso el peso asignado ser\'a el cuadrado de la cantidad de carros que pasan por la calle, de modo que se intenta dar mas importancia en la optimizaci\'on, a las calles m\'as transitadas. La media ponderada en cuesti\'on esta dada por la f\'ormula
+		\item Seg\'un una media ponderada, tomada sobre todas las calles, del tiempo promedio que toma a los carros transitar una calle y cruzar la intersecci\'on. En este caso el peso asignado ser\'a el cuadrado de la cantidad de carros que pasan por la calle, de modo que se intenta dar mas importancia en la optimizaci\'on, a las calles m\'as transitadas. La media ponderada en cuesti\'on est\'a dada por la f\'ormula
 		\[ \frac{a_1w_1^2 + a_2w_1^2 + \dots + a_nw_n^2}{w_1^2 + \dots + w_n^2},\]
 	\end{itemize}
-
 	donde $a_i$ es el tiempo que toma como promedio a los carros en la simulaci\'on cruzar la calle $i$ y $w_i$ es la cantidad de carros que la cruzan.
 
-	N\'otese que se quieren minimizar los tiempos de los criterios anteriores, para obtener mejores soluciones. Sin embargo dado que el algoritmo fue implementado antes buscando maximizaci\'on, se utilizan los opuestos de las m\'etricas calculadas seg\'un dichos criterios.
+	N\'otese que se quieren minimizar los tiempos de los criterios anteriores, para obtener mejores soluciones. Sin embargo, dado que el algoritmo fue implementado antes buscando maximizaci\'on, se utilizan los opuestos de las m\'etricas calculadas seg\'un dichos criterios.
 	
 	\subsubsection{Selección de padres}
 	Una de las formas de seleccionar los padres implementada fue la selecci\'on proporcional al fitness. O sea se le asigna a cada individuo una probabilidad de procrear proporcional a su fitness.
