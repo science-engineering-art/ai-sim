@@ -6,6 +6,8 @@ st_path_matrix = {}
 big = True
 
 def GetPathsMatrix(ctrl):
+    '''Execute Dijkstra ove a given map to obatain the shortest path between
+    any pair of roads.'''
     
     global st_path_matrix
     
@@ -73,5 +75,7 @@ def GetPathsMatrix(ctrl):
     return path_matrix
 
 def GetPath(ctrl, road_from_id, road_to_id):
+    '''Obtains the path from source to destiny precalculatd with Floyd-Warshall.'''
+    
     path_matrix = GetPathsMatrix(ctrl)
     return path_matrix[road_from_id][road_to_id]

@@ -5,23 +5,26 @@ from models.road import Road
 
 class A_star:
     
-    def SetDraw(setdraw):
+    def SetDraw(setdraw): #sets a draw object
         global draw
         draw = setdraw
     
-    def euclidean_distance(ctrl, next_road_id, end_road_id, v = None):
+    def euclidean_distance(ctrl, next_road_id, end_road_id, v = None): #real euclidean distance
         init_point = ctrl.roads[next_road_id].end
         end_point = ctrl.roads[end_road_id].start
         return sqrt((end_point[1] - init_point[1])**2 + (end_point[0] - init_point[0])**2).real
     
-    def my_herusistic(ctrl, next_road_id, end_road_id, v = None):
+    def my_herusistic(ctrl, next_road_id, end_road_id, v = None): 
         return A_star.euclidean_distance(ctrl, next_road_id, end_road_id)
         
-    def real_distance(ctrl, init_road_id, last_road_id, next_road_id):
+    def real_distance(ctrl, init_road_id, last_road_id, next_road_id): #edge value
         return ctrl.roads[next_road_id].length
         
     def find_shortest_path(ctrl, init_road_id : Road, end_road_id : Road, g_increment = real_distance, h = euclidean_distance):
-        
+        '''
+        This method is an implementation of a an A* method for finding the 'shortest' path between two roads. The meaning
+        of shortest path is determined for the given g and h functions.
+        '''
         queue = []
         
         p = [-1 for _ in range(len(ctrl.roads))]
@@ -57,6 +60,8 @@ class A_star:
         return path
             
     def my_g_increment_function(ctrl, init_road_id, current_road_id, next_road_id):
+        '''Method that calculate the g - increments (i.e. the value of the edge when 
+        expanding a node of the border of the search tree)'''
         car = ctrl.AddRoutedVehicle(current_road_id, next_road_id)
         car.color = (255, 255, 255)
         if draw != None:
@@ -65,6 +70,8 @@ class A_star:
             return ctrl.ObserveVehicle(car, len(car.path))
     
     def CalculateIncrements(ctrl, road, road_id):
+        '''This is a version of my_g_increment_function when the value of all the edges
+        of the expanding node are calculated simultaneously, in one simulation'''
         cars = []
         for next_road_id in road.end_conn.follow[road_id]:
             car = ctrl.AddRoutedVehicle(next_road_id, next_road_id)
@@ -76,11 +83,15 @@ class A_star:
             return ctrl.ObserveVehicles(cars)
                 
     def dijkstra_base_heuristic(ctrl, next_road_id, end_road_id, d):
+        ''' Uses the dijkstra precalculated values as heuristic'''
         return d[next_road_id]
+     
         
     def find_shortest_path_parallel(ctrl, init_road_id : Road, end_road_id : Road, g_increment = real_distance, h = euclidean_distance):
+        '''Very similar to find_shortest_path but this one uses CalculateIncrements to expand all the edges of a node at the same time.'''
         
-        dddd = A_star.Dikjstra(ctrl,end_road_id)
+        #precalculates with dijkstra
+        dddd = A_star.Dijkstra(ctrl,end_road_id)
         
         queue = []
         
@@ -118,7 +129,10 @@ class A_star:
         
         return path
     
-    def Dikjstra(ctrl, end_road_id : Road):
+    def Dijkstra(ctrl, end_road_id : Road):
+        '''Classic Dijkstra algorithm applied to find the shortest path (in estimated time)
+        between any road in the map, and a given one. 
+        '''
         
         queue = []
         f = [Inf for _ in range(len(ctrl.roads))]

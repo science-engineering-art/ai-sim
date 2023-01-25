@@ -1,15 +1,12 @@
 
 from queue import PriorityQueue
-from traceback import print_tb
-from kiwisolver import DuplicateEditVariable
-from matplotlib.backend_bases import ToolContainerBase
 from numpy import Inf
 import models.simulation
-
 import dictdatabase as ddb
 
-simulation = models.simulation.Simulation_test_5()
+#script used to compare simulate two solutions multiple times and compara it results.
 
+simulation = models.simulation.Simulation_test_5()
 
 def get_bests(number_of_test, amount = 20):
 
