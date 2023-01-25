@@ -720,6 +720,8 @@ class TemplateIO:
             )
 
     def load_template(self, name: str):
+        
+        ddb.config.storage_directory = '../ddb_storage'
         s = ddb.at(name)
         if s.exists():
             json = s.read()
