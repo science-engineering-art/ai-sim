@@ -181,7 +181,7 @@
 	
 	Como en el modelo microsc\'opico, se representan los vehículos de forma independiente y se intenta replicar el comportamiento de un conductor. En consecuencia, es un sistema multiagente, es decir, cada vehículo opera por sí mismo utilizando información de su entorno.
 	
-	En cada calle (el fragmento delimitado por dos intersecciones, llamado tambi\'en cuadra), cada vech\'iculo est\'a identificado por un número i. El i-ésimo vehículo sigue al (i-1)-ésimo vehículo. Para el i-ésimo vehículo, se denota por $ x_{i} $ su posición a lo largo del camino, $ v_{i} $ su velocidad y $ l_{i} $ su longitud. Sean, adem\'as, $ s_{i} $ la distancia parachoques a parachoques y $ \Delta v_{i} $ la diferencia de velocidad entre el i-ésimo vehículo y el vehículo que le precede (vehículo número i-1).
+	En cada calle (el fragmento delimitado por dos intersecciones, llamado tambi\'en cuadra), cada vech\'iculo est\'a identificado por un número i. El i-ésimo vehículo sigue al (i-1)-ésimo vehículo. Para el i-ésimo vehículo, se denota por $ x_{i} $ su posición a lo largo del camino, $ v_{i} $ su velocidad y $ l_{i} $ su longitud. Sean, adem\'as, $ s_{i} $ la distancia de parachoque a parachoque y $ \Delta v_{i} $ la diferencia de velocidad entre el i-ésimo vehículo y el vehículo que le precede (vehículo número i-1).
 	
 	\begin{center}
 		\includegraphics[width=\columnwidth]{microscopic_model.png}
@@ -193,13 +193,13 @@
 		$ \Delta v_{i} = v_{i} - v_{i-1} $
 	\end{center}
 	
-	Por otro lado, como caracter\'istica del modelo macrosc\'opico, se tienen en cuenta factores globales que describen el movimiento de vehículos como un todo, en términos de densidad de tráfico (vehículos por km) y flujo de tráfico (vehículos por minuto).
+	Por otro lado, como caracter\'istica del modelo macrosc\'opico, se tienen en cuenta factores globales que describen el movimiento de vehículos como un todo, en términos de densidad de tráfico (vehículos por km) y flujo de tráfico (vehículos por minuto), que sirven para la generación de vehículos en la simulación, que más adelante se abordará en mayor profundidad.
 	
 	\todo{revisar y arreglar como se utiliza el modelo macroscopico}
 	
 	\subsection{Modelo Conductor Inteligente}
 	
-	El Modelo de Conductor Inteligente\footnote{Tomado de \cite{A1}} describe la aceleración del i-ésimo vehículo en función de sus variables y las del vehículo que le precede. La ecuación dinámica se define como:
+	El Modelo de Conductor Inteligente\footnote{Tomado de \cite{A1}} describe la aceleración del i-ésimo vehículo en función de sus variables y las del vehículo que le antecede. La ecuación dinámica se define como:
 	
 	\begin{center}
 		$  \dfrac{dv_{i}}{dt} = a_{i} \left(1 - \left(\dfrac{v_{i}}{v_{0,i}}\right)^{\delta} - \left(\dfrac{s^{*}(v_{i}, \Delta v_{i})}{s_{i}}\right)^{2}\right)$
@@ -343,7 +343,7 @@
 	
 	\subsubsection{Mutación}
 	
-	La funci\'on de mutaci\'on se aplica sobre una una poblaci\'on, dada una probabilidad de mutaci\'on, en este caso igual al inverso del tama\~no del vector soluci\'on. Por cada gen de cada individuo, se escoge un n\'umero $ m $ aleatorio entre $ 0 $ y $ 1 $, y dicho gen es mutado si $ m $ es menor que la probabilidad de mutaci\'on. De esta forma resulta mutado,  como promedio, un gen por cada individuo. La forma de mutar es sustituir el gen en cuesti\'on por un n\'umero aleatorio entre el tiempo promedio que le toma a un carro pasar por la intersección y el tiempo máximo que un vehículo puede estar esperando, de igual forma que para crear la poblaci\'on inicial.
+	La funci\'on de mutaci\'on se aplica sobre una poblaci\'on, dada una probabilidad de mutaci\'on, en este caso igual al inverso del tama\~no del vector soluci\'on. Por cada gen de cada individuo, se escoge un n\'umero $ m $ aleatorio entre $ 0 $ y $ 1 $, y dicho gen es mutado si $ m $ es menor que la probabilidad de mutaci\'on. De esta forma resulta mutado,  como promedio, un gen por cada individuo. La forma de mutar es sustituir el gen en cuesti\'on por un n\'umero aleatorio entre el tiempo promedio que le toma a un carro pasar por la intersección y el tiempo máximo que un vehículo puede estar esperando, de igual forma que para crear la poblaci\'on inicial.
 	
 	
 	\subsection{A-star $(A^{*}) $}
@@ -408,7 +408,7 @@
 
 	\subsection{Resultados}
 	
-	La siguiente gr\'afica muestra los valores de fitness de las 53 pruebas corridas del algoritmo gen\'etico. Se puede observar que el valor de fitness en la mayor\'ia de los test, para la mejor soluci\'on obtenida, se mantiene muy cercano al valor 26. Esto podr\'ia interpretarse que los carros (sobre todo aquellos en las calles m\'as transitadas porque les dimos mayores pesos) se demoran como promedio $26s$ en cruzar una calle. Hay que notar que hubieron algunos test cuyas mejores soluciones dieron valores demasiado buenos para ser reales, los cuales fueron marcados en rojo y naranja en la gr\'afica. Los naranjas es probable que se deban a que la aleatoriedad dio como resultado simulaciones muy perfectas, mientras que los rojos deben haber sido errores ocurridos durante la ejecuci\'on del algoritmo.
+	La siguiente gr\'afica muestra los valores de fitness de las 53 pruebas corridas del algoritmo gen\'etico. Se puede observar que el valor de fitness en la mayor\'ia de los test, para la mejor soluci\'on obtenida, se mantiene muy cercano al valor 26. Esto podr\'ia interpretarse que los carros (sobre todo aquellos en las calles m\'as transitadas porque les dimos mayores pesos) se demoran como promedio $26s$ en cruzar una calle. Hay que notar que hubieron algunos test cuyas mejores soluciones dieron valores demasiado buenos para ser reales, los cuales fueron marcados en rojo y naranja en la gr\'afica. Los naranjas es probable que se deban a que la aleatoriedad dió como resultado simulaciones muy perfectas, mientras que los rojos deben haber sido errores ocurridos durante la ejecuci\'on del algoritmo.
 	
 	\begin{center}
 		\includegraphics[width=\columnwidth]{graphic_resultados_obtenidos.png}
@@ -441,6 +441,8 @@
 	
 	Tambi\'en se recomienda quitar algunas de las relajaciones realizadas al problema para simular un ambiente m\'as parecido  a uno real. Por ejemplo incluir el t\'rafico de peatones o permitir que los carros cambien de senda a antojo del conductor.
 	
+	La generación de mapas, se hace de una manera determista, y por cada mapa se tiene que implementar un template que lo construya. Este proceso de generación se puede automatizar utilizando una grámatica libre del contexto con algún tipo de conocimiento asociado a la modelación de un mapa. Por ejemplo se conoce que si se tiene una calle principal, la calle que le sigue forma parte de la calle principal y conserva el mismo número de carriles, y las calles que la cruzan por lo general no son avenidas principales ya que estas se encuentran dispersas. Pero como las producciones de una gramática libre del contexto son determinitas quizás puedan caer en el mismo problema que se tenía inicialmente, o sea, construir mapas de un tipo específico. Entonces si se le añade a cada producción una probabilidad asociada que le de mayor peso a producciones del estilo del ejemplo anterior, y bajas probabilidades a producciones que expresen que si se está en un avenida principal se reduzca la cantidad de carriles de la avenida, o si hubo una intersección con una avenida principal es poco probable que en las próximas intersecciones se obtenga otra intersección una avenida principal. Finalmente, lo que se está proponiendo es utilizar una gramática libre del contexto probabilística para poder generar mapas arbitrarios sin tener que generar un template por cada mapa distinto que se quiera obtener.
+
 	\listoftodos
 
 \begin{thebibliography}{20}
