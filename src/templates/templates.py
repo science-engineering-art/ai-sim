@@ -709,6 +709,7 @@ class TemplateIO:
 
     def generate_template(self, name: str):
 
+        ddb.config.storage_directory = '../ddb_storage'
         s = ddb.at(name)
         if not s.exists():
             map, edges = self.builder.build_map()            

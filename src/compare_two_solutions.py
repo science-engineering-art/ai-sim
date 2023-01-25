@@ -22,7 +22,7 @@ def get_bests(number_of_test, amount = 20):
     for i in range(49):
         fitness = json[str(i)]['fitness']
         for j in range(30):
-            if fitness[j] < -20:
+            if fitness[j] < -10:
                 bests.put((-fitness[j],i,j))
      
     b = []
@@ -45,76 +45,39 @@ def get_fit_with_similars(json, best):
                     diff+=1
                 if diff > 3:
                     break
-            if diff <= 3:
-                print('h')
+            if diff <= 3 and json[str(i)]['fitness'][j] < -20:
                 fit += json[str(i)]['fitness'][j]
                 cant += 1
-    fit = fit/cant
+    fit = fit/cant if cant != 0 else -Inf
     return fit
     
 def obtain_solutions_to_compare(number_of_test):
-    ddb.config.storage_directory = '../tests/_all_json/'
     
+    ddb.config.storage_directory = '../tests/_all_json/'
     s = ddb.at(f'test_{number_of_test}')
     json = s.read()
+    
     fitness = json['0']['fitness']
     min_fit = min(fitness)
     pos = fitness.index(min_fit)
-    worst = json['0']['population'][pos]
+    any = json['0']['population'][pos]
     
     
     indxs = get_bests(number_of_test)
     for w in range(30):
         indxs.append((49,w))
         
-    best_best = []
     mx_fit = -Inf
+    best_best = []
     for ii, jj in indxs:
         best = json[str(ii)]['population'][jj]
         fit = get_fit_with_similars(json, best)
-        print(fit)
         if fit > mx_fit:
             mx_fit = fit
             best_best = best
             print('w', w)
-        print('done')
-    print(mx_fit)
     
-    # best_best = []
-    # print(Inf - 2)
-    # mx_fit = -Inf
-    # for w in range(0,50):
-    #     if json[str(w)].get('best_solution'):
-    #         best = json[str(w)]['best_solution']['vector']
-    #         fit = get_fit_with_similars(json, best)
-    #         print(fit > mx_fit)
-    #         if fit > mx_fit and fit < -20:
-    #             mx_fit = fit
-    #             best_best = best
-    #             print('w', w)
-    #         print('done')
-            
-    # for w in range(30):
-    #     best = json['49']['population'][w]
-    #     fit = get_fit_with_similars(json, best)
-    #     if fit > mx_fit:
-    #         mx_fit = fit
-    #         best_best = best
-    #         print('w', w)
-    #     print('done')
-    
-
-    # fitness = json['49']['fitness']
-    # max_fit = max(fitness)
-    # pos = fitness.index(max_fit)
-    # best = json['49']['population'][pos]
-    
-    # best = json['0']['best_solution']['vector']
-    # for i in range(50):
-    #     if json[str(i)].get('best_solution'):
-    #         best = json[str(i)]['best_solution']['vector']
-    
-    return worst, best_best
+    return (any, best_best)
 
 def obatain_results(vector, numer_of_times = 5, obs_time = 10):
     ctrl = simulation.get_new_control_object()
@@ -130,14 +93,23 @@ def obatain_results(vector, numer_of_times = 5, obs_time = 10):
             average_per_road[i] += ctrl.road_average_time_take_cars[i]/numer_of_times
         
         ctrl = simulation.get_new_control_object()
-        print('here')
     
     average_per_road = [average_per_road[i] for i in sorted(range(len(average_per_road)), \
                         key = lambda x : ctrl.roads[x].lambda_, reverse=True)]
     
-    return average_per_road, total_time_take_cars
-    
-a = obatain_results(obtain_solutions_to_compare(1)[1], numer_of_times=5) #best
-b = obatain_results(obtain_solutions_to_compare(1)[0], numer_of_times=5) #worts
-print([(a[0][i], b[0][i]) for i in range(len(a[0]))])
-print(a[1], b[1])
+    return average_per_road, total_time_take_cars, sum(average_per_road)/len(average_per_road)
+
+name = 'other_results4'
+ddb.config.storage_directory = '../ddb_storage/'
+s = ddb.at(name)
+if not s.exists():
+    s.create({'results' : {}})
+for i in range(42,54):
+    any, best = obtain_solutions_to_compare(i)
+    ave_b, total_b, sum_ave_b = obatain_results(best, numer_of_times = 5)
+    ave, total, sum_ave = obatain_results(any, numer_of_times = 5)
+    ddb.config.storage_directory = '../ddb_storage/'
+    with ddb.at(name, key = 'results').session() as (session, results):
+        results[str(i)] = {'average_per_road_b' : ave_b, 'total_time_take_cars_b' : total_b,  'average_all_roads_b' : sum_ave_b, \
+                          'average_per_road' : ave, 'total_time_take_cars' : total,  'average_all_roads' : sum_ave  }
+        session.write()
