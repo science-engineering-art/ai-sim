@@ -90,8 +90,7 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
     
 
 
-# rr = [AB, BA, BE, BC, CB, CD, DC, FC, CI, IG, IH, IJ, JI, KJ, LJ, JB]
-ctrl.speed = 40
+ctrl.speed = 10
 
 A_star.SetDraw(draw)
 print(A_star.find_shortest_path_parallel(ctrl,BC,BE,g_increment=A_star.my_g_increment_function))

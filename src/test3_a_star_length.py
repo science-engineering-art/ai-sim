@@ -90,8 +90,8 @@ ctrl.CreateCorner([(JI, IG, 0), (JI, IH, 0),\
 ctrl.speed = 10
 
 
+draw.Start(observation_time = 5)
 car = ctrl.AddRoutedVehicle(AB, CI)
 car.color = (255,255,255)
-draw.Start(observation_time = 100)
-# draw.ObserveVehicle(car, len(car.path))
+draw.ObserveVehicle(car, len(car.path))
 
