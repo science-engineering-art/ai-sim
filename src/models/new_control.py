@@ -8,6 +8,8 @@ from models.vehicle import Vehicle
 from models.draw_control import draw_control
 from models.control import LIGHT_GRAY, control
 
+# Classes that inherit from control and draw respectively used to insert cars in
+# the middle of a simulation and tracks it routes.
 
 class new_control(control):
     def __init__(self, **kwargs):

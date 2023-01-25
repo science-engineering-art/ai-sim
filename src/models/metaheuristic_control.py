@@ -12,7 +12,8 @@ LIGHT_GRAY = (225, 225, 225)
 
 
 class metaeh_control(control):
-    '''class made to control hall the simulation over the map'''
+    '''Class that inherits from control, gives the possibility to set a solution and extracts
+    util information for the evaluation of a solution in the metaheuristic.'''
 
     def __init__(self, **kwargs):
 

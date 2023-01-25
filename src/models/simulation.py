@@ -3,7 +3,10 @@ import models.Floyd_Warshall
 from models.metaheuristic_control import metaeh_control
 from templates.templates import GridMapBuilder, TemplateIO
 
-# @abstract
+
+#classes used to create different simulations given certain characteristics
+#of the map, given by the class that inherit from Simulation. 
+
 class Simulation(ABC):
     def get_new_control_object(self):
         pass

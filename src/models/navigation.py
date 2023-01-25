@@ -7,6 +7,8 @@ from models.Floyd_Warshall import st_distances_matrix
 from models.Floyd_Warshall import st_path_matrix
 
 class navigation():
+    '''class that simulates a navigation system installed in a car (actually interconnected
+    between al cars, because is the same for all of them) that decide the routes of the cars.'''
     
     def __init__(self, ctrl):
         self.cars = []
@@ -14,7 +16,7 @@ class navigation():
         self. ctrl = ctrl
 
     def NewRandomVehicle(self, fixed_direction = True):
-        '''Creates a random vehicle with probability prob'''
+        '''Inserts a new vehicle into the simulation'''
 
         cars = []
         roads_id = []
@@ -64,7 +66,7 @@ class navigation():
         return path
             
 
-    #careful, this method can return None
+    #careful when using, this method can return None
     def NextRoad(self, vehicle: Vehicle):
         road_id = vehicle.path[vehicle.current_road_in_path]
         ctrl = self.ctrl
