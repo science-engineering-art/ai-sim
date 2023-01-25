@@ -98,18 +98,3 @@ def obatain_results(vector, numer_of_times = 5, obs_time = 10):
                         key = lambda x : ctrl.roads[x].lambda_, reverse=True)]
     
     return average_per_road, total_time_take_cars, sum(average_per_road)/len(average_per_road)
-
-name = 'other_results4'
-ddb.config.storage_directory = '../ddb_storage/'
-s = ddb.at(name)
-if not s.exists():
-    s.create({'results' : {}})
-for i in range(42,54):
-    any, best = obtain_solutions_to_compare(i)
-    ave_b, total_b, sum_ave_b = obatain_results(best, numer_of_times = 5)
-    ave, total, sum_ave = obatain_results(any, numer_of_times = 5)
-    ddb.config.storage_directory = '../ddb_storage/'
-    with ddb.at(name, key = 'results').session() as (session, results):
-        results[str(i)] = {'average_per_road_b' : ave_b, 'total_time_take_cars_b' : total_b,  'average_all_roads_b' : sum_ave_b, \
-                          'average_per_road' : ave, 'total_time_take_cars' : total,  'average_all_roads' : sum_ave  }
-        session.write()
