@@ -20,7 +20,7 @@ LIGHT_GRAY = (225, 225, 225)
 # vehiculo.b_max/vmax 1/3.60
 
 class draw_control():
-    '''class made to control hall the simulation over the map'''
+    '''class made to control the visual part of a simulation.'''
     def __init__(self, **kwargs):
 
 

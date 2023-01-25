@@ -32,8 +32,6 @@ def init_population(pop_size, number_of_turns, maximum_waiting_time, average_pas
 
 # mutates k individuals according to the mutation probability of replace a gen by a random
 # valid number
-
-
 def mutate_random(population_set, mutation_probability, maximum_waiting_time, average_passing_time):
     for individual in population_set:
         for i in range(len(individual)):
@@ -139,9 +137,10 @@ def xover(parent_a, parent_b, xover_method = MULTIPOINT_XOVER):
         new_population += crossover_methods[xover_method](parent_a[i], parent_b[i])
     return new_population
 
-# evaluates an individual in the simulation returning queue size in relation to waiting time
 
 
+# evaluates an individual in the simulation returning the max average of time that takes cars
+# to cross roads
 def eval_individual_in_simulation_max_average(simulation, individual, speed, obs_time):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
@@ -149,12 +148,14 @@ def eval_individual_in_simulation_max_average(simulation, individual, speed, obs
     ctrl.Start(observation_time=obs_time)
     fitness_val =-1
     for road_id in range(len(ctrl.roads)):
-        # we use the max between average time a car takes in every semaphore
+        # We use the max between average time a car takes in every semaphore
         fitness_val = max(
            fitness_val, ctrl.road_average_time_take_cars[road_id])
-    # I use the opposite value because we wish to diminish the time it takes for the cars
+    # We use the opposite value because we wish to diminish the time it takes for the cars
     return -fitness_val
 
+
+# evaluates an individual in the simulation returning the total time takes all cars in all roads
 def eval_individual_in_simulation_total(simulation, individual, speed, obs_time):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
@@ -166,6 +167,8 @@ def eval_individual_in_simulation_total(simulation, individual, speed, obs_time)
     # I use the opposite value because we wish to diminish the time it takes for the cars
     return -fitness_val
 
+# Evaluates an individual in the simulation returning a weighted mean between the averages of time
+# that take cars to cross each road, calculated over all roads
 def eval_individual_in_simulation_weigthed_mean(simulation, individual, speed, obs_time):
     ctrl = simulation.get_new_control_object()
     ctrl.SetConfiguration(individual)
@@ -195,14 +198,11 @@ def fitness(simulation, population, speed, obs_time, eval_method = EVAL_INDIVIDU
     return fitness
 
 # algorithm stops after a fixed number of iterations
-
-
 def stop_criterion(i):
     return i >= MAX_ITERATIONS
 
+
 # main method of the genetic algorithm
-
-
 def genetic_algorithm(simulation, pop_size, number_of_turns, maximum_waiting_time, average_passing_time, 
                       speed, obs_time, max_iterations=100, xover_method = MULTIPOINT_XOVER,
                       weight_method = GET_WEIGHTS_BY_RANKING, eval_method = EVAL_INDIVIDUAL_IN_SIMULATION_TOTAL):
