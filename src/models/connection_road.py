@@ -4,6 +4,7 @@ from models.road import Road
 
 
 class connection_road():
+    ''' Class to create the connection between two roads, used for drawing a curve smoothly'''
     
     def __init__(self, road_1, road_2, curve_point, steps = 15):
         

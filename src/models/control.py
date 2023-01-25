@@ -1,3 +1,4 @@
+from re import S
 from time import time
 from models.connection_road import connection_road
 from models.corner import corner
@@ -22,7 +23,9 @@ LIGHT_GRAY = (225, 225, 225)
 # vehiculo.b_max/vmax 1/3.60
 
 class control:
-    '''class made to control hall the simulation over the map'''
+    '''Class made to control all the simulation over the map. It has the methods
+    to create the enviroment and simulate it. It keeps track of time and notifies the agents
+    of the time that has elapsed in case they need to make some action.'''
 
     def __init__(self, **kwargs):
 
@@ -88,7 +91,8 @@ class control:
             
 
     def UpdateAll(self):
-
+        '''Update the state of all the vechicles in the enviroment'''
+        
         for corn in self.corners:
             corn.tick(self.dt)  # increments the time of each semaphore
 
@@ -105,14 +109,13 @@ class control:
             
 
     def UpdateConnectionRoads(self):
+        '''update the state of the vechicles that are turning.'''
         for c_road in self.c_roads:
             c_road: connection_road
             for i in range(len(c_road.roads) - 1):
                 road = c_road.roads[i]
                 self.UpdateAllVehiclesInRoad(road)
 
-                red = road.vehicles.pop(0) if len(
-                    road.vehicles) > 0 and road.vehicles[0].color == RED else None
                 while len(road.vehicles) > 0:
                     vehicle = road.vehicles[0]
                     if vehicle.x <= road.length:
@@ -122,10 +125,8 @@ class control:
                     vehicle.x = 0
                     c_road.roads[i + 1].vehicles.append(vehicle)
 
-                if red != None:
-                    road.vehicles.insert(0, red)
-
     def UpdateAllVehiclesInRoad(self, road):
+        '''update the state of all the vehciles in a straight road.'''
         for i in range(len(road.vehicles)):
             vehicle = road.vehicles[i]
             lead = None
@@ -141,11 +142,9 @@ class control:
             vehicle.update(dt=self.dt, lead=lead)
 
     def UpdateRoad(self, road):
-
+        '''Give to the vehicles the enviroment info necessary for them to decide when to move and/or turn.'''
+        
         self.UpdateAllVehiclesInRoad(road)
-
-        red = road.vehicles.pop(0) if len(
-            road.vehicles) > 0 and road.vehicles[0].color == RED else None
 
         if len(road.vehicles) > 0 and self.VehicleCanTurn(road.vehicles[0], road):
             road.vehicles[0].stopped = False
@@ -167,10 +166,10 @@ class control:
             else:
                 vehicle.stopped = True
 
-        if red != None:
-            road.vehicles.insert(0, red)
-
     def VehicleCanTurn(self, vehicle, road):
+        '''gives information to the vehicle about whether the way 
+        to turn to its destination is clear or not.'''
+        
         next_road_connec: connection_road = self.nav.NextRoad(vehicle)
         if not next_road_connec:
             return True
@@ -189,7 +188,7 @@ class control:
         return True
 
     def AddRoad(self, road_init_point, road_end_point, lambda_=1/50):
-        '''Adds a nex road to the simulation'''
+        '''Adds a road to the simulation'''
 
         road = Road(road_init_point, road_end_point, lambda_)
         road_id = len(self.roads)
@@ -198,8 +197,7 @@ class control:
         return road_id
 
     def connect_roads(self, road_1_id, road_2_id, curve_point):
-        '''connects to roads with a curve using an external point to create the curve
-        and return the indexes of the curve's sub-roads'''
+        '''connects to roads by means of a connection_road'''
 
         road_1: Road = self.roads[road_1_id]
         road_2: Road = self.roads[road_2_id]

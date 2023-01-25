@@ -101,7 +101,7 @@ class corner:
 
 
     def addFollows(self, in_roads, out_roads, order = None, displace = False, time = 30):
-        '''adds all the possible pair between in and out roads, as follow pairs'''
+        '''Adds all the possible pair between in and out roads, as follow pairs'''
         if order == None:
             order = self.numberOfTurns
         
@@ -114,10 +114,7 @@ class corner:
 
 
     def CanIPass(self, in_road, out_road = None):
-        '''If ask if a road has the green light. 
-        It condiderate that the cars in a road can simultaneously with
-        the same green light move to all the follow roads corresponding
-        to the current one but this is a behavior that we whish to improve.'''
+        '''It asks if a road has the green light.'''
         
         if not self.light_controled: return True
         

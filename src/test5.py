@@ -20,5 +20,5 @@ temp.generate_template('map5')
 draw, cars = temp.load_template('map5')
 draw.ctrl.scale = 150
 draw.ctrl.name = 'map5'
-draw.ctrl.speed = 30 
-draw.Start(observation_time=5000)
+draw.ctrl.speed = 5 
+draw.Start(observation_time=50)
