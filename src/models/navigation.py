@@ -15,6 +15,8 @@ class navigation():
         self.cars = []
         self.fixed_vehicles = []
         self. ctrl = ctrl
+        self.next_event = {}
+        self.acumulate = {}
 
     def NewRandomVehicle(self, fixed_direction = True):
         '''Inserts a new vehicle into the simulation'''
