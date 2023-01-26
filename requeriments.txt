@@ -1,0 +1,6 @@
+numpy
+dictdatabase
+scipy
+typing
+pygame
+matplotlib
