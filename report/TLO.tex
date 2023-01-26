@@ -207,7 +207,7 @@
 	\end{center}
 	donde:
 	\begin{itemize}
-		\item $ s_{0,i} $ : es la distancia mínima deseada entre el vehículo i e i-1.
+		\item $ s_{0,i} $ : es la distancia mínima deseada entre el vehículo i el i-1.
 		\item $ v_{0,i} $ : es la velocidad máxima deseada del vehículo i.
 		\item $\delta$ : es el exponente de la aceleración y controla la “suavidad” de la aceleración.
 		\item $ T_{i} $  : es el tiempo de reacción del conductor del i-ésimo vehículo.
@@ -305,7 +305,7 @@
 	Para  la población inicial se genera un n\'umero fijo de individuos que componen a la misma. Cada individuo se hallará de manera aleatoria, en donde cada uno de los valores de tiempo de luz verde estará entre el tiempo promedio que le toma a un carro pasar por la intersección y el tiempo máximo que un vehículo puede estar esperando, ambos configurables. 
 	
 	\subsubsection{Nueva población}
-	En cada iteraci\'on la nueva poblaci\'on tendr\'a la misma cantidad de individuos que la anterior. Para su creaci\'on se seleccionan algunos pares de individuos de la poblaci\'on anterior que se cruzar\'an para crear nuevas soluciones. Estas soluciones adem\'as est\'an sujetas a mutaciones. Adem\'as, los dos individuos m\'as aptos de cada generaci\'on pasar\'an a la siguiente.  
+	En cada iteraci\'on la nueva poblaci\'on tendr\'a la misma cantidad de individuos que la anterior. Para su creaci\'on se seleccionan algunos pares de individuos de la poblaci\'on anterior que se cruzar\'an para crear nuevas soluciones. Estas soluciones tambi\'en est\'an sujetas a mutaciones. Adem\'as, los dos individuos m\'as aptos de cada generaci\'on pasar\'an para la siguiente.   
 	
 	\subsubsection{Función de evaluación \textit{fitness}}
 	
@@ -435,7 +435,7 @@
 	
 	Tambi\'en se recomienda quitar algunas de las relajaciones realizadas al problema para simular un ambiente m\'as parecido  a uno real. Por ejemplo, incluir el t\'rafico de peatones o permitir que los carros cambien de senda a antojo del conductor.
 	
-	La generación de mapas, se hace de una manera determista, y por cada mapa se tiene que implementar un template que lo construya. Este proceso de generación se puede automatizar utilizando una grámatica libre del contexto con algún tipo de conocimiento asociado a la modelación de un mapa. Por ejemplo se conoce que si se tiene una calle principal, la calle que le sigue forma parte de la calle principal y conserva el mismo número de carriles, y las calles que la cruzan por lo general no son avenidas principales ya que estas se encuentran dispersas. Pero como las producciones de una gramática libre del contexto son determinitas quizás puedan caer en el mismo problema que se tenía inicialmente, o sea, construir mapas de un tipo específico. Entonces si se le añade a cada producción una probabilidad asociada que le de mayor peso a producciones del estilo del ejemplo anterior, y bajas probabilidades a producciones que expresen que si se está en un avenida principal se reduzca la cantidad de carriles de la avenida, o si hubo una intersección con una avenida principal es poco probable que en las próximas intersecciones se obtenga otra intersección una avenida principal. Finalmente, lo que se está proponiendo es utilizar una gramática libre del contexto probabilística para poder generar mapas arbitrarios sin tener que generar un template por cada mapa distinto que se quiera obtener.
+	La generación de mapas, se hace de una manera determista, y por cada mapa se tiene que implementar un template que lo construya. Este proceso de generación se puede automatizar utilizando una grámatica libre del contexto con algún tipo de conocimiento asociado a la modelación de un mapa. Por ejemplo se conoce que si se tiene una calle principal, la calle que le sigue forma parte de la calle principal y conserva el mismo número de carriles, y las calles que la cruzan por lo general no son avenidas principales ya que estas se encuentran dispersas. Pero como las producciones de una gramática libre del contexto son determinitas quizás puedan caer en el mismo problema que se tenía inicialmente, o sea, construir mapas de un tipo específico. Entonces se puede pensar en en a\~nadir a cada producción una probabilidad asociada que le de mayor peso a producciones correspondientes a distribuciones de calles que tiene m\'as ocurrencia en la vida real y menos a las que no. Finalmente, lo que se está proponiendo es utilizar una gramática libre del contexto probabilística para poder generar mapas arbitrarios sin tener que generar un template por cada mapa distinto que se quiera obtener.
 
 \begin{thebibliography}{20}
 	\bibitem{A1} Martin Treiber, Ansgar Hennecke, and Dirk Helbing: \emph{Congested traffic states in empirical observations and microscopic simulations}. Phys. Rev. E 62, 1805 – Published 1 August 2000.
