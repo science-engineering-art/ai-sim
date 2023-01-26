@@ -1,5 +1,11 @@
 # 🚦 Traffic-Lights-Optimization
 
+Para resolver las depenencias del proyecto ejecute el siguiente comando.
+
+```shell
+pip install -r requeriments.txt 
+```
+
 Para probar el algoritmo evolutivo usado con la simulacion ejecute alguno de los siguientes dos comandos.
 
 ```shell
