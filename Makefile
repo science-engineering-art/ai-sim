@@ -7,13 +7,13 @@ test5_evol:
 test3: 
 	python src/test_3_simulation.py
 test4: 
-	python src/test_4.py
+	python src/test4.py
 test5: 
-	python src/test_5.py
+	python src/test5.py
 test6: 
-	python src/test_6.py
+	python src/test6.py
 
 test3_time: 
-	python src/test3_time.py
+	python src/test3_a_star_time.py
 test3_time_dijkstra: 
-	python src/test3_time_dijkstra.py
+	python src/test3_a_star_time_dijkstra.py
