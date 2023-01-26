@@ -313,14 +313,14 @@
 	
 	Se consideraron tres formas de calcular el fitness:
 	\begin{itemize}
-		\item Seg\'un el m\'aximo, tomado sobre todas las calles, del tiempo promedio que demoran los carros transitar una una calle. 
+		\item Seg\'un el m\'aximo, tomado sobre todas las calles, del tiempo promedio que demoran los carros en transitar una calle (d\'igase el tiempo que demora en recorrerla m\'as el que espera en el sem\'aforo, si es el caso). 
 		\item Seg\'un el tiempo total de los recorridos de todos los carros. 
-		\item Seg\'un una media ponderada, tomada sobre todas las calles, del tiempo promedio que toma a los carros transitar una calle y cruzar la intersecci\'on. En este caso el peso asignado ser\'a el cuadrado de la cantidad de carros que pasan por la calle, de modo que se intenta dar mas importancia en la optimizaci\'on, a las calles m\'as transitadas. La media ponderada en cuesti\'on est\'a dada por la f\'ormula
+		\item Seg\'un una media ponderada, tomada sobre todas las calles, del tiempo promedio que toma a los carros transitar una calle. En este caso el peso asignado ser\'a el cuadrado de la cantidad de carros que pasan por la calle, de modo que se intenta dar m\'as importancia en la optimizaci\'on, a las calles m\'as transitadas. La media ponderada en cuesti\'on est\'a dada por la f\'ormula
 		\[ \frac{a_1w_1^2 + a_2w_1^2 + \dots + a_nw_n^2}{w_1^2 + \dots + w_n^2},\]
 	\end{itemize}
-	donde $a_i$ es el tiempo que toma como promedio a los carros en la simulaci\'on cruzar la calle $i$ y $w_i$ es la cantidad de carros que la cruzan.
+	donde $a_i$ es el tiempo que toma como promedio a los carros en la simulaci\'on transitar la calle $i$ y $w_i$ es la cantidad de carros que la cruzan durante el tiempo de observaci\'on.
 
-	N\'otese que se quieren minimizar los tiempos de los criterios anteriores, para obtener mejores soluciones. Sin embargo, dado que el algoritmo fue implementado antes buscando maximizaci\'on, se utilizan los opuestos de las m\'etricas calculadas seg\'un dichos criterios.
+	N\'otese que se quieren minimizar los tiempos de los criterios anteriores, para obtener mejores soluciones. Sin embargo, dado que el algoritmo fue implementado en un primer momento buscando maximizaci\'on del fitness, se utilizan los opuestos de las m\'etricas calculadas seg\'un dichos criterios.
 	
 	\subsubsection{Selección de padres}
 	Una de las formas de seleccionar los padres implementada fue la selecci\'on proporcional al fitness. O sea se le asigna a cada individuo una probabilidad de procrear proporcional a su fitness.
@@ -353,7 +353,7 @@
 	\end{center}
 	donde $ g(n) $ es el costo de alcanzar el nodo $ n $, $ h(n) $ es una heur\'istica del costo estimado del camino de menor costo desde n hasta el objetivo, siendo $ f(n) $ entonces el costo estimado de la mejor soluci\'on que pasa por $ n $.
 	
-	Se concibieron dos algoritmos $ A^{*} $, el cl\'asico para hallar la distancia m\'inima entre dos calles, y otro para hallar el camino que menor tiempo le tomar\'a a un veh\'iculo para llegar de una calle a otra. En nuestro caso a cada nodo corresponde una esquina o intersecci\'on y a cada arista corresponde una calle que une dos intersecciones.
+	Se concibieron dos algoritmos $ A^{*} $, un bastante cl\'asico para hallar la distancia m\'inima entre dos calles, y otro para hallar el camino que menor tiempo le tomar\'a a un veh\'iculo para llegar de una calle a otra. En nuestro caso a cada nodo corresponde una esquina o intersecci\'on y a cada arista corresponde una calle que une dos intersecciones.
 	
 	\subsubsection{$ A^{*} $ para hallar la distancia m\'inima entre dos calles}
 	
@@ -372,7 +372,8 @@
 		\textit{$ g(n) = $ } \textit{tiempo que demor\'o el veh\'iculo en llegar desde el estado inicial hasta el \hspace{8em} estado intermedio n.}
 	\end{center}	
 
-	En este caso los valores de $g(n)$ se calculan mediante una simulaci\'on en la que el veh\'iculo va desde su posici\'on de partida hasta el punto correspondiente al nodo $n$, siguiendo el camino correspondiente al nodo $n$. Para ello se lleva una simulaci\'on del estado del tr\'ansito en la ciudad y cada vez que se quiera calcular un valor de $g(n)$, se genera un carro que hace el recorrido deseado, calculando el tiempo tomado por el mismo. Dado que el valor de $g(n) = g(m) + e$, donde $m$ es el nodo que gener\'o a $n$ y $e$ es el valor de la arista (longitud de la calle) entre ellos, este lo calculamos cuando expandimos $m$, simult\'aneamente para todos sus hijos.  
+%	En este caso los valores de $g(n)$ se calculan mediante una simulaci\'on en la que el veh\'iculo va desde su posici\'on de partida hasta el punto correspondiente al nodo $n$, siguiendo el camino correspondiente al nodo $n$. 
+	En este caso los valores de $g(n)$ se calculan mediante una simulaci\'on del tr\'ansito de la ciudad. Cada vez que se expande un nodo $m$, para cada hijo $n$ correspondiente, se genera un carro que transita la calle correspondiente al nodo $n$, calculando el tiempo tomado por el mismo. Luego el valor de $g(n)$ lo podemos calcular mediante $g(n) = g(m) + e$, donde $e$ es el valor que se obtuvo antes.
 
 %	Para hallar $ g(n) = $ se corre una simulaci\'on con un veh\'iculo que vaya desde el estado inicial hasta el estado intermedio n, y se toma el tiempo que demor\'o en llegar a su destino. \todo{aclarar lo de que va soltando carros en cada esquina}
 		
@@ -407,19 +408,19 @@
 
 	\subsection{Resultados}
 	
-	La siguiente gr\'afica muestra los valores de fitness de las 53 pruebas corridas del algoritmo gen\'etico. Se puede observar que el valor de fitness en la mayor\'ia de los tests, para la mejor soluci\'on obtenida, se mantiene en el rango de 23 a 26. Esto podr\'ia interpretarse como que los carros (sobre todo aquellos en las calles m\'as transitadas porque les dimos mayores pesos) se demoran como promedio $25s$ en cruzar una calle. Hay que notar que hubo algunos tests cuyas mejores soluciones dieron valores demasiado buenos para ser reales, los cuales fueron marcados en rojo y naranja en la gr\'afica. Los resultados marcados en naranja es probable que se deban a que la aleatoriedad haya como resultado simulaciones muy perfectas, por casualidad, mientras que los marcados en rojo deben haber sido errores ocurridos durante la ejecuci\'on del algoritmo.
+	La siguiente gr\'afica muestra los valores de fitness de las 53 pruebas corridas del algoritmo gen\'etico. Se puede observar que el valor de fitness en la mayor\'ia de los tests, para la mejor soluci\'on obtenida, se mantiene en el rango de 23 a 26. Esto podr\'ia interpretarse como que los carros (sobre todo aquellos en las calles m\'as transitadas porque les fueron asignados mayores pesos) se demoran como promedio $25s$ en cruzar una calle. Hay que notar que hubo algunos tests cuyas mejores soluciones dieron valores demasiado buenos para ser reales, los cuales fueron marcados en rojo y naranja en la gr\'afica. Los resultados marcados en naranja es probable que se deban a que de la aleatoriedad, de generaci\'on de veh\'iculos, hayan resultado simulaciones con eventos muy favorables, mientras que los marcados en rojo deben haber sido errores ocurridos durante la ejecuci\'on del algoritmo.
 	
 	\begin{center}
 		\includegraphics[width=\columnwidth]{graphic_resultados_obtenidos.png}
 	\end{center}
 
-	Observando los valores de fitness obtenidos para cada test, a lo largo de todas las generaciones, se puede notar que estos tienen siempre tendencia a mejorar. Para apreciar mejor esto, se provee junto con este trabajo un gr\'afico por cada test, donde se muestran para cada generaci\'on, la mejor y peor soluci\'on, pudiendo apreciar claramente como la curva que describen es creciente. La siguiente gr\'afica muestra una uni\'on de todas las gr\'aficas antes descritas, para todos los tests. En ella se puede ver claramente como los valores de fitness van aumentando seg\'un pasan las generaciones.
+	Observando los valores de fitness obtenidos para cada test, a lo largo de todas las generaciones, se puede notar que estos tienen siempre tendencia a mejorar. Para apreciar mejor esto, se provee junto con este trabajo un gr\'afico por cada test\footnote{direcci\'on: src/graphics/graphics.zip}. En estos se muestran para cada generaci\'on, la mejor y peor soluci\'on, donde se aprecia claramente como la curva que describen es creciente. La siguiente gr\'afica muestra una uni\'on de todas las gr\'aficas antes descritas, para todos los tests. En ella se puede ver bien como los valores de fitness van aumentando seg\'un pasan las generaciones.
 
 	\begin{center}
 		\includegraphics[width=\columnwidth]{all_graphics.png}
 	\end{center}
 
-	Finalmente, se seleccionaron por cada test las mejores soluciones y alguna soluci\'on arbitraria de la primera generaci\'on. Para estas se calcularon nuevamente, mediante algunas ejecuciones m\'as de la simulaci\'on, el tiempo total que toma a todos los veh\'iculos en completar su recorrido en el mapa. En la gr\'afica a continuaci\'on se muestran en puntos azules las mejores soluciones, y en rojo las de la primera generaci\'on. Se puede apreciar que los puntos azules se encuentra siempre por encima de los rojos, llegando a encontrarse diferencias de hasta m\'as de una hora (entre todos). Teniendo en cuenta que las simulaciones fueron realizadas durante $5$ minutos solamente, una mejor\'ia de una hora en los pocos carros que pueden haber circulado el mapa en este tiempo, nos da una medida de qu\'e tanto se podr\'ia llegar a optimizar si se ejecuta el tiempo suficiente.
+	Finalmente, se seleccionaron por cada test las mejores soluciones y alguna soluci\'on arbitraria de la primera generaci\'on. Para estas se calcularon nuevamente, mediante algunas ejecuciones m\'as de la simulaci\'on, el tiempo total que toma a todos los veh\'iculos en completar su recorrido en el mapa. En la gr\'afica a continuaci\'on se muestran en puntos azules las mejores soluciones, y en rojo las de la primera generaci\'on. Se puede apreciar que los puntos azules se encuentra siempre por encima de los rojos, llegando a encontrarse diferencias de hasta m\'as de una hora (entre todos los carros). Teniendo en cuenta que las simulaciones fueron realizadas durante $5$ minutos solamente, una mejor\'ia de una hora en los pocos carros que pueden haber circulado el mapa en este tiempo, nos da una medida de qu\'e tanto se podr\'ia llegar a optimizar si se ejecuta por el tiempo suficiente.
 	
 	\begin{center}
 		\includegraphics[width=\columnwidth]{graphic_total_time_take_cars.png}
@@ -429,18 +430,19 @@
 
 	\section{Recomendaciones}
 	
-	Se recomienda, con m\'as tiempos y capacidad de c\'omputo, correr el algoritmo gen\'etico con par\'ametros m\'as grandes. Pudiera tambi\'en escalarse el mapa para simular una ciudad m\'as grande. Otra recomendaci\'on es probar con otras m\'etricas para optimizar necesidades m\'as espec\'ificas de un posible cliente.
+	Se recomienda, con m\'as tiempo y capacidad de c\'omputo, correr el algoritmo gen\'etico con par\'ametros m\'as grandes. Pudiera tambi\'en escalarse el mapa para simular una ciudad m\'as grande. Otra recomendaci\'on es probar con otras m\'etricas para optimizar necesidades m\'as espec\'ificas de un posible cliente.
 	
 	Como trabajo futuro ser\'ia interesante hacer que la distribuci\'on de los turnos formase parte de la soluci\'on, de forma que una distribuci\'on dada pueda contribuir a un mejor flujo del tr\'afico. Tambi\'en se pudiera optimizar la posici\'on de las intersecciones semaforizadas (a\~nadir, quitar o reacomodar intersecciones en el mapa), para contribuir a hacer el tr\'afico m\'as fluido, objetivo perseguido en este proyecto.
 	
-	Tambi\'en se recomienda quitar algunas de las relajaciones realizadas al problema para simular un ambiente m\'as parecido  a uno real. Por ejemplo, incluir el t\'rafico de peatones o permitir que los carros cambien de senda a antojo del conductor.
+	Adem\'as, se recomienda quitar algunas de las relajaciones realizadas al problema para simular un ambiente m\'as parecido  a uno real. Por ejemplo, incluir el tr\'afico de peatones o permitir que los carros cambien de senda a antojo del conductor.
 	
-	La generación de mapas, se hace de una manera determista, y por cada mapa se tiene que implementar un template que lo construya. Este proceso de generación se puede automatizar utilizando una grámatica libre del contexto con algún tipo de conocimiento asociado a la modelación de un mapa. Por ejemplo se conoce que si se tiene una calle principal, la calle que le sigue forma parte de la calle principal y conserva el mismo número de carriles, y las calles que la cruzan por lo general no son avenidas principales ya que estas se encuentran dispersas. Pero como las producciones de una gramática libre del contexto son determinitas quizás puedan caer en el mismo problema que se tenía inicialmente, o sea, construir mapas de un tipo específico. Entonces se puede pensar en en a\~nadir a cada producción una probabilidad asociada que le de mayor peso a producciones correspondientes a distribuciones de calles que tiene m\'as ocurrencia en la vida real y menos a las que no. Finalmente, lo que se está proponiendo es utilizar una gramática libre del contexto probabilística para poder generar mapas arbitrarios sin tener que generar un template por cada mapa distinto que se quiera obtener.
+	La generación de mapas, se hace de una manera determista, y por cada mapa se tiene que implementar un template que lo construya. Este proceso de generación se puede automatizar utilizando una grámatica libre del contexto con algún tipo de conocimiento asociado a la modelación de un mapa. Por ejemplo se conoce que si se tiene una calle principal, la calle que le sigue forma parte de la calle principal y conserva el mismo número de carriles, y las calles que la cruzan por lo general no son avenidas principales ya que estas se encuentran dispersas. Pero como las producciones de una gramática libre del contexto son determinitas quizás puedan caer en el mismo problema que se tenía inicialmente, o sea, construir mapas de un tipo específico. Entonces se puede pensar en en a\~nadir a cada producción una probabilidad asociada que le de mayor peso a producciones correspondientes a distribuciones de calles que tiene m\'as ocurrencia en la vida real y menos a las que no, como en el ejemplo descrito. Finalmente, lo que se está proponiendo es utilizar una gramática libre del contexto probabilística para poder generar mapas arbitrarios sin tener que generar un template por cada mapa distinto que se quiera obtener.
 
 \begin{thebibliography}{20}
 	\bibitem{A1} Martin Treiber, Ansgar Hennecke, and Dirk Helbing: \emph{Congested traffic states in empirical observations and microscopic simulations}. Phys. Rev. E 62, 1805 – Published 1 August 2000.
-	\bibitem{russel} Martin Treiber, Ansgar Hennecke, and Dirk Helbing: \emph{Congested traffic states in empirical observations and microscopic simulations}. Phys. Rev. E 62, 1805 – Published 1 August 2000.
+	\bibitem{rusell} Stuart Russell \& Peter Norvig: \emph{Artifitial Intelligence. A Modern Approach.} Fourth Edition. Pearson Series In  Artifitial Intelligence. 2020.
+	
+	
 \end{thebibliography}
-\todo{Agregar bibliografia}
 \end{document}
 
